@@ -16,13 +16,15 @@ import pymysql
 from pymysql.cursors import DictCursor
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy import inspect, text
-from config import settings
 from loguru import logger
 from urllib.parse import quote_plus
 
-# 添加项目根目录到路径
-project_root = Path(__file__).parent
-sys.path.append(str(project_root))
+# 添加项目根目录到路径（确保能找到 config 模块）
+project_root = Path(__file__).resolve().parent.parent  # 从 MindSpider 目录回到项目根目录
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from config import settings
 
 try:
     import config

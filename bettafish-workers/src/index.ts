@@ -32,8 +32,29 @@ app.use('*', prettyJSON());
 app.use(
   '*',
   cors({
-    origin: ['http://localhost:3000', 'https://your-pages-domain.pages.dev'],
+    origin: (origin) => {
+      // 允许的源列表
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'https://bettafish-frontend.pages.dev',
+      ];
+      
+      // 检查是否是Pages域名（支持所有子域名）
+      if (origin && origin.includes('bettafish-frontend') && origin.includes('.pages.dev')) {
+        return origin;
+      }
+      
+      // 检查是否在允许列表中
+      if (origin && allowedOrigins.includes(origin)) {
+        return origin;
+      }
+      
+      // 开发环境允许所有源（仅用于测试）
+      return origin || '*';
+    },
     credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
   })
 );
 

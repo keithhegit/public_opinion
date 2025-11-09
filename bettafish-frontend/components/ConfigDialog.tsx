@@ -204,7 +204,7 @@ export const ConfigDialog = ({ children }: ConfigDialogProps) => {
                 ))}
                 <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
                   <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                    ⚠️ 提示：如需配置数据库或其他参数，请切换到"完整配置"模式。
+                    ⚠️ 提示：如需配置数据库或其他参数，请切换到&ldquo;完整配置&rdquo;模式。
                   </p>
                 </div>
               </div>

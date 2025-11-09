@@ -10,3 +10,57 @@ __pycache__
 *.sqlite3
 .DS_Store
 Thumbs.db
+
+# 排除大文件和目录
+*.pkl
+*.model
+*.pth
+*.h5
+*.ckpt
+*.zip
+*.tar
+*.tar.gz
+*.gz
+
+# 排除报告和日志
+final_reports/
+insight_engine_streamlit_reports/
+media_engine_streamlit_reports/
+query_engine_streamlit_reports/
+logs/
+
+# 排除测试数据
+tests/
+*.csv
+*.ipynb
+
+# 排除文档和图片（保留必要的）
+*.md
+!README.md
+*.png
+*.jpg
+*.jpeg
+*.svg
+img/
+
+# 排除 Playwright 浏览器（如果需要，会在构建时安装）
+.ms-playwright/
+
+# 排除数据库文件
+*.db
+*.sqlite
+
+# 排除环境文件
+.env
+.env.local
+.env.*.local
+
+# 排除 IDE 配置
+.idea/
+*.swp
+*.swo
+
+# 排除大型依赖目录（如果存在）
+node_modules/
+.npm/
+.yarn/

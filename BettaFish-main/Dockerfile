@@ -2,64 +2,71 @@ FROM python:3.11-slim
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Prevent Python from writing .pyc files, buffer stdout/stderr, and pin common tooling paths
+# Prevent Python from writing .pyc files, buffer stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PATH="/root/.local/bin:${PATH}" \
     PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-# Install system dependencies required by scientific Python stack, Playwright, and Streamlit
+# Install only essential system dependencies (reduced from full list)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
-    git \
     libgl1 \
     libglib2.0-0 \
-    libgtk-3-0 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libxcb1 \
+    libnss3 \
+    libx11-xcb1 \
     libxcomposite1 \
     libxdamage1 \
-    libxext6 \
     libxfixes3 \
-    libxi6 \
-    libxtst6 \
-    libnss3 \
     libxrandr2 \
-    libxkbcommon0 \
-    libasound2 \
-    libx11-xcb1 \
-    libxshmfence1 \
     libgbm1 \
-    ffmpeg \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    libasound2 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* \
+    && rm -rf /var/tmp/*
 
-# Install the latest uv release and expose it on PATH
+# Install the latest uv release
 RUN curl -LsSf --retry 3 --retry-delay 2 --proto '=https' --proto-redir '=https' --tlsv1.2 https://astral.sh/uv/install.sh | sh
 
 WORKDIR /app
 
 # Install Python dependencies first to leverage Docker layer caching
 COPY requirements.txt ./
-RUN uv pip install --system -r requirements.txt
+RUN uv pip install --system -r requirements.txt \
+    && rm -rf /root/.cache/pip \
+    && rm -rf /root/.cache/uv
 
-# Install Playwright browser binaries (system deps already handled above)
-RUN python -m playwright install chromium
+# Install only Chromium browser (not all browsers) to save space
+RUN python -m playwright install chromium \
+    && python -m playwright install-deps chromium \
+    && rm -rf /root/.cache/ms-playwright \
+    || true
 
-# Copy .env
+# Copy .env example
 COPY .env.example .env
 
-# Copy application source
+# Copy application source (excluding files in .dockerignore)
 COPY . .
 
-# Ensure runtime directories exist even if ignored in build context
-RUN mkdir -p /ms-playwright logs final_reports insight_engine_streamlit_reports media_engine_streamlit_reports query_engine_streamlit_reports
+# Create runtime directories
+RUN mkdir -p logs final_reports insight_engine_streamlit_reports media_engine_streamlit_reports query_engine_streamlit_reports
+
+# Clean up unnecessary files
+RUN find . -type d -name "__pycache__" -exec rm -r {} + 2>/dev/null || true \
+    && find . -type f -name "*.pyc" -delete \
+    && find . -type f -name "*.pyo" -delete \
+    && find . -type f -name "*.pyd" -delete \
+    && rm -rf .git .gitmodules \
+    && rm -rf tests/*.csv tests/*.ipynb \
+    && rm -rf SentimentAnalysisModel/*/dataset/*.csv \
+    && rm -rf SentimentAnalysisModel/*/model/*.pkl \
+    && rm -rf SentimentAnalysisModel/*/model/*.pth \
+    || true
 
 EXPOSE 5000 8501 8502 8503
 
-# Default command launches the Flask orchestrator which starts Streamlit agents
+# Default command launches the Flask orchestrator
 CMD ["python", "app.py"]

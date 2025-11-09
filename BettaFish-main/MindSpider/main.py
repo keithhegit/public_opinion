@@ -32,20 +32,44 @@ else:
     # 回退到计算路径
     project_root = Path(__file__).resolve().parent.parent
 
-# 确保项目根目录在 sys.path 中
-project_root_str = str(project_root)
-if project_root_str not in sys.path:
-    sys.path.insert(0, project_root_str)
+# 确保项目根目录在 sys.path 中（移除重复项）
+project_root_str = str(project_root.resolve())
+# 移除所有现有的 /app 路径，然后添加
+sys.path = [p for p in sys.path if p != project_root_str and p != '/app']
+sys.path.insert(0, project_root_str)
+
+# 验证 config.py 文件是否存在
+config_file = project_root / 'config.py'
+if not config_file.exists():
+    logger.error(f"config.py 文件不存在于: {config_file}")
+    logger.error(f"项目根目录内容: {list(project_root.iterdir())[:10]}")
+    raise FileNotFoundError(f"config.py not found at {config_file}")
 
 # 现在尝试导入 config
 try:
-    from config import settings
-except ImportError as e:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("config", config_file)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"无法加载 config 模块规范")
+    config_module = importlib.util.module_from_spec(spec)
+    sys.modules["config"] = config_module
+    spec.loader.exec_module(config_module)
+    settings = config_module.settings
+    logger.info(f"成功从 {config_file} 加载 config 模块")
+except Exception as e:
     logger.error(f"无法导入 config 模块: {e}")
     logger.error(f"当前 sys.path: {sys.path}")
     logger.error(f"计算的 project_root: {project_root}")
+    logger.error(f"config.py 路径: {config_file}")
+    logger.error(f"config.py 存在: {config_file.exists()}")
     logger.error(f"PYTHONPATH: {os.environ.get('PYTHONPATH', '未设置')}")
-    raise
+    # 尝试标准导入作为后备
+    try:
+        from config import settings
+        logger.info("使用标准导入成功")
+    except ImportError as e2:
+        logger.error(f"标准导入也失败: {e2}")
+        raise
 
 try:
     import config

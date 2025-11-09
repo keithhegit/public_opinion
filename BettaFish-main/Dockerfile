@@ -37,12 +37,14 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN uv pip install --system -r requirements.txt \
     && rm -rf /root/.cache/pip \
-    && rm -rf /root/.cache/uv
+    && rm -rf /root/.cache/uv \
+    && rm -rf /tmp/*
 
 # Install only Chromium browser (not all browsers) to save space
-RUN python -m playwright install chromium \
-    && python -m playwright install-deps chromium \
+# Use --with-deps to install system dependencies in one step
+RUN python -m playwright install chromium --with-deps \
     && rm -rf /root/.cache/ms-playwright \
+    && rm -rf /tmp/* \
     || true
 
 # Copy .env example

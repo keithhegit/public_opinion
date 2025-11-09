@@ -1,0 +1,61 @@
+# BettaFish Workers 配置示例
+# 复制此文件为 wrangler.toml 并填写实际值
+
+name = "bettafish-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ============================================
+# 生产环境配置
+# ============================================
+[env.production]
+name = "bettafish-api-prod"
+
+# KV命名空间 - 生产环境
+[env.production.kv_namespaces]
+binding = "CACHE"
+id = "YOUR_PRODUCTION_KV_ID"                    # 替换为实际ID
+preview_id = "YOUR_PRODUCTION_PREVIEW_KV_ID"    # 替换为实际预览ID
+
+# D1数据库 - 生产环境
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "bettafish-db"
+database_id = "YOUR_PRODUCTION_DATABASE_ID"     # 替换为实际ID
+
+# 环境变量 - 生产环境
+[env.production.vars]
+ENVIRONMENT = "production"
+BACKEND_URL = "https://your-backend-api.com"     # 替换为实际后端URL
+# BACKEND_TOKEN 使用 wrangler secret put 设置
+
+# ============================================
+# 开发环境配置
+# ============================================
+[env.development]
+name = "bettafish-api-dev"
+
+# KV命名空间 - 开发环境
+[env.development.kv_namespaces]
+binding = "CACHE"
+id = "YOUR_DEV_KV_ID"                           # 替换为实际ID
+preview_id = "YOUR_DEV_PREVIEW_KV_ID"           # 替换为实际预览ID
+
+# D1数据库 - 开发环境
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "bettafish-db-dev"
+database_id = "YOUR_DEV_DATABASE_ID"            # 替换为实际ID
+
+# 环境变量 - 开发环境
+[env.development.vars]
+ENVIRONMENT = "development"
+BACKEND_URL = "http://localhost:5000"
+
+# 注意: 开发环境可以使用.dev.vars文件覆盖这些变量
+# 创建.dev.vars文件（不提交到版本控制）:
+# ENVIRONMENT=development
+# BACKEND_URL=http://localhost:5000
+# BACKEND_TOKEN=your-token-here
+

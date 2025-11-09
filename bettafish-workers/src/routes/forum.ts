@@ -43,6 +43,18 @@ forumRoutes.get('/log', async (c) => {
     return c.json(result);
   } catch (error) {
     console.error('Get forum log error:', error);
+    
+    // 检查是否是后端未配置
+    if (c.env.BACKEND_URL === 'https://your-backend-api.com' || !c.env.BACKEND_URL) {
+      return c.json(
+        {
+          error: 'Backend not configured',
+          message: 'Python backend URL is not configured. Please set BACKEND_URL in Workers environment variables.',
+        },
+        503
+      );
+    }
+    
     return c.json(
       {
         error: 'Failed to get forum log',

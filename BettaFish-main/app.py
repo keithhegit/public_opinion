@@ -16,6 +16,13 @@ import requests
 from loguru import logger
 import importlib
 from pathlib import Path
+
+# 确保项目根目录在 Python 路径中（必须在导入 MindSpider 之前）
+_project_root = Path(__file__).resolve().parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+# 现在可以安全导入 MindSpider
 from MindSpider.main import MindSpider
 
 # 导入ReportEngine

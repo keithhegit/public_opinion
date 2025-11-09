@@ -20,11 +20,32 @@ from loguru import logger
 from urllib.parse import quote_plus
 
 # 添加项目根目录到路径（确保能找到 config 模块）
+# 方法1: 从当前文件位置计算项目根目录
 project_root = Path(__file__).resolve().parent.parent  # 从 MindSpider 目录回到项目根目录
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# 方法2: 如果 PYTHONPATH 已设置，使用它；否则使用计算的路径
+if os.environ.get('PYTHONPATH'):
+    # PYTHONPATH 可能包含多个路径，取第一个
+    pythonpath_roots = [Path(p) for p in os.environ.get('PYTHONPATH', '').split(os.pathsep) if p]
+    if pythonpath_roots:
+        project_root = pythonpath_roots[0]
+else:
+    # 回退到计算路径
+    project_root = Path(__file__).resolve().parent.parent
 
-from config import settings
+# 确保项目根目录在 sys.path 中
+project_root_str = str(project_root)
+if project_root_str not in sys.path:
+    sys.path.insert(0, project_root_str)
+
+# 现在尝试导入 config
+try:
+    from config import settings
+except ImportError as e:
+    logger.error(f"无法导入 config 模块: {e}")
+    logger.error(f"当前 sys.path: {sys.path}")
+    logger.error(f"计算的 project_root: {project_root}")
+    logger.error(f"PYTHONPATH: {os.environ.get('PYTHONPATH', '未设置')}")
+    raise
 
 try:
     import config

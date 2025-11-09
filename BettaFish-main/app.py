@@ -718,7 +718,24 @@ atexit.register(cleanup_processes)
 @app.route('/')
 def index():
     """主页"""
-    return render_template('index.html')
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        logger.error(f"渲染模板失败: {e}")
+        return jsonify({
+            'status': 'ok',
+            'message': 'Flask API is running',
+            'version': '1.0.0'
+        }), 200
+
+@app.route('/health')
+def health():
+    """健康检查端点"""
+    return jsonify({
+        'status': 'ok',
+        'service': 'BettaFish Backend',
+        'timestamp': datetime.now().isoformat()
+    }), 200
 
 @app.route('/api/status')
 def get_status():
@@ -1029,16 +1046,24 @@ def handle_status_request():
 if __name__ == '__main__':
     # 优先使用环境变量（Railway 等平台会提供），否则从配置文件读取
     from config import settings
-    HOST = os.environ.get('HOST', settings.HOST)
-    PORT = int(os.environ.get('PORT', settings.PORT))
     
+    # Railway 使用 PORT 环境变量，确保读取正确
+    HOST = os.environ.get('HOST', '0.0.0.0')  # Railway 需要监听 0.0.0.0
+    PORT = int(os.environ.get('PORT', os.environ.get('RAILWAY_PORT', settings.PORT)))
+    
+    logger.info(f"启动配置 - HOST: {HOST}, PORT: {PORT}")
+    logger.info(f"环境变量 PORT: {os.environ.get('PORT', '未设置')}")
     logger.info("等待配置确认，系统将在前端指令后启动组件...")
     logger.info(f"Flask服务器已启动，访问地址: http://{HOST}:{PORT}")
     
     try:
-        socketio.run(app, host=HOST, port=PORT, debug=False)
+        # 确保监听所有接口，Railway 需要这样
+        socketio.run(app, host='0.0.0.0', port=PORT, debug=False, allow_unsafe_werkzeug=True)
     except KeyboardInterrupt:
         logger.info("\n正在关闭应用...")
         cleanup_processes()
+    except Exception as e:
+        logger.error(f"启动失败: {e}")
+        raise
         
     

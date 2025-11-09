@@ -18,7 +18,7 @@ database_id = "5dc423e3-3f06-446c-84ac-49cee3b78f85"
 
 [env.production.vars]
 ENVIRONMENT = "production"
-BACKEND_URL = "https://your-backend-api.com"
+BACKEND_URL = "https://publicopinion-production.up.railway.app"
 BACKEND_TOKEN = ""
 
 [env.development]

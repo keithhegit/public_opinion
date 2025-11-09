@@ -84,9 +84,28 @@ class ApiClient {
   }
 
   async updateConfig(updates: Record<string, string>) {
+    // 合并环境变量中的API Keys（如果存在）
+    const envConfig = {
+      ...(process.env.NEXT_PUBLIC_INSIGHT_ENGINE_API_KEY && {
+        INSIGHT_ENGINE_API_KEY: process.env.NEXT_PUBLIC_INSIGHT_ENGINE_API_KEY,
+      }),
+      ...(process.env.NEXT_PUBLIC_MEDIA_ENGINE_API_KEY && {
+        MEDIA_ENGINE_API_KEY: process.env.NEXT_PUBLIC_MEDIA_ENGINE_API_KEY,
+      }),
+      ...(process.env.NEXT_PUBLIC_QUERY_ENGINE_API_KEY && {
+        QUERY_ENGINE_API_KEY: process.env.NEXT_PUBLIC_QUERY_ENGINE_API_KEY,
+      }),
+      ...(process.env.NEXT_PUBLIC_REPORT_ENGINE_API_KEY && {
+        REPORT_ENGINE_API_KEY: process.env.NEXT_PUBLIC_REPORT_ENGINE_API_KEY,
+      }),
+    };
+    
+    // 环境变量优先，然后才是用户输入的更新
+    const finalUpdates = { ...envConfig, ...updates };
+    
     return this.request<ApiResponse>('/api/config', {
       method: 'POST',
-      body: JSON.stringify(updates),
+      body: JSON.stringify(finalUpdates),
     });
   }
 

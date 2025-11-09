@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api-client';
+import { envConfig } from '@/lib/env-config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -44,9 +45,27 @@ export const ConfigDialog = ({ children }: ConfigDialogProps) => {
     setLoading(true);
     try {
       const data = await apiClient.getConfig();
-      setConfig(data);
+      
+      // 合并环境变量中的API Keys
+      const mergedConfig = {
+        ...data,
+        // 如果环境变量中有值，优先使用环境变量
+        ...(envConfig.hasInsightKey && { INSIGHT_ENGINE_API_KEY: envConfig.insightEngineApiKey }),
+        ...(envConfig.hasMediaKey && { MEDIA_ENGINE_API_KEY: envConfig.mediaEngineApiKey }),
+        ...(envConfig.hasQueryKey && { QUERY_ENGINE_API_KEY: envConfig.queryEngineApiKey }),
+        ...(envConfig.hasReportKey && { REPORT_ENGINE_API_KEY: envConfig.reportEngineApiKey }),
+      };
+      
+      setConfig(mergedConfig);
     } catch (error) {
       console.error('Failed to load config:', error);
+      // 即使加载失败，也设置环境变量中的值
+      const envConfigData: Record<string, string> = {};
+      if (envConfig.hasInsightKey) envConfigData.INSIGHT_ENGINE_API_KEY = envConfig.insightEngineApiKey;
+      if (envConfig.hasMediaKey) envConfigData.MEDIA_ENGINE_API_KEY = envConfig.mediaEngineApiKey;
+      if (envConfig.hasQueryKey) envConfigData.QUERY_ENGINE_API_KEY = envConfig.queryEngineApiKey;
+      if (envConfig.hasReportKey) envConfigData.REPORT_ENGINE_API_KEY = envConfig.reportEngineApiKey;
+      setConfig(envConfigData);
     } finally {
       setLoading(false);
     }
@@ -55,7 +74,28 @@ export const ConfigDialog = ({ children }: ConfigDialogProps) => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await apiClient.updateConfig(config);
+      // 过滤掉从环境变量加载的API Keys（如果已配置）
+      const configToSave = { ...config };
+      
+      // 如果环境变量中已有值，则不发送这些字段（避免覆盖）
+      if (envConfig.hasInsightKey) {
+        delete configToSave.INSIGHT_ENGINE_API_KEY;
+      }
+      if (envConfig.hasMediaKey) {
+        delete configToSave.MEDIA_ENGINE_API_KEY;
+      }
+      if (envConfig.hasQueryKey) {
+        delete configToSave.QUERY_ENGINE_API_KEY;
+      }
+      if (envConfig.hasReportKey) {
+        delete configToSave.REPORT_ENGINE_API_KEY;
+      }
+      
+      // 只保存非环境变量的配置
+      if (Object.keys(configToSave).length > 0) {
+        await apiClient.updateConfig(configToSave);
+      }
+      
       setOpen(false);
     } catch (error) {
       console.error('Failed to save config:', error);
@@ -67,6 +107,14 @@ export const ConfigDialog = ({ children }: ConfigDialogProps) => {
 
   const updateConfig = (key: string, value: string) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // 从环境变量读取API Keys
+  const envApiKeys = {
+    INSIGHT_ENGINE_API_KEY: envConfig.insightEngineApiKey,
+    MEDIA_ENGINE_API_KEY: envConfig.mediaEngineApiKey,
+    QUERY_ENGINE_API_KEY: envConfig.queryEngineApiKey,
+    REPORT_ENGINE_API_KEY: envConfig.reportEngineApiKey,
   };
 
   // 配置字段定义 - 带标签和说明
@@ -175,33 +223,79 @@ export const ConfigDialog = ({ children }: ConfigDialogProps) => {
             </div>
 
             {quickMode ? (
-              // 快速配置模式 - 只显示关键的API Key
+              // 快速配置模式 - 显示API Key状态
               <div className="space-y-6">
-                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
-                    💡 <strong>快速开始</strong>：只需填写以下4个API密钥即可开始测试。其他配置使用默认值。
-                  </p>
-                </div>
-                {configSections.quick.map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <label className="text-sm font-medium">
-                        {field.label}
-                        {field.required && <span className="text-red-500 ml-1">*</span>}
-                      </label>
-                    </div>
-                    {field.description && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{field.description}</p>
-                    )}
-                    <Input
-                      type="password"
-                      value={config[field.key] || ''}
-                      onChange={(e) => updateConfig(field.key, e.target.value)}
-                      placeholder={`请输入 ${field.label}`}
-                      className="font-mono text-sm"
-                    />
+                {envConfig.allKeysConfigured() ? (
+                  <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                    <p className="text-sm text-green-800 dark:text-green-200 mb-2">
+                      ✅ <strong>API密钥已配置</strong>：所有LLM API密钥已从环境变量加载。
+                    </p>
+                    <p className="text-xs text-green-700 dark:text-green-300">
+                      这些密钥在Cloudflare Pages的环境变量中配置，无需在此处输入。
+                    </p>
                   </div>
-                ))}
+                ) : (
+                  <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                      💡 <strong>快速开始</strong>：请在Cloudflare Pages的环境变量中配置以下4个API密钥。
+                    </p>
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
+                      环境变量名称：
+                    </p>
+                    <ul className="text-xs text-blue-700 dark:text-blue-300 list-disc list-inside space-y-1">
+                      <li><code>NEXT_PUBLIC_INSIGHT_ENGINE_API_KEY</code></li>
+                      <li><code>NEXT_PUBLIC_MEDIA_ENGINE_API_KEY</code></li>
+                      <li><code>NEXT_PUBLIC_QUERY_ENGINE_API_KEY</code></li>
+                      <li><code>NEXT_PUBLIC_REPORT_ENGINE_API_KEY</code></li>
+                    </ul>
+                  </div>
+                )}
+                
+                {configSections.quick.map((field) => {
+                  const envKey = envApiKeys[field.key as keyof typeof envApiKeys];
+                  const hasEnvKey = !!envKey;
+                  
+                  return (
+                    <div key={field.key} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium">
+                          {field.label}
+                          {field.required && <span className="text-red-500 ml-1">*</span>}
+                          {hasEnvKey && (
+                            <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                              (已从环境变量加载)
+                            </span>
+                          )}
+                        </label>
+                      </div>
+                      {field.description && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{field.description}</p>
+                      )}
+                      {hasEnvKey ? (
+                        <div className="space-y-2">
+                          <Input
+                            type="password"
+                            value="••••••••••••••••"
+                            disabled
+                            className="font-mono text-sm bg-gray-100 dark:bg-gray-800"
+                          />
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            ⚠️ 此密钥已从环境变量加载，如需修改请在Cloudflare Pages设置中更新环境变量。
+                          </p>
+                        </div>
+                      ) : (
+                        <Input
+                          type="password"
+                          value={config[field.key] || ''}
+                          onChange={(e) => updateConfig(field.key, e.target.value)}
+                          placeholder={`请输入 ${field.label}`}
+                          className="font-mono text-sm"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+                
                 <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
                   <p className="text-sm text-yellow-800 dark:text-yellow-200">
                     ⚠️ 提示：如需配置数据库或其他参数，请切换到&ldquo;完整配置&rdquo;模式。

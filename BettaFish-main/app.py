@@ -1027,10 +1027,10 @@ def handle_status_request():
     })
 
 if __name__ == '__main__':
-    # 从配置文件读取 HOST 和 PORT
+    # 优先使用环境变量（Railway 等平台会提供），否则从配置文件读取
     from config import settings
-    HOST = settings.HOST
-    PORT = settings.PORT
+    HOST = os.environ.get('HOST', settings.HOST)
+    PORT = int(os.environ.get('PORT', settings.PORT))
     
     logger.info("等待配置确认，系统将在前端指令后启动组件...")
     logger.info(f"Flask服务器已启动，访问地址: http://{HOST}:{PORT}")

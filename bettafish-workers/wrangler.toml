@@ -1,0 +1,46 @@
+name = "bettafish-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "bettafish-api-prod"
+
+[[env.production.kv_namespaces]]
+binding = "CACHE"
+id = "fbcd352267ab44469f583f708df73477"
+preview_id = "387703a9dc0843f7a045d4c8af5ff995"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "bettafish-db"
+database_id = "5dc423e3-3f06-446c-84ac-49cee3b78f85"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+BACKEND_URL = "https://your-backend-api.com"
+BACKEND_TOKEN = ""
+
+[env.development]
+name = "bettafish-api-dev"
+
+[[env.development.kv_namespaces]]
+binding = "CACHE"
+id = "d95cf70ff8764716badc415268f53db3"
+preview_id = "4d9fa232348a43fb82a747d44a721516"
+
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "bettafish-db-dev"
+database_id = "66ec930b-3c5e-4964-9488-efc78c49b719"
+
+[env.development.vars]
+ENVIRONMENT = "development"
+BACKEND_URL = "http://localhost:5000"
+
+# 注意: 开发环境可以使用.dev.vars文件覆盖这些变量
+# 创建.dev.vars文件（不提交到版本控制）:
+# ENVIRONMENT=development
+# BACKEND_URL=http://localhost:5000
+# BACKEND_TOKEN=your-token-here
+

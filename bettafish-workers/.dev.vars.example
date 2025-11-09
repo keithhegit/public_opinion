@@ -1,0 +1,13 @@
+# BettaFish Workers Development Variables
+# 复制此文件为 .dev.vars 并填写实际值
+# 注意: .dev.vars 文件不应提交到版本控制
+
+# 环境
+ENVIRONMENT=development
+
+# Python后端URL
+BACKEND_URL=http://localhost:5000
+
+# 后端认证Token（可选）
+BACKEND_TOKEN=
+

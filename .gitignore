@@ -50,6 +50,6 @@ env/
 ENV/
 
 # BettaFish specific
-BettaFish-main/
+# BettaFish-main/  # 取消注释以允许部署到 Railway
 *.zip
 

@@ -510,6 +510,14 @@ def read_process_output(process, app_name):
                     for line in lines:
                         line = line.strip()
                         if line:
+                            # 过滤敏感信息：Network URL 和 External URL（包含IP地址）
+                            if 'Network URL:' in line or 'External URL:' in line:
+                                # 替换为安全信息
+                                if 'Network URL:' in line:
+                                    line = line.split('Network URL:')[0] + 'Network URL: [已隐藏]'
+                                if 'External URL:' in line:
+                                    line = line.split('External URL:')[0] + 'External URL: [已隐藏]'
+                            
                             timestamp = datetime.now().strftime('%H:%M:%S')
                             formatted_line = f"[{timestamp}] {line}"
                             write_log_to_file(app_name, formatted_line)
@@ -526,6 +534,14 @@ def read_process_output(process, app_name):
                 if output:
                     line = output.decode('utf-8', errors='replace').strip()
                     if line:
+                        # 过滤敏感信息：Network URL 和 External URL（包含IP地址）
+                        if 'Network URL:' in line or 'External URL:' in line:
+                            # 替换为安全信息
+                            if 'Network URL:' in line:
+                                line = line.split('Network URL:')[0] + 'Network URL: [已隐藏]'
+                            if 'External URL:' in line:
+                                line = line.split('External URL:')[0] + 'External URL: [已隐藏]'
+                        
                         timestamp = datetime.now().strftime('%H:%M:%S')
                         formatted_line = f"[{timestamp}] {line}"
                         
@@ -548,6 +564,14 @@ def read_process_output(process, app_name):
                     if output:
                         line = output.decode('utf-8', errors='replace').strip()
                         if line:
+                            # 过滤敏感信息：Network URL 和 External URL（包含IP地址）
+                            if 'Network URL:' in line or 'External URL:' in line:
+                                # 替换为安全信息
+                                if 'Network URL:' in line:
+                                    line = line.split('Network URL:')[0] + 'Network URL: [已隐藏]'
+                                if 'External URL:' in line:
+                                    line = line.split('External URL:')[0] + 'External URL: [已隐藏]'
+                            
                             timestamp = datetime.now().strftime('%H:%M:%S')
                             formatted_line = f"[{timestamp}] {line}"
                             
@@ -749,14 +773,35 @@ def health():
 def get_status():
     """获取所有应用状态"""
     check_app_status()
-    return jsonify({
+    
+    # 构建状态字典
+    status_dict = {
         app_name: {
             'status': info['status'],
             'port': info['port'],
             'output_lines': len(info['output'])
         }
         for app_name, info in processes.items()
-    })
+    }
+    
+    # 添加 Report Engine 状态（它不是 Streamlit 应用，而是 Flask Blueprint）
+    if REPORT_ENGINE_AVAILABLE:
+        # Report Engine 通过 initialize_report_engine() 初始化，检查是否已初始化
+        try:
+            from ReportEngine.flask_interface import report_agent
+            report_status = 'running' if report_agent is not None else 'stopped'
+        except:
+            report_status = 'stopped'
+    else:
+        report_status = 'stopped'
+    
+    status_dict['report'] = {
+        'status': report_status,
+        'port': None,  # Report Engine 不是独立服务
+        'output_lines': 0
+    }
+    
+    return jsonify(status_dict)
 
 @app.route('/api/start/<app_name>', methods=['POST'])
 def start_app(app_name):

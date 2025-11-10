@@ -7,6 +7,7 @@ import sys
 import subprocess
 import time
 import threading
+import traceback
 from datetime import datetime
 from queue import Queue
 from flask import Flask, render_template, request, jsonify, Response
@@ -832,10 +833,29 @@ def start_app(app_name):
                     logger.info(f"验证: updated_report_agent 类型: {type(updated_report_agent)}")
                     return jsonify({'success': True, 'message': 'ReportEngine已启动'})
                 else:
+                    # 尝试获取更详细的错误信息
+                    error_details = []
+                    try:
+                        from config import settings as main_settings
+                        error_details.append(f"API_KEY存在: {bool(main_settings.REPORT_ENGINE_API_KEY)}")
+                        error_details.append(f"MODEL_NAME: {main_settings.REPORT_ENGINE_MODEL_NAME}")
+                        error_details.append(f"BASE_URL: {main_settings.REPORT_ENGINE_BASE_URL}")
+                        env_key = os.environ.get('REPORT_ENGINE_API_KEY', '未设置')
+                        error_details.append(f"环境变量REPORT_ENGINE_API_KEY: {env_key[:20] if len(env_key) > 20 else env_key}...")
+                    except Exception as e:
+                        error_details.append(f"获取配置信息失败: {e}")
+                    
                     error_msg = 'ReportEngine初始化失败，请检查日志获取详细信息'
                     logger.error(error_msg)
                     logger.error(f"初始化结果: {init_result}, report_agent 状态: {updated_report_agent is not None}")
-                    return jsonify({'success': False, 'message': error_msg})
+                    logger.error(f"错误详情: {error_details}")
+                    return jsonify({
+                        'success': False, 
+                        'message': error_msg,
+                        'details': error_details,
+                        'init_result': init_result,
+                        'report_agent_exists': updated_report_agent is not None
+                    })
             else:
                 logger.info("Report Engine 已在运行")
                 return jsonify({'success': True, 'message': 'ReportEngine已在运行'})

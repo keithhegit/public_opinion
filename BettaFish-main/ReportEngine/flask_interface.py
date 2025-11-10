@@ -67,11 +67,29 @@ def initialize_report_engine():
         
         # 使用配置创建 agent
         logger.info("正在创建 ReportAgent 实例...")
-        report_agent = ReportAgent(config=report_config)
-        logger.info("Report Engine初始化成功")
-        logger.info(f"使用模型: {report_config.REPORT_ENGINE_MODEL_NAME}")
-        logger.info(f"使用Base URL: {report_config.REPORT_ENGINE_BASE_URL}")
-        return True
+        logger.info(f"配置详情 - API_KEY长度: {len(report_config.REPORT_ENGINE_API_KEY) if report_config.REPORT_ENGINE_API_KEY else 0}")
+        logger.info(f"配置详情 - MODEL_NAME: {report_config.REPORT_ENGINE_MODEL_NAME}")
+        logger.info(f"配置详情 - BASE_URL: {report_config.REPORT_ENGINE_BASE_URL}")
+        
+        try:
+            report_agent = ReportAgent(config=report_config)
+            logger.info("Report Engine初始化成功")
+            logger.info(f"使用模型: {report_config.REPORT_ENGINE_MODEL_NAME}")
+            logger.info(f"使用Base URL: {report_config.REPORT_ENGINE_BASE_URL}")
+            # 验证 report_agent 确实被创建
+            if report_agent is None:
+                logger.error("ReportAgent 创建后为 None，这是不应该发生的")
+                return False
+            logger.info("ReportAgent 实例创建成功并验证通过")
+            return True
+        except ValueError as ve:
+            logger.error(f"创建 ReportAgent 时发生 ValueError: {ve}")
+            logger.exception("ValueError 详细堆栈:")
+            raise
+        except Exception as e:
+            logger.error(f"创建 ReportAgent 时发生异常: {e}")
+            logger.exception("异常详细堆栈:")
+            raise
     except ValueError as e:
         error_msg = f"Report Engine配置错误: {str(e)}"
         logger.error(error_msg)

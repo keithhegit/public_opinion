@@ -38,10 +38,27 @@ def initialize_report_engine():
         logger.info(f"从主配置读取 - MODEL_NAME: {main_settings.REPORT_ENGINE_MODEL_NAME}")
         
         # 创建 Report Engine 配置，从主配置读取
+        # 如果主配置中的值为空或空字符串，使用默认值
+        api_key = main_settings.REPORT_ENGINE_API_KEY
+        if not api_key or api_key.strip() == "":
+            api_key = os.environ.get('REPORT_ENGINE_API_KEY')
+        
+        base_url = main_settings.REPORT_ENGINE_BASE_URL
+        if not base_url or base_url.strip() == "":
+            base_url = "https://aihubmix.com/v1"
+        
+        model_name = main_settings.REPORT_ENGINE_MODEL_NAME
+        if not model_name or model_name.strip() == "":
+            model_name = "gemini-2.5-pro"
+        
+        logger.info(f"最终使用的配置 - API_KEY存在: {bool(api_key)}")
+        logger.info(f"最终使用的配置 - BASE_URL: {base_url}")
+        logger.info(f"最终使用的配置 - MODEL_NAME: {model_name}")
+        
         report_config = ReportSettings(
-            REPORT_ENGINE_API_KEY=main_settings.REPORT_ENGINE_API_KEY,
-            REPORT_ENGINE_BASE_URL=main_settings.REPORT_ENGINE_BASE_URL,
-            REPORT_ENGINE_MODEL_NAME=main_settings.REPORT_ENGINE_MODEL_NAME,
+            REPORT_ENGINE_API_KEY=api_key,
+            REPORT_ENGINE_BASE_URL=base_url,
+            REPORT_ENGINE_MODEL_NAME=model_name,
         )
         
         logger.info(f"Report Engine配置创建完成 - API_KEY存在: {bool(report_config.REPORT_ENGINE_API_KEY)}")

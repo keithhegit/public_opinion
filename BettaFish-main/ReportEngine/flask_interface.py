@@ -28,20 +28,26 @@ def initialize_report_engine():
     """初始化Report Engine"""
     global report_agent
     try:
-        # 从主配置文件读取配置
-        from config import settings as main_settings
+        # 从主配置文件读取配置（重新加载以确保读取最新的环境变量）
+        from config import reload_settings
+        main_settings = reload_settings()
         from .utils.config import Settings as ReportSettings
         
         logger.info("开始初始化 Report Engine...")
+        logger.info(f"环境变量 REPORT_ENGINE_API_KEY 是否存在: {'REPORT_ENGINE_API_KEY' in os.environ}")
+        logger.info(f"环境变量 REPORT_ENGINE_API_KEY 值长度: {len(os.environ.get('REPORT_ENGINE_API_KEY', ''))}")
         logger.info(f"从主配置读取 - API_KEY存在: {bool(main_settings.REPORT_ENGINE_API_KEY)}")
         logger.info(f"从主配置读取 - BASE_URL: {main_settings.REPORT_ENGINE_BASE_URL}")
         logger.info(f"从主配置读取 - MODEL_NAME: {main_settings.REPORT_ENGINE_MODEL_NAME}")
         
         # 创建 Report Engine 配置，从主配置读取
-        # 如果主配置中的值为空或空字符串，使用默认值
+        # 如果主配置中的值为空或空字符串，直接从环境变量读取
         api_key = main_settings.REPORT_ENGINE_API_KEY
-        if not api_key or api_key.strip() == "":
+        if not api_key or (isinstance(api_key, str) and api_key.strip() == ""):
+            # 直接从环境变量读取（绕过 Pydantic Settings）
             api_key = os.environ.get('REPORT_ENGINE_API_KEY')
+            logger.info(f"从环境变量直接读取 - API_KEY存在: {bool(api_key)}")
+            logger.info(f"从环境变量直接读取 - API_KEY长度: {len(api_key) if api_key else 0}")
         
         base_url = main_settings.REPORT_ENGINE_BASE_URL
         if not base_url or base_url.strip() == "":

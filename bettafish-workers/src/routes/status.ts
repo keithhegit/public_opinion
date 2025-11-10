@@ -36,11 +36,16 @@ statusRoutes.get('/', async (c) => {
       });
 
       if (backendResponse.ok) {
-        backendStatus = await backendResponse.json();
+        const backendData = await backendResponse.json();
+        // 后端返回的是直接的引擎数据，需要包装在 engines 字段下
+        backendStatus = {
+          status: 'ok',
+          engines: backendData,
+        };
       }
     } catch (error) {
       console.error('Backend status check failed:', error);
-      backendStatus = { status: 'error', error: 'Backend unreachable' };
+      backendStatus = { status: 'error', error: 'Backend unreachable', engines: {} };
     }
 
     // 组合状态
@@ -50,8 +55,8 @@ statusRoutes.get('/', async (c) => {
       timestamp: new Date().toISOString(),
     };
 
-    // 缓存30秒
-    await setCachedData(cacheKey, status, c.env.CACHE, 30);
+    // 缓存5秒（减少延迟，让状态更新更快）
+    await setCachedData(cacheKey, status, c.env.CACHE, 5);
 
     return c.json(status);
   } catch (error) {

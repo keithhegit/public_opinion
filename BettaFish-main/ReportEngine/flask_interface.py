@@ -28,8 +28,30 @@ def initialize_report_engine():
     """初始化Report Engine"""
     global report_agent
     try:
-        report_agent = create_agent()
+        # 从主配置文件读取配置
+        from config import settings as main_settings
+        from .utils.config import Settings as ReportSettings
+        
+        # 创建 Report Engine 配置，从主配置读取
+        report_config = ReportSettings(
+            REPORT_ENGINE_API_KEY=main_settings.REPORT_ENGINE_API_KEY,
+            REPORT_ENGINE_BASE_URL=main_settings.REPORT_ENGINE_BASE_URL,
+            REPORT_ENGINE_MODEL_NAME=main_settings.REPORT_ENGINE_MODEL_NAME,
+        )
+        
+        # 检查必要的配置
+        if not report_config.REPORT_ENGINE_API_KEY:
+            logger.error("Report Engine API Key 未配置，请在 config.py 或环境变量中设置 REPORT_ENGINE_API_KEY")
+            return False
+        
+        if not report_config.REPORT_ENGINE_MODEL_NAME:
+            logger.error("Report Engine Model Name 未配置，请在 config.py 或环境变量中设置 REPORT_ENGINE_MODEL_NAME")
+            return False
+        
+        # 使用配置创建 agent
+        report_agent = ReportAgent(config=report_config)
         logger.info("Report Engine初始化成功")
+        logger.info(f"使用模型: {report_config.REPORT_ENGINE_MODEL_NAME}")
         return True
     except Exception as e:
         logger.exception(f"Report Engine初始化失败: {str(e)}")

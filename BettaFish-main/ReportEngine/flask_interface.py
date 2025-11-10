@@ -45,11 +45,11 @@ def initialize_report_engine():
         
         base_url = main_settings.REPORT_ENGINE_BASE_URL
         if not base_url or base_url.strip() == "":
-            base_url = "https://aihubmix.com/v1"
+            base_url = "https://generativelanguage.googleapis.com/v1beta"
         
         model_name = main_settings.REPORT_ENGINE_MODEL_NAME
         if not model_name or model_name.strip() == "":
-            model_name = "gemini-2.5-pro"
+            model_name = "gemini-2.0-flash-exp"
         
         logger.info(f"最终使用的配置 - API_KEY存在: {bool(api_key)}")
         logger.info(f"最终使用的配置 - BASE_URL: {base_url}")

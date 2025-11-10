@@ -41,25 +41,25 @@ class Settings(BaseSettings):
     # ======================= LLM 相关 =======================
     # 我们的LLM模型API赞助商有：https://share.302.ai/P66Qe3、https://aihubmix.com/?aff=8Ds9，提供了非常全面的模型api
     
-    # Insight Agent（推荐Gemini，推荐中转厂商：https://aihubmix.com/?aff=8Ds9）
-    INSIGHT_ENGINE_API_KEY: Optional[str] = Field(None, description="Insight Agent（推荐Gemini，推荐中转api厂商：https://aihubmix.com/?aff=8Ds9）API密钥，用于主LLM。您可以更改每个部分LLM使用的API，🚩只要兼容OpenAI请求格式都可以，定义好KEY、BASE_URL与MODEL_NAME即可正常使用。重要提醒：我们强烈推荐您先使用推荐的配置申请API，先跑通再进行您的更改！")
-    INSIGHT_ENGINE_BASE_URL: Optional[str] = Field("https://aihubmix.com/v1", description="Insight Agent LLM接口BaseUrl，可自定义厂商API")
-    INSIGHT_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Insight Agent LLM模型名称，如gemini-2.5-pro")
+    # Insight Agent（使用 Gemini 官方 API）
+    INSIGHT_ENGINE_API_KEY: Optional[str] = Field(None, description="Insight Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
+    INSIGHT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta", description="Insight Agent LLM接口BaseUrl，Gemini官方API地址")
+    INSIGHT_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Insight Agent LLM模型名称，如gemini-2.0-flash-exp或gemini-1.5-pro")
     
-    # Media Agent（推荐Gemini，推荐中转厂商：https://aihubmix.com/?aff=8Ds9）
-    MEDIA_ENGINE_API_KEY: Optional[str] = Field(None, description="Media Agent（推荐Gemini，推荐中转api厂商：https://aihubmix.com/?aff=8Ds9")
-    MEDIA_ENGINE_BASE_URL: Optional[str] = Field("https://aihubmix.com/v1", description="Media Agent LLM接口BaseUrl")
-    MEDIA_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Media Agent LLM模型名称，如gemini-2.5-pro")
+    # Media Agent（使用 Gemini 官方 API）
+    MEDIA_ENGINE_API_KEY: Optional[str] = Field(None, description="Media Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
+    MEDIA_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta", description="Media Agent LLM接口BaseUrl，Gemini官方API地址")
+    MEDIA_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Media Agent LLM模型名称，如gemini-2.0-flash-exp或gemini-1.5-pro")
     
-    # Query Agent（推荐Gemini，推荐中转厂商：https://aihubmix.com/?aff=8Ds9）
-    QUERY_ENGINE_API_KEY: Optional[str] = Field(None, description="Query Agent（推荐Gemini，推荐中转api厂商：https://aihubmix.com/?aff=8Ds9）API密钥")
-    QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://aihubmix.com/v1", description="Query Agent LLM接口BaseUrl")
-    QUERY_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Query Agent LLM模型，如gemini-2.5-pro")
+    # Query Agent（使用 Gemini 官方 API）
+    QUERY_ENGINE_API_KEY: Optional[str] = Field(None, description="Query Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
+    QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta", description="Query Agent LLM接口BaseUrl，Gemini官方API地址")
+    QUERY_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Query Agent LLM模型，如gemini-2.0-flash-exp或gemini-1.5-pro")
     
-    # Report Agent（推荐Gemini，推荐中转厂商：https://aihubmix.com/?aff=8Ds9）
-    REPORT_ENGINE_API_KEY: Optional[str] = Field(None, description="Report Agent（推荐Gemini，推荐中转api厂商：https://aihubmix.com/?aff=8Ds9")
-    REPORT_ENGINE_BASE_URL: Optional[str] = Field("https://aihubmix.com/v1", description="Report Agent LLM接口BaseUrl")
-    REPORT_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Report Agent LLM模型，如gemini-2.5-pro")
+    # Report Agent（使用 Gemini 官方 API）
+    REPORT_ENGINE_API_KEY: Optional[str] = Field(None, description="Report Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
+    REPORT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta", description="Report Agent LLM接口BaseUrl，Gemini官方API地址")
+    REPORT_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Report Agent LLM模型，如gemini-2.0-flash-exp或gemini-1.5-pro")
     
     # Forum Host（Qwen3最新模型，这里我使用了硅基流动这个平台，申请地址：https://cloud.siliconflow.cn/）
     FORUM_HOST_API_KEY: Optional[str] = Field(None, description="Forum Host（Qwen3最新模型，这里我使用了硅基流动这个平台，申请地址：https://cloud.siliconflow.cn/）API密钥")

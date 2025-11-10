@@ -32,6 +32,11 @@ def initialize_report_engine():
         from config import settings as main_settings
         from .utils.config import Settings as ReportSettings
         
+        logger.info("开始初始化 Report Engine...")
+        logger.info(f"从主配置读取 - API_KEY存在: {bool(main_settings.REPORT_ENGINE_API_KEY)}")
+        logger.info(f"从主配置读取 - BASE_URL: {main_settings.REPORT_ENGINE_BASE_URL}")
+        logger.info(f"从主配置读取 - MODEL_NAME: {main_settings.REPORT_ENGINE_MODEL_NAME}")
+        
         # 创建 Report Engine 配置，从主配置读取
         report_config = ReportSettings(
             REPORT_ENGINE_API_KEY=main_settings.REPORT_ENGINE_API_KEY,
@@ -39,22 +44,39 @@ def initialize_report_engine():
             REPORT_ENGINE_MODEL_NAME=main_settings.REPORT_ENGINE_MODEL_NAME,
         )
         
+        logger.info(f"Report Engine配置创建完成 - API_KEY存在: {bool(report_config.REPORT_ENGINE_API_KEY)}")
+        logger.info(f"Report Engine配置 - BASE_URL: {report_config.REPORT_ENGINE_BASE_URL}")
+        logger.info(f"Report Engine配置 - MODEL_NAME: {report_config.REPORT_ENGINE_MODEL_NAME}")
+        
         # 检查必要的配置
         if not report_config.REPORT_ENGINE_API_KEY:
-            logger.error("Report Engine API Key 未配置，请在 config.py 或环境变量中设置 REPORT_ENGINE_API_KEY")
+            error_msg = "Report Engine API Key 未配置，请在 config.py 或环境变量中设置 REPORT_ENGINE_API_KEY"
+            logger.error(error_msg)
+            logger.error(f"主配置中的 REPORT_ENGINE_API_KEY 值: {main_settings.REPORT_ENGINE_API_KEY}")
             return False
         
         if not report_config.REPORT_ENGINE_MODEL_NAME:
-            logger.error("Report Engine Model Name 未配置，请在 config.py 或环境变量中设置 REPORT_ENGINE_MODEL_NAME")
+            error_msg = "Report Engine Model Name 未配置，请在 config.py 或环境变量中设置 REPORT_ENGINE_MODEL_NAME"
+            logger.error(error_msg)
+            logger.error(f"主配置中的 REPORT_ENGINE_MODEL_NAME 值: {main_settings.REPORT_ENGINE_MODEL_NAME}")
             return False
         
         # 使用配置创建 agent
+        logger.info("正在创建 ReportAgent 实例...")
         report_agent = ReportAgent(config=report_config)
         logger.info("Report Engine初始化成功")
         logger.info(f"使用模型: {report_config.REPORT_ENGINE_MODEL_NAME}")
+        logger.info(f"使用Base URL: {report_config.REPORT_ENGINE_BASE_URL}")
         return True
+    except ValueError as e:
+        error_msg = f"Report Engine配置错误: {str(e)}"
+        logger.error(error_msg)
+        logger.exception("详细错误信息:")
+        return False
     except Exception as e:
-        logger.exception(f"Report Engine初始化失败: {str(e)}")
+        error_msg = f"Report Engine初始化失败: {str(e)}"
+        logger.error(error_msg)
+        logger.exception("详细错误堆栈:")
         return False
 
 

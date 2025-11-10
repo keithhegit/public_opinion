@@ -830,6 +830,10 @@ def report_debug():
         env_base_url = os.environ.get('REPORT_ENGINE_BASE_URL', '')
         env_model_name = os.environ.get('REPORT_ENGINE_MODEL_NAME', '')
         
+        # 检查环境变量是否真的存在（即使值为空）
+        env_api_key_raw = os.environ.get('REPORT_ENGINE_API_KEY')
+        env_api_key_exists_in_env = 'REPORT_ENGINE_API_KEY' in os.environ
+        
         debug_info = {
             'report_engine_available': REPORT_ENGINE_AVAILABLE,
             'report_agent_initialized': report_agent is not None,
@@ -840,8 +844,10 @@ def report_debug():
                 'REPORT_ENGINE_MODEL_NAME': main_settings.REPORT_ENGINE_MODEL_NAME or '(空)',
             },
             'environment': {
-                'REPORT_ENGINE_API_KEY_set': bool(env_api_key),
-                'REPORT_ENGINE_API_KEY_value': env_api_key[:10] + '...' if len(env_api_key) > 10 else env_api_key or '(未设置)',
+                'REPORT_ENGINE_API_KEY_in_env': env_api_key_exists_in_env,
+                'REPORT_ENGINE_API_KEY_set': bool(env_api_key_raw),
+                'REPORT_ENGINE_API_KEY_length': len(env_api_key_raw) if env_api_key_raw else 0,
+                'REPORT_ENGINE_API_KEY_value': env_api_key_raw[:10] + '...' if env_api_key_raw and len(env_api_key_raw) > 10 else (env_api_key_raw or '(未设置)'),
                 'REPORT_ENGINE_BASE_URL_set': bool(env_base_url),
                 'REPORT_ENGINE_BASE_URL_value': env_base_url or '(未设置)',
                 'REPORT_ENGINE_MODEL_NAME_set': bool(env_model_name),
@@ -850,6 +856,11 @@ def report_debug():
             'defaults': {
                 'expected_BASE_URL': 'https://generativelanguage.googleapis.com/v1beta',
                 'expected_MODEL_NAME': 'gemini-2.0-flash-exp',
+            },
+            'diagnosis': {
+                'pydantic_reads_env': 'Pydantic Settings 应该自动从环境变量读取',
+                'env_ignore_empty': '如果环境变量为空字符串，会被忽略（env_ignore_empty=True）',
+                'suggestion': '请确认 Railway 环境变量值不是空字符串，且服务已重新部署'
             }
         }
         

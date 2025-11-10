@@ -592,7 +592,8 @@ def start_streamlit_app(app_name, script_path, port):
             '--browser.gatherUsageStats', 'false',
             # '--logger.level', 'debug',  # 增加日志详细程度
             '--logger.level', 'info',
-            '--server.enableCORS', 'false'
+            '--server.enableCORS', 'false',
+            '--server.enableXsrfProtection', 'false'  # 禁用 XSRF 保护以兼容 CORS=false
         ]
         
         # 设置环境变量确保UTF-8编码和减少缓冲

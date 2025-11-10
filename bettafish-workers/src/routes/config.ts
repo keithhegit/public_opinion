@@ -13,6 +13,17 @@ export const configRoutes = new Hono<{ Bindings: Env }>();
 // 获取配置
 configRoutes.get('/', async (c) => {
   try {
+    // 检查后端URL是否配置
+    if (c.env.BACKEND_URL === 'https://your-backend-api.com' || !c.env.BACKEND_URL) {
+      return c.json(
+        {
+          error: 'Backend not configured',
+          message: 'Python backend URL is not configured. Please set BACKEND_URL in Workers environment variables.',
+        },
+        503
+      );
+    }
+
     // 检查缓存（5分钟缓存）
     const cacheKey = 'config:all';
     const cached = await getCachedData(cacheKey, c.env.CACHE);
@@ -42,6 +53,18 @@ configRoutes.get('/', async (c) => {
     return c.json(result);
   } catch (error) {
     console.error('Get config error:', error);
+    
+    // 检查是否是后端未配置
+    if (c.env.BACKEND_URL === 'https://your-backend-api.com' || !c.env.BACKEND_URL) {
+      return c.json(
+        {
+          error: 'Backend not configured',
+          message: 'Python backend URL is not configured. Please set BACKEND_URL in Workers environment variables.',
+        },
+        503
+      );
+    }
+    
     return c.json(
       {
         error: 'Failed to get config',
@@ -55,6 +78,17 @@ configRoutes.get('/', async (c) => {
 // 更新配置
 configRoutes.post('/', async (c) => {
   try {
+    // 检查后端URL是否配置
+    if (c.env.BACKEND_URL === 'https://your-backend-api.com' || !c.env.BACKEND_URL) {
+      return c.json(
+        {
+          error: 'Backend not configured',
+          message: 'Python backend URL is not configured. Please set BACKEND_URL in Workers environment variables.',
+        },
+        503
+      );
+    }
+
     const updates = await c.req.json();
 
     if (!updates || Object.keys(updates).length === 0) {
@@ -85,6 +119,18 @@ configRoutes.post('/', async (c) => {
     return c.json(result);
   } catch (error) {
     console.error('Update config error:', error);
+    
+    // 检查是否是后端未配置
+    if (c.env.BACKEND_URL === 'https://your-backend-api.com' || !c.env.BACKEND_URL) {
+      return c.json(
+        {
+          error: 'Backend not configured',
+          message: 'Python backend URL is not configured. Please set BACKEND_URL in Workers environment variables.',
+        },
+        503
+      );
+    }
+    
     return c.json(
       {
         error: 'Failed to update config',

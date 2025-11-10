@@ -809,19 +809,28 @@ def start_app(app_name):
     # 特殊处理 Report Engine（它不是 Streamlit 应用）
     if app_name == 'report':
         if not REPORT_ENGINE_AVAILABLE:
+            logger.error("ReportEngine不可用，导入失败")
             return jsonify({'success': False, 'message': 'ReportEngine不可用'})
         try:
             from ReportEngine.flask_interface import report_agent, initialize_report_engine
+            logger.info(f"尝试启动 Report Engine，当前 report_agent 状态: {report_agent is not None}")
+            
             if report_agent is None:
+                logger.info("开始初始化 Report Engine...")
                 if initialize_report_engine():
+                    logger.info("Report Engine 初始化成功")
                     return jsonify({'success': True, 'message': 'ReportEngine已启动'})
                 else:
-                    return jsonify({'success': False, 'message': 'ReportEngine初始化失败'})
+                    error_msg = 'ReportEngine初始化失败，请检查日志获取详细信息'
+                    logger.error(error_msg)
+                    return jsonify({'success': False, 'message': error_msg})
             else:
+                logger.info("Report Engine 已在运行")
                 return jsonify({'success': True, 'message': 'ReportEngine已在运行'})
         except Exception as exc:
-            logger.exception("启动ReportEngine失败")
-            return jsonify({'success': False, 'message': f'ReportEngine启动失败: {exc}'})
+            error_msg = f'ReportEngine启动失败: {exc}'
+            logger.exception(error_msg)
+            return jsonify({'success': False, 'message': error_msg})
     
     if app_name not in processes:
         return jsonify({'success': False, 'message': '未知应用'})

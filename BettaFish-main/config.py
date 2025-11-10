@@ -41,20 +41,20 @@ class Settings(BaseSettings):
     # ======================= LLM 相关 =======================
     # 我们的LLM模型API赞助商有：https://share.302.ai/P66Qe3、https://aihubmix.com/?aff=8Ds9，提供了非常全面的模型api
     
-    # Insight Agent（推荐Kimi，申请地址：https://platform.moonshot.cn/）
-    INSIGHT_ENGINE_API_KEY: Optional[str] = Field(None, description="Insight Agent（推荐Kimi，https://platform.moonshot.cn/）API密钥，用于主LLM。您可以更改每个部分LLM使用的API，🚩只要兼容OpenAI请求格式都可以，定义好KEY、BASE_URL与MODEL_NAME即可正常使用。重要提醒：我们强烈推荐您先使用推荐的配置申请API，先跑通再进行您的更改！")
-    INSIGHT_ENGINE_BASE_URL: Optional[str] = Field("https://api.moonshot.cn/v1", description="Insight Agent LLM接口BaseUrl，可自定义厂商API")
-    INSIGHT_ENGINE_MODEL_NAME: str = Field("kimi-k2-0711-preview", description="Insight Agent LLM模型名称，如kimi-k2-0711-preview")
+    # Insight Agent（推荐Gemini，推荐中转厂商：https://aihubmix.com/?aff=8Ds9）
+    INSIGHT_ENGINE_API_KEY: Optional[str] = Field(None, description="Insight Agent（推荐Gemini，推荐中转api厂商：https://aihubmix.com/?aff=8Ds9）API密钥，用于主LLM。您可以更改每个部分LLM使用的API，🚩只要兼容OpenAI请求格式都可以，定义好KEY、BASE_URL与MODEL_NAME即可正常使用。重要提醒：我们强烈推荐您先使用推荐的配置申请API，先跑通再进行您的更改！")
+    INSIGHT_ENGINE_BASE_URL: Optional[str] = Field("https://aihubmix.com/v1", description="Insight Agent LLM接口BaseUrl，可自定义厂商API")
+    INSIGHT_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Insight Agent LLM模型名称，如gemini-2.5-pro")
     
     # Media Agent（推荐Gemini，推荐中转厂商：https://aihubmix.com/?aff=8Ds9）
     MEDIA_ENGINE_API_KEY: Optional[str] = Field(None, description="Media Agent（推荐Gemini，推荐中转api厂商：https://aihubmix.com/?aff=8Ds9")
     MEDIA_ENGINE_BASE_URL: Optional[str] = Field("https://aihubmix.com/v1", description="Media Agent LLM接口BaseUrl")
     MEDIA_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Media Agent LLM模型名称，如gemini-2.5-pro")
     
-    # Query Agent（推荐DeepSeek，申请地址：https://www.deepseek.com/）
-    QUERY_ENGINE_API_KEY: Optional[str] = Field(None, description="Query Agent（推荐DeepSeek，https://www.deepseek.com/）API密钥")
-    QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://api.deepseek.com", description="Query Agent LLM接口BaseUrl")
-    QUERY_ENGINE_MODEL_NAME: str = Field("deepseek-reasoner", description="Query Agent LLM模型，如deepseek-reasoner")
+    # Query Agent（推荐Gemini，推荐中转厂商：https://aihubmix.com/?aff=8Ds9）
+    QUERY_ENGINE_API_KEY: Optional[str] = Field(None, description="Query Agent（推荐Gemini，推荐中转api厂商：https://aihubmix.com/?aff=8Ds9）API密钥")
+    QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://aihubmix.com/v1", description="Query Agent LLM接口BaseUrl")
+    QUERY_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Query Agent LLM模型，如gemini-2.5-pro")
     
     # Report Agent（推荐Gemini，推荐中转厂商：https://aihubmix.com/?aff=8Ds9）
     REPORT_ENGINE_API_KEY: Optional[str] = Field(None, description="Report Agent（推荐Gemini，推荐中转api厂商：https://aihubmix.com/?aff=8Ds9")

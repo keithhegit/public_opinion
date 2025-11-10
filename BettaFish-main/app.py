@@ -806,6 +806,23 @@ def get_status():
 @app.route('/api/start/<app_name>', methods=['POST'])
 def start_app(app_name):
     """启动指定应用"""
+    # 特殊处理 Report Engine（它不是 Streamlit 应用）
+    if app_name == 'report':
+        if not REPORT_ENGINE_AVAILABLE:
+            return jsonify({'success': False, 'message': 'ReportEngine不可用'})
+        try:
+            from ReportEngine.flask_interface import report_agent, initialize_report_engine
+            if report_agent is None:
+                if initialize_report_engine():
+                    return jsonify({'success': True, 'message': 'ReportEngine已启动'})
+                else:
+                    return jsonify({'success': False, 'message': 'ReportEngine初始化失败'})
+            else:
+                return jsonify({'success': True, 'message': 'ReportEngine已在运行'})
+        except Exception as exc:
+            logger.exception("启动ReportEngine失败")
+            return jsonify({'success': False, 'message': f'ReportEngine启动失败: {exc}'})
+    
     if app_name not in processes:
         return jsonify({'success': False, 'message': '未知应用'})
 

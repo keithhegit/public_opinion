@@ -790,9 +790,16 @@ def get_status():
         try:
             from ReportEngine.flask_interface import report_agent
             report_status = 'running' if report_agent is not None else 'stopped'
-        except:
+            # 添加调试信息
+            if report_agent is None:
+                logger.debug("Report Engine report_agent 为 None，状态为 stopped")
+            else:
+                logger.debug(f"Report Engine report_agent 已初始化，状态为 running")
+        except Exception as e:
+            logger.error(f"检查 Report Engine 状态时出错: {e}")
             report_status = 'stopped'
     else:
+        logger.warning("Report Engine 不可用 (REPORT_ENGINE_AVAILABLE=False)")
         report_status = 'stopped'
     
     status_dict['report'] = {
@@ -817,12 +824,17 @@ def start_app(app_name):
             
             if report_agent is None:
                 logger.info("开始初始化 Report Engine...")
-                if initialize_report_engine():
+                init_result = initialize_report_engine()
+                # 重新导入以获取更新后的 report_agent
+                from ReportEngine.flask_interface import report_agent as updated_report_agent
+                if init_result and updated_report_agent is not None:
                     logger.info("Report Engine 初始化成功")
+                    logger.info(f"验证: updated_report_agent 类型: {type(updated_report_agent)}")
                     return jsonify({'success': True, 'message': 'ReportEngine已启动'})
                 else:
                     error_msg = 'ReportEngine初始化失败，请检查日志获取详细信息'
                     logger.error(error_msg)
+                    logger.error(f"初始化结果: {init_result}, report_agent 状态: {updated_report_agent is not None}")
                     return jsonify({'success': False, 'message': error_msg})
             else:
                 logger.info("Report Engine 已在运行")

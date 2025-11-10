@@ -53,12 +53,16 @@ def initialize_report_engine():
             error_msg = "Report Engine API Key 未配置，请在 config.py 或环境变量中设置 REPORT_ENGINE_API_KEY"
             logger.error(error_msg)
             logger.error(f"主配置中的 REPORT_ENGINE_API_KEY 值: {main_settings.REPORT_ENGINE_API_KEY}")
+            logger.error(f"主配置类型: {type(main_settings.REPORT_ENGINE_API_KEY)}")
+            logger.error(f"环境变量 REPORT_ENGINE_API_KEY: {os.environ.get('REPORT_ENGINE_API_KEY', '未设置')}")
             return False
         
         if not report_config.REPORT_ENGINE_MODEL_NAME:
             error_msg = "Report Engine Model Name 未配置，请在 config.py 或环境变量中设置 REPORT_ENGINE_MODEL_NAME"
             logger.error(error_msg)
             logger.error(f"主配置中的 REPORT_ENGINE_MODEL_NAME 值: {main_settings.REPORT_ENGINE_MODEL_NAME}")
+            logger.error(f"主配置类型: {type(main_settings.REPORT_ENGINE_MODEL_NAME)}")
+            logger.error(f"环境变量 REPORT_ENGINE_MODEL_NAME: {os.environ.get('REPORT_ENGINE_MODEL_NAME', '未设置')}")
             return False
         
         # 使用配置创建 agent

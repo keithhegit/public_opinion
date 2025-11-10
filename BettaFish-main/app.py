@@ -825,19 +825,31 @@ def report_debug():
         from config import settings as main_settings
         from ReportEngine.flask_interface import report_agent
         
+        # 获取环境变量值（用于诊断）
+        env_api_key = os.environ.get('REPORT_ENGINE_API_KEY', '')
+        env_base_url = os.environ.get('REPORT_ENGINE_BASE_URL', '')
+        env_model_name = os.environ.get('REPORT_ENGINE_MODEL_NAME', '')
+        
         debug_info = {
             'report_engine_available': REPORT_ENGINE_AVAILABLE,
             'report_agent_initialized': report_agent is not None,
             'config': {
                 'REPORT_ENGINE_API_KEY_exists': bool(main_settings.REPORT_ENGINE_API_KEY),
                 'REPORT_ENGINE_API_KEY_length': len(main_settings.REPORT_ENGINE_API_KEY) if main_settings.REPORT_ENGINE_API_KEY else 0,
-                'REPORT_ENGINE_BASE_URL': main_settings.REPORT_ENGINE_BASE_URL,
-                'REPORT_ENGINE_MODEL_NAME': main_settings.REPORT_ENGINE_MODEL_NAME,
+                'REPORT_ENGINE_BASE_URL': main_settings.REPORT_ENGINE_BASE_URL or '(空)',
+                'REPORT_ENGINE_MODEL_NAME': main_settings.REPORT_ENGINE_MODEL_NAME or '(空)',
             },
             'environment': {
-                'REPORT_ENGINE_API_KEY_set': bool(os.environ.get('REPORT_ENGINE_API_KEY')),
-                'REPORT_ENGINE_BASE_URL_set': bool(os.environ.get('REPORT_ENGINE_BASE_URL')),
-                'REPORT_ENGINE_MODEL_NAME_set': bool(os.environ.get('REPORT_ENGINE_MODEL_NAME')),
+                'REPORT_ENGINE_API_KEY_set': bool(env_api_key),
+                'REPORT_ENGINE_API_KEY_value': env_api_key[:10] + '...' if len(env_api_key) > 10 else env_api_key or '(未设置)',
+                'REPORT_ENGINE_BASE_URL_set': bool(env_base_url),
+                'REPORT_ENGINE_BASE_URL_value': env_base_url or '(未设置)',
+                'REPORT_ENGINE_MODEL_NAME_set': bool(env_model_name),
+                'REPORT_ENGINE_MODEL_NAME_value': env_model_name or '(未设置)',
+            },
+            'defaults': {
+                'expected_BASE_URL': 'https://generativelanguage.googleapis.com/v1beta',
+                'expected_MODEL_NAME': 'gemini-2.0-flash-exp',
             }
         }
         

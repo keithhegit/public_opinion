@@ -96,7 +96,9 @@ class Settings(BaseSettings):
         env_file=ENV_FILE,
         env_prefix="",
         case_sensitive=False,
-        extra="allow"
+        extra="allow",
+        # 如果环境变量为空字符串，不覆盖默认值
+        env_ignore_empty=True
     )
 
 

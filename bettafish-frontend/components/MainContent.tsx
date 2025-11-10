@@ -31,17 +31,36 @@ export const MainContent = ({
       
       <div className="h-[calc(100%-60px)] relative overflow-hidden">
         {currentEngine?.status === 'running' ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <p className="text-gray-500 mb-4">
-                Engine 正在运行
+          <div className="h-full p-4 overflow-y-auto">
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                ✅ Engine 正在运行
               </p>
-              <p className="text-sm text-gray-400 mb-4">
-                Streamlit 应用运行在后端服务器上
+              <p className="text-xs text-gray-500">
+                引擎输出请查看右侧控制台面板
               </p>
-              <p className="text-xs text-gray-400">
-                请通过后端 API 访问 Streamlit 应用
-              </p>
+            </div>
+            {currentEngine.output ? (
+              <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded">
+                <p className="text-xs text-gray-500 mb-2">最新输出：</p>
+                <pre className="text-xs text-gray-700 whitespace-pre-wrap break-words">
+                  {currentEngine.output.split('\n').slice(-10).join('\n')}
+                </pre>
+              </div>
+            ) : (
+              <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded">
+                <p className="text-xs text-gray-500">
+                  等待引擎输出... 请在搜索框输入查询以触发引擎工作
+                </p>
+              </div>
+            )}
+            <div className="mt-4">
+              <button
+                onClick={() => onStopEngine(activeApp)}
+                className="px-4 py-2 bg-red-600 text-white text-sm font-bold hover:bg-red-700 rounded"
+              >
+                停止 Engine
+              </button>
             </div>
           </div>
         ) : (

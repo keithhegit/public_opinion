@@ -131,9 +131,17 @@ export default function Home() {
       <SearchSection
         onSearch={async (query) => {
           try {
-            await apiClient.search(query);
+            const result = await apiClient.search(query);
+            if (result.success) {
+              console.log('Search successful:', result);
+              // 搜索成功后会触发引擎处理，输出会通过轮询自动更新
+            } else {
+              console.error('Search failed:', result.error || result.message);
+              alert(result.error || result.message || '搜索失败');
+            }
           } catch (error) {
             console.error('Search failed:', error);
+            alert('搜索失败，请检查控制台');
           }
         }}
       />

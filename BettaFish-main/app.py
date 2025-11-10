@@ -757,7 +757,7 @@ def get_status():
         for app_name, info in processes.items()
     })
 
-@app.route('/api/start/<app_name>')
+@app.route('/api/start/<app_name>', methods=['POST'])
 def start_app(app_name):
     """启动指定应用"""
     if app_name not in processes:
@@ -790,7 +790,7 @@ def start_app(app_name):
     
     return jsonify({'success': success, 'message': message})
 
-@app.route('/api/stop/<app_name>')
+@app.route('/api/stop/<app_name>', methods=['POST'])
 def stop_app(app_name):
     """停止指定应用"""
     if app_name not in processes:

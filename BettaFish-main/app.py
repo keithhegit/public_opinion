@@ -818,10 +818,12 @@ def get_output(app_name):
     if app_name == 'forum':
         try:
             forum_log_content = read_log_from_file('forum')
+            # 转换为字符串格式
+            output_text = '\n'.join(forum_log_content) if isinstance(forum_log_content, list) else forum_log_content
             return jsonify({
                 'success': True,
-                'output': forum_log_content,
-                'total_lines': len(forum_log_content)
+                'data': output_text,
+                'total_lines': len(forum_log_content) if isinstance(forum_log_content, list) else 0
             })
         except Exception as e:
             return jsonify({'success': False, 'message': f'读取forum日志失败: {str(e)}'})
@@ -829,9 +831,13 @@ def get_output(app_name):
     # 从文件读取完整日志
     output_lines = read_log_from_file(app_name)
     
+    # 转换为字符串格式（用于流式显示）
+    output_text = '\n'.join(output_lines) if isinstance(output_lines, list) else str(output_lines)
+    
     return jsonify({
         'success': True,
-        'output': output_lines
+        'data': output_text,
+        'total_lines': len(output_lines) if isinstance(output_lines, list) else 0
     })
 
 @app.route('/api/test_log/<app_name>')
@@ -911,52 +917,150 @@ def get_forum_log():
     except Exception as e:
         return jsonify({'success': False, 'message': f'读取forum.log失败: {str(e)}'})
 
+# 搜索任务存储（用于异步搜索）
+search_tasks = {}
+search_tasks_lock = threading.Lock()
+
+def execute_engine_search(app_name: str, query: str):
+    """在后台线程中执行引擎搜索"""
+    from loguru import logger as loguru_logger
+    import sys
+    
+    # 配置 loguru logger 将输出写入到对应的日志文件
+    log_file_path = LOG_DIR / f"{app_name}.log"
+    
+    # 添加文件处理器（追加模式，不覆盖）
+    handler_id = loguru_logger.add(
+        str(log_file_path),
+        format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {message}",
+        level="INFO",
+        rotation=None,  # 不自动轮转
+        retention=None,  # 不自动删除
+        enqueue=True,  # 线程安全
+        encoding="utf-8"
+    )
+    
+    try:
+        from config import settings
+        
+        # 根据引擎类型导入相应的Agent
+        if app_name == 'insight':
+            from InsightEngine import DeepSearchAgent, Settings as EngineSettings
+            engine_config = EngineSettings(
+                INSIGHT_ENGINE_API_KEY=settings.INSIGHT_ENGINE_API_KEY,
+                INSIGHT_ENGINE_BASE_URL=settings.INSIGHT_ENGINE_BASE_URL,
+                INSIGHT_ENGINE_MODEL_NAME=settings.INSIGHT_ENGINE_MODEL_NAME,
+                DB_HOST=settings.DB_HOST,
+                DB_USER=settings.DB_USER,
+                DB_PASSWORD=settings.DB_PASSWORD,
+                DB_NAME=settings.DB_NAME,
+                DB_PORT=settings.DB_PORT,
+                DB_CHARSET=settings.DB_CHARSET,
+                DB_DIALECT=settings.DB_DIALECT,
+                OUTPUT_DIR="insight_engine_streamlit_reports"
+            )
+            agent = DeepSearchAgent(engine_config)
+        elif app_name == 'media':
+            from MediaEngine import DeepSearchAgent, Settings as EngineSettings
+            engine_config = EngineSettings(
+                MEDIA_ENGINE_API_KEY=settings.MEDIA_ENGINE_API_KEY,
+                MEDIA_ENGINE_BASE_URL=settings.MEDIA_ENGINE_BASE_URL,
+                MEDIA_ENGINE_MODEL_NAME=settings.MEDIA_ENGINE_MODEL_NAME,
+                BOCHA_WEB_SEARCH_API_KEY=settings.BOCHA_WEB_SEARCH_API_KEY,
+                BOCHA_BASE_URL=settings.BOCHA_BASE_URL,
+                OUTPUT_DIR="media_engine_streamlit_reports"
+            )
+            agent = DeepSearchAgent(engine_config)
+        elif app_name == 'query':
+            from QueryEngine import DeepSearchAgent, Settings as EngineSettings
+            engine_config = EngineSettings(
+                QUERY_ENGINE_API_KEY=settings.QUERY_ENGINE_API_KEY,
+                QUERY_ENGINE_BASE_URL=settings.QUERY_ENGINE_BASE_URL,
+                QUERY_ENGINE_MODEL_NAME=settings.QUERY_ENGINE_MODEL_NAME,
+                TAVILY_API_KEY=settings.TAVILY_API_KEY,
+                OUTPUT_DIR="query_engine_streamlit_reports"
+            )
+            agent = DeepSearchAgent(engine_config)
+        else:
+            loguru_logger.error(f"未知的引擎类型: {app_name}")
+            return
+        
+        # 写入开始标记
+        write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ========== 开始执行搜索: {query} ==========")
+        
+        # 执行研究（这会输出日志到引擎的输出缓冲区）
+        loguru_logger.info(f"[{app_name}] 开始执行搜索: {query}")
+        final_report = agent.research(query, save_report=True)
+        loguru_logger.info(f"[{app_name}] 搜索完成")
+        
+        # 写入完成标记
+        write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ========== 搜索完成 ==========")
+        
+        # 更新任务状态
+        with search_tasks_lock:
+            if app_name in search_tasks:
+                search_tasks[app_name]['status'] = 'completed'
+                search_tasks[app_name]['result'] = final_report
+        
+    except Exception as e:
+        loguru_logger.exception(f"[{app_name}] 搜索执行失败: {str(e)}")
+        write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ❌ 搜索执行失败: {str(e)}")
+        with search_tasks_lock:
+            if app_name in search_tasks:
+                search_tasks[app_name]['status'] = 'error'
+                search_tasks[app_name]['error'] = str(e)
+    finally:
+        # 移除文件处理器
+        loguru_logger.remove(handler_id)
+
 @app.route('/api/search', methods=['POST'])
 def search():
-    """统一搜索接口"""
+    """统一搜索接口 - 异步执行"""
     data = request.get_json()
     query = data.get('query', '').strip()
     
     if not query:
         return jsonify({'success': False, 'message': '搜索查询不能为空'})
     
-    # ForumEngine论坛已经在后台运行，会自动检测搜索活动
-    # logger.info("ForumEngine: 搜索请求已收到，论坛将自动检测日志变化")
-    
     # 检查哪些应用正在运行
     check_app_status()
-    running_apps = [name for name, info in processes.items() if info['status'] == 'running']
+    running_apps = [name for name, info in processes.items() 
+                    if info['status'] == 'running' and name in ['insight', 'media', 'query']]
     
     if not running_apps:
-        return jsonify({'success': False, 'message': '没有运行中的应用'})
+        return jsonify({'success': False, 'message': '没有运行中的引擎，请先启动引擎'})
     
-    # 向运行中的应用发送搜索请求
-    results = {}
-    api_ports = {'insight': 8601, 'media': 8602, 'query': 8603}
-    
-    for app_name in running_apps:
-        try:
-            api_port = api_ports[app_name]
-            # 调用Streamlit应用的API端点
-            response = requests.post(
-                f"http://localhost:{api_port}/api/search",
-                json={'query': query},
-                timeout=10
+    # 为每个运行的引擎创建搜索任务
+    task_ids = {}
+    with search_tasks_lock:
+        for app_name in running_apps:
+            task_id = f"{app_name}_{int(time.time() * 1000)}"
+            search_tasks[app_name] = {
+                'task_id': task_id,
+                'query': query,
+                'status': 'running',
+                'start_time': datetime.now().isoformat(),
+                'result': None,
+                'error': None
+            }
+            task_ids[app_name] = task_id
+            
+            # 在后台线程中执行搜索
+            thread = threading.Thread(
+                target=execute_engine_search,
+                args=(app_name, query),
+                daemon=True
             )
-            if response.status_code == 200:
-                results[app_name] = response.json()
-            else:
-                results[app_name] = {'success': False, 'message': 'API调用失败'}
-        except Exception as e:
-            results[app_name] = {'success': False, 'message': str(e)}
+            thread.start()
     
-    # 搜索完成后可以选择停止监控，或者让它继续运行以捕获后续的处理日志
-    # 这里我们让监控继续运行，用户可以通过其他接口手动停止
+    logger.info(f"搜索任务已启动: {query}, 引擎: {running_apps}")
     
     return jsonify({
         'success': True,
         'query': query,
-        'results': results
+        'message': '搜索任务已启动，请查看引擎输出获取进度',
+        'task_ids': task_ids,
+        'engines': running_apps
     })
 
 

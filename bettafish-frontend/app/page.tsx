@@ -23,6 +23,44 @@ export default function Home() {
   });
   const [activeApp, setActiveApp] = useState<string>('insight');
   const [forumLog, setForumLog] = useState<string>('');
+  const [autoStartAttempted, setAutoStartAttempted] = useState(false);
+  const [allEnginesReady, setAllEnginesReady] = useState(false);
+
+  // 自动启动所有引擎（页面加载时）
+  useEffect(() => {
+    if (autoStartAttempted) return;
+    
+    const autoStartEngines = async () => {
+      setAutoStartAttempted(true);
+      const engineNames = ['insight', 'media', 'query', 'report'];
+      
+      // 并行启动所有引擎
+      const startPromises = engineNames.map(async (appName) => {
+        try {
+          await apiClient.startEngine(appName);
+          setEngines((prev) => ({
+            ...prev,
+            [appName]: { ...prev[appName as keyof typeof prev], status: 'starting' }
+          }));
+        } catch (error) {
+          console.error(`Failed to auto-start ${appName}:`, error);
+        }
+      });
+      
+      await Promise.all(startPromises);
+    };
+    
+    autoStartEngines();
+  }, [autoStartAttempted]);
+
+  // 检查所有引擎是否就绪
+  useEffect(() => {
+    const engineNames = ['insight', 'media', 'query', 'report'];
+    const allRunning = engineNames.every(
+      (name) => engines[name]?.status === 'running'
+    );
+    setAllEnginesReady(allRunning);
+  }, [engines]);
 
   // 轮询系统状态
   useEffect(() => {
@@ -57,15 +95,20 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // 轮询Engine输出
+  // 轮询Engine输出（更频繁，用于流式输出）
   useEffect(() => {
     const fetchOutput = async (appName: string) => {
       try {
         const output = await apiClient.getEngineOutput(appName);
         if (output.data) {
+          // output.data 可能是字符串或数组，统一处理为字符串
+          const outputText = Array.isArray(output.data) 
+            ? output.data.join('\n') 
+            : String(output.data || '');
+          
           setEngines((prev) => ({
             ...prev,
-            [appName]: { ...prev[appName as keyof typeof prev], output: output.data }
+            [appName]: { ...prev[appName as keyof typeof prev], output: outputText }
           }));
         }
       } catch (error) {
@@ -79,7 +122,7 @@ export default function Home() {
           fetchOutput(appName);
         }
       });
-    }, 3000); // 每3秒轮询
+    }, 1000); // 每1秒轮询，实现流式输出效果
 
     return () => clearInterval(interval);
   }, [engines]);
@@ -126,10 +169,36 @@ export default function Home() {
     }
   };
 
+  // 获取引擎启动状态文本
+  const getEngineStatusText = (name: string) => {
+    const status = engines[name]?.status;
+    const labels: Record<string, string> = {
+      insight: 'Insight Engine',
+      media: 'Media Engine',
+      query: 'Query Engine',
+      report: 'Report Engine',
+    };
+    const label = labels[name] || name;
+    
+    switch (status) {
+      case 'running':
+        return `✅ ${label} 已启动`;
+      case 'starting':
+        return `⏳ ${label} 启动中...`;
+      default:
+        return `❌ ${label} 未启动`;
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen border-2 border-black overflow-hidden">
       <SearchSection
         onSearch={async (query) => {
+          if (!allEnginesReady) {
+            alert('请等待所有引擎启动完成后再进行搜索');
+            return;
+          }
+          
           try {
             const result = await apiClient.search(query);
             if (result.success) {
@@ -144,6 +213,8 @@ export default function Home() {
             alert('搜索失败，请检查控制台');
           }
         }}
+        allEnginesReady={allEnginesReady}
+        engineStatuses={engines}
       />
       
       <div className="flex flex-1 min-h-0">

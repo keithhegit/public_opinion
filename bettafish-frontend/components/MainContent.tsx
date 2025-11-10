@@ -31,11 +31,19 @@ export const MainContent = ({
       
       <div className="h-[calc(100%-60px)] relative overflow-hidden">
         {currentEngine?.status === 'running' ? (
-          <iframe
-            src={`http://localhost:850${activeApp === 'insight' ? '1' : activeApp === 'media' ? '2' : '3'}`}
-            className="w-full h-full border-0"
-            title={`${activeApp} Engine`}
-          />
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <p className="text-gray-500 mb-4">
+                Engine 正在运行
+              </p>
+              <p className="text-sm text-gray-400 mb-4">
+                Streamlit 应用运行在后端服务器上
+              </p>
+              <p className="text-xs text-gray-400">
+                请通过后端 API 访问 Streamlit 应用
+              </p>
+            </div>
+          </div>
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">

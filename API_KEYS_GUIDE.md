@@ -34,6 +34,24 @@
 - 这是**可选配置**，如果未设置，系统仍可运行，但关键词优化功能会被禁用
 - 系统会使用备用方案（简单的关键词提取）替代
 
+### ⭐ 替代方案（推荐）
+
+**无需配置 `KEYWORD_OPTIMIZER_API_KEY`！**
+
+系统已支持自动复用 `INSIGHT_ENGINE_API_KEY`（Gemini API Key）。如果你已经配置了 `INSIGHT_ENGINE_API_KEY`，关键词优化器会自动使用它，无需额外配置。
+
+**优先级**：
+1. `KEYWORD_OPTIMIZER_API_KEY`（如果设置了）
+2. `INSIGHT_ENGINE_API_KEY`（自动复用，推荐）
+
+**优点**：
+- ✅ 无需额外 API Key
+- ✅ 零额外成本
+- ✅ 统一管理
+- ✅ 避免使用中国平台
+
+**详细替代方案**：请查看 [KEYWORD_OPTIMIZER_ALTERNATIVES.md](./KEYWORD_OPTIMIZER_ALTERNATIVES.md)
+
 ---
 
 ## 2. BOCHA_WEB_SEARCH_API_KEY（Bocha 多模态搜索）

@@ -22,6 +22,7 @@ if utils_dir not in sys.path:
     sys.path.append(utils_dir)
 
 from utils.retry_helper import with_graceful_retry, SEARCH_API_RETRY_CONFIG
+from loguru import logger
 
 
 class ForumHost:
@@ -38,21 +39,51 @@ class ForumHost:
             api_key: 论坛主持人 LLM API 密钥，如果不提供则从配置文件读取
             base_url: 论坛主持人 LLM API 接口基础地址，默认使用配置文件提供的SiliconFlow地址
         """
-        self.api_key = api_key or settings.FORUM_HOST_API_KEY
+        # 优先级：1. 传入参数 2. FORUM_HOST_API_KEY 3. REPORT_ENGINE_API_KEY（复用 Gemini）
+        if api_key is None:
+            # 优先使用专门的 FORUM_HOST_API_KEY，如果没有则复用 Report Engine 的 Gemini API Key
+            self.api_key = settings.FORUM_HOST_API_KEY or settings.REPORT_ENGINE_API_KEY
+        else:
+            self.api_key = api_key
 
+        # 如果 API Key 不存在，设置为禁用状态，但不抛出错误
         if not self.api_key:
-            raise ValueError("未找到论坛主持人API密钥，请在环境变量文件中设置FORUM_HOST_API_KEY")
+            logger.warning("未找到论坛主持人API密钥，Forum Engine 的主持人功能将被禁用。请设置 FORUM_HOST_API_KEY 或 REPORT_ENGINE_API_KEY 以启用此功能")
+            self.enabled = False
+            self.client = None
+            self.model = None
+            self.base_url = None
+            self.previous_summaries = []
+            return
 
-        self.base_url = base_url or settings.FORUM_HOST_BASE_URL
+        self.enabled = True
+        
+        # 如果使用 Gemini（复用 REPORT_ENGINE_API_KEY），需要调整配置
+        if self.api_key == settings.REPORT_ENGINE_API_KEY:
+            # 使用 Gemini 配置
+            self.base_url = base_url or settings.REPORT_ENGINE_BASE_URL or "https://generativelanguage.googleapis.com/v1beta/openai/"
+            self.model = model_name or settings.REPORT_ENGINE_MODEL_NAME or "gemini-2.5-pro"
+            # 确保 base_url 是正确的 OpenAI 兼容端点
+            if self.base_url and "generativelanguage.googleapis.com" in self.base_url:
+                if not self.base_url.endswith("/openai/"):
+                    if self.base_url.endswith("/"):
+                        self.base_url = self.base_url + "openai/"
+                    else:
+                        self.base_url = self.base_url + "/openai/"
+        else:
+            # 使用原配置（硅基流动 Qwen3）
+            self.base_url = base_url or settings.FORUM_HOST_BASE_URL
+            self.model = model_name or settings.FORUM_HOST_MODEL_NAME
 
         self.client = OpenAI(
             api_key=self.api_key,
             base_url=self.base_url
         )
-        self.model = model_name or settings.FORUM_HOST_MODEL_NAME  # Use configured model
 
         # Track previous summaries to avoid duplicates
         self.previous_summaries = []
+        
+        logger.info(f"Forum Engine 主持人已初始化，使用模型: {self.model}, Base URL: {self.base_url or '默认'}")
     
     def generate_host_speech(self, forum_logs: List[str]) -> Optional[str]:
         """
@@ -64,6 +95,11 @@ class ForumHost:
         Returns:
             主持人发言内容，如果生成失败返回None
         """
+        # 如果功能被禁用，直接返回 None
+        if not self.enabled:
+            logger.info("Forum Engine 主持人功能已禁用（缺少API Key），跳过发言生成")
+            return None
+        
         try:
             # 解析论坛日志，提取有效内容
             parsed_content = self._parse_forum_logs(forum_logs)

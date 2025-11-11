@@ -254,6 +254,29 @@ def run_report_generation(task: ReportTask, query: str, custom_template: str = "
                 current_task = None
 
 
+@report_bp.route('/check', methods=['GET'])
+def check_engines():
+    """检查三个子引擎是否准备就绪"""
+    try:
+        engines_status = check_engines_ready()
+
+        return jsonify({
+            'success': True,
+            'ready': engines_status['ready'],
+            'files_found': engines_status.get('files_found', []),
+            'missing_files': engines_status.get('missing_files', []),
+            'baseline_counts': engines_status.get('baseline_counts', {}),
+            'current_counts': engines_status.get('current_counts', {}),
+            'new_files_found': engines_status.get('new_files_found', {})
+        })
+    except Exception as e:
+        logger.exception(f"检查引擎就绪状态失败: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @report_bp.route('/status', methods=['GET'])
 def get_status():
     """获取Report Engine状态"""

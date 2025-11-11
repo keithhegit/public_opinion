@@ -40,8 +40,8 @@ class DeepSearchAgent:
         # 初始化LLM客户端
         self.llm_client = self._initialize_llm()
         
-        # 初始化搜索工具集（Tavily 已移除，使用禁用模式）
-        self.search_agency = TavilyNewsAgency(api_key=None)
+        # 初始化搜索工具集
+        self.search_agency = TavilyNewsAgency(api_key=self.config.TAVILY_API_KEY)
         
         # 初始化节点
         self._initialize_nodes()

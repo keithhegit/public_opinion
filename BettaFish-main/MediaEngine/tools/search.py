@@ -198,7 +198,15 @@ class BochaMultimodalSearch:
         payload.update(kwargs)
 
         try:
-            response = requests.post(self.BOCHA_BASE_URL, headers=self._headers, json=payload, timeout=30)
+            import time
+            start_time = time.time()
+            
+            # 增加超时时间到 60 秒，以应对跨洲网络延迟（Railway 荷兰 → Bocha 中国）
+            response = requests.post(self.BOCHA_BASE_URL, headers=self._headers, json=payload, timeout=60)
+            
+            elapsed = time.time() - start_time
+            logger.info(f"Bocha API 请求耗时: {elapsed:.2f} 秒")
+            
             response.raise_for_status()  # 如果HTTP状态码是4xx或5xx，则抛出异常
 
             response_dict = response.json()
@@ -208,6 +216,13 @@ class BochaMultimodalSearch:
 
             return self._parse_search_response(response_dict, query)
 
+        except requests.exceptions.Timeout:
+            elapsed = time.time() - start_time if 'start_time' in locals() else 60
+            logger.error(f"Bocha API 请求超时（{elapsed:.2f}秒），可能是网络问题（Railway 荷兰 → Bocha 中国跨洲访问）")
+            raise
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"Bocha API 连接失败，可能是网络问题或 API 服务不可用: {str(e)}")
+            raise
         except requests.exceptions.RequestException as e:
             logger.exception(f"搜索时发生网络错误: {str(e)}")
             raise e  # 让重试机制捕获并处理

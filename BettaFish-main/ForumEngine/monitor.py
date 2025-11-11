@@ -15,8 +15,16 @@ from loguru import logger
 
 # 导入论坛主持人模块
 try:
-    from .llm_host import generate_host_speech
-    HOST_AVAILABLE = True
+    from .llm_host import generate_host_speech, ForumHost
+    # 尝试创建 ForumHost 实例以检查是否可用
+    try:
+        test_host = ForumHost()
+        HOST_AVAILABLE = test_host.enabled if hasattr(test_host, 'enabled') else True
+        if not HOST_AVAILABLE:
+            logger.info("ForumEngine: 论坛主持人功能已禁用（缺少API Key），将以纯监控模式运行")
+    except Exception as e:
+        logger.warning(f"ForumEngine: 论坛主持人初始化失败，将以纯监控模式运行: {e}")
+        HOST_AVAILABLE = False
 except ImportError:
     logger.exception("ForumEngine: 论坛主持人模块未找到，将以纯监控模式运行")
     HOST_AVAILABLE = False

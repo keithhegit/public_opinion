@@ -269,10 +269,10 @@ DB_PASSWORD = "your_password"
 DB_NAME = "mindspider"
 DB_CHARSET = "utf8mb4"
 
-# MINDSPIDER API密钥
-MINDSPIDER_BASE_URL=your_api_base_url
-MINDSPIDER_API_KEY=sk-your-key
-MINDSPIDER_MODEL_NAME=deepseek-chat
+# MINDSPIDER API密钥（使用 Gemini API）
+MINDSPIDER_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+MINDSPIDER_API_KEY=你的Gemini_API_Key
+MINDSPIDER_MODEL_NAME=gemini-2.5-pro
 ```
 
 ### 5. 初始化系统

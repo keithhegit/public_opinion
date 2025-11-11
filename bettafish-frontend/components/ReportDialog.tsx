@@ -106,9 +106,12 @@ export const ReportDialog = ({ children, onReportGenerated }: ReportDialogProps)
             <Textarea
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="请输入要分析的查询内容..."
+              placeholder="请输入要分析的查询内容，例如：分析中国第十五届全国运动会吉祥物大湾鸡的全网热度"
               rows={4}
             />
+            <p className="text-xs text-gray-500">
+              提示：请先等待 Insight、Media、Query 三个引擎完成搜索工作后，再生成报告。报告将基于这三个引擎的分析结果生成综合报告。
+            </p>
           </div>
 
           <div className="space-y-2">

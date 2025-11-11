@@ -1019,6 +1019,119 @@ def get_output(app_name):
         'total_lines': len(output_lines) if isinstance(output_lines, list) else 0
     })
 
+@app.route('/api/reports/list', methods=['GET'])
+def list_reports():
+    """列出所有可用的报告文件"""
+    try:
+        import glob
+        from pathlib import Path
+        
+        report_dirs = {
+            'insight': 'insight_engine_streamlit_reports',
+            'media': 'media_engine_streamlit_reports',
+            'query': 'query_engine_streamlit_reports',
+            'final': 'final_reports'
+        }
+        
+        reports = {}
+        for engine, dir_name in report_dirs.items():
+            dir_path = Path(dir_name)
+            if dir_path.exists():
+                # 查找所有 .md 和 .html 文件
+                md_files = list(dir_path.glob('*.md'))
+                html_files = list(dir_path.glob('*.html'))
+                all_files = md_files + html_files
+                
+                reports[engine] = [
+                    {
+                        'name': f.name,
+                        'path': str(f),
+                        'size': f.stat().st_size,
+                        'modified': f.stat().st_mtime,
+                        'type': 'md' if f.suffix == '.md' else 'html'
+                    }
+                    for f in sorted(all_files, key=lambda x: x.stat().st_mtime, reverse=True)
+                ]
+            else:
+                reports[engine] = []
+        
+        return jsonify({
+            'success': True,
+            'reports': reports
+        })
+    except Exception as e:
+        logger.exception(f"列出报告文件失败: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/reports/download/<path:filepath>', methods=['GET'])
+def download_report(filepath):
+    """下载报告文件"""
+    try:
+        from flask import send_file
+        from pathlib import Path
+        
+        # 安全检查：只允许下载指定目录下的文件
+        allowed_dirs = [
+            'insight_engine_streamlit_reports',
+            'media_engine_streamlit_reports',
+            'query_engine_streamlit_reports',
+            'final_reports'
+        ]
+        
+        file_path = Path(filepath)
+        
+        # 检查文件是否在允许的目录中（兼容 Python 3.8+）
+        file_abs = file_path.resolve()
+        is_allowed = False
+        for allowed_dir in allowed_dirs:
+            allowed_path = Path(allowed_dir).resolve()
+            try:
+                # Python 3.9+ 使用 is_relative_to
+                if hasattr(file_abs, 'is_relative_to'):
+                    if file_abs.is_relative_to(allowed_path):
+                        is_allowed = True
+                        break
+                else:
+                    # Python 3.8 兼容方法
+                    try:
+                        file_abs.relative_to(allowed_path)
+                        is_allowed = True
+                        break
+                    except ValueError:
+                        continue
+            except Exception:
+                continue
+        
+        if not is_allowed:
+            return jsonify({
+                'success': False,
+                'error': '不允许访问该文件路径'
+            }), 403
+        
+        if not file_path.exists():
+            return jsonify({
+                'success': False,
+                'error': '文件不存在'
+            }), 404
+        
+        return send_file(
+            str(file_path),
+            as_attachment=True,
+            download_name=file_path.name,
+            mimetype='text/markdown' if file_path.suffix == '.md' else 'text/html'
+        )
+    except Exception as e:
+        logger.exception(f"下载报告文件失败: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/test_log/<app_name>')
 def test_log(app_name):
     """测试日志写入功能"""

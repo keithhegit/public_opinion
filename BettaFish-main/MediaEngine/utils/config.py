@@ -44,9 +44,9 @@ class Settings(BaseSettings):
     MAX_REFLECTIONS: int = Field(2, description="最大反思轮数")
     MAX_PARAGRAPHS: int = Field(5, description="最大段落数")
     
-    MINDSPIDER_API_KEY: Optional[str] = Field(None, description="MindSpider API密钥")
-    MINDSPIDER_BASE_URL: Optional[str] = Field("https://api.deepseek.com", description="MindSpider LLM接口BaseUrl")
-    MINDSPIDER_MODEL_NAME: str = Field("deepseek-reasoner", description="MindSpider LLM模型名称，如deepseek-reasoner")
+    MINDSPIDER_API_KEY: Optional[str] = Field(None, description="MindSpider API密钥（使用 Gemini API，从 Google AI Studio (https://aistudio.google.com/) 获取）")
+    MINDSPIDER_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="MindSpider LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
+    MINDSPIDER_MODEL_NAME: str = Field("gemini-2.5-pro", description="MindSpider LLM模型名称，推荐gemini-2.5-pro或gemini-2.5-flash")
     
     OUTPUT_DIR: str = Field("reports", description="输出目录")
     SAVE_INTERMEDIATE_STATES: bool = Field(True, description="是否保存中间状态")

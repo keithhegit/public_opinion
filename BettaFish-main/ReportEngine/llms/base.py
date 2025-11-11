@@ -38,7 +38,23 @@ class LLMClient:
         self.api_key = api_key
         self.base_url = base_url
         self.model_name = model_name
-        self.provider = model_name
+        # 根据 base_url 或 model_name 推断 provider
+        if base_url and "generativelanguage.googleapis.com" in base_url:
+            self.provider = "gemini"
+        elif base_url and "moonshot.cn" in base_url:
+            self.provider = "moonshot"
+        elif base_url and "deepseek.com" in base_url:
+            self.provider = "deepseek"
+        elif base_url and "openai.com" in base_url:
+            self.provider = "openai"
+        elif model_name.startswith("gemini"):
+            self.provider = "gemini"
+        elif model_name.startswith("kimi"):
+            self.provider = "moonshot"
+        elif model_name.startswith("deepseek"):
+            self.provider = "deepseek"
+        else:
+            self.provider = "openai-compatible"
         timeout_fallback = os.getenv("LLM_REQUEST_TIMEOUT") or os.getenv("REPORT_ENGINE_REQUEST_TIMEOUT") or "3000"
         try:
             self.timeout = float(timeout_fallback)

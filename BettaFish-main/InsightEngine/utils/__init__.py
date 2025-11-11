@@ -12,6 +12,8 @@ from .text_processing import (
     format_search_results_for_prompt
 )
 
+from .config import Settings, settings
+
 __all__ = [
     "clean_json_tags",
     "clean_markdown_tags",
@@ -19,4 +21,6 @@ __all__ = [
     "extract_clean_response",
     "update_state_with_search_results",
     "format_search_results_for_prompt",
+    "Settings",
+    "settings",
 ]

@@ -89,6 +89,23 @@
 - 这是**必需配置**，如果未设置，Media Engine 无法进行搜索
 - 系统会在缺少 API Key 时返回空结果，但不会阻止 Engine 启动
 
+### ⭐ 替代方案
+
+**不想使用 Bocha？有多个国际替代品！**
+
+系统支持替换为其他搜索 API，推荐使用 **Tavily API**（已经在 Query Engine 中使用）。
+
+**推荐替代方案**：
+1. **Tavily API**（推荐）- 已在项目中使用，价格便宜，功能完整
+2. **Perplexity API** - 强大的 AI 搜索能力
+3. **Serper API** - Google 搜索结果，价格便宜
+4. **Exa AI** - 高质量内容搜索
+5. **You.com API** - 多模态搜索
+
+**详细对比和实施方案**：请查看 [BOCHA_SEARCH_ALTERNATIVES.md](./BOCHA_SEARCH_ALTERNATIVES.md)
+
+**注意**：替换需要修改代码，将 `BochaMultimodalSearch` 替换为其他搜索服务。
+
 ---
 
 ## 3. 在 Railway 中配置

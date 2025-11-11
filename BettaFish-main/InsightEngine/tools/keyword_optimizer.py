@@ -48,17 +48,20 @@ class KeywordOptimizer:
             base_url: 接口基础地址，默认使用配置文件提供的SiliconFlow地址
         """
         self.api_key = api_key or settings.KEYWORD_OPTIMIZER_API_KEY
-
-        if not self.api_key:
-            raise ValueError("未找到硅基流动API密钥，请在config.py中设置KEYWORD_OPTIMIZER_API_KEY")
-
         self.base_url = base_url or settings.KEYWORD_OPTIMIZER_BASE_URL
-
-        self.client = OpenAI(
-            api_key=self.api_key,
-            base_url=self.base_url
-        )
         self.model = model_name or settings.KEYWORD_OPTIMIZER_MODEL_NAME
+        
+        # 如果 API Key 不存在，设置为禁用状态，但不抛出错误
+        if not self.api_key:
+            logger.warning("未找到硅基流动API密钥，关键词优化功能将被禁用。请在config.py中设置KEYWORD_OPTIMIZER_API_KEY以启用此功能")
+            self.enabled = False
+            self.client = None
+        else:
+            self.enabled = True
+            self.client = OpenAI(
+                api_key=self.api_key,
+                base_url=self.base_url
+            )
     
     def optimize_keywords(self, original_query: str, context: str = "") -> KeywordOptimizationResponse:
         """

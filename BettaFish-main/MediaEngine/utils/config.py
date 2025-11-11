@@ -69,9 +69,9 @@ class Settings(BaseSettings):
     KEYWORD_OPTIMIZER_MODEL_NAME: str = Field("Qwen/Qwen3-30B-A3B-Instruct-2507", description="Keyword Optimizer LLM模型名称，如Qwen/Qwen3-30B-A3B-Instruct-2507")
 
     # ================== 网络工具配置 ====================
-    TAVILY_API_KEY: str = Field(None, description="Tavily API（申请地址：https://www.tavily.com/）API密钥，用于Tavily网络搜索")
+    TAVILY_API_KEY: Optional[str] = Field(None, description="Tavily API（申请地址：https://www.tavily.com/）API密钥，用于Tavily网络搜索")
     BOCHA_BASE_URL: Optional[str] = Field("https://api.bochaai.com/v1/ai-search", description="Bocha AI 搜索BaseUrl或博查网页搜索BaseUrl")
-    BOCHA_WEB_SEARCH_API_KEY: str = Field(None, description="Bocha API（申请地址：https://open.bochaai.com/）API密钥，用于Bocha搜索")
+    # 注意：BOCHA_WEB_SEARCH_API_KEY 已在第39行定义，这里不再重复定义
 
     class Config:
         env_file = ENV_FILE

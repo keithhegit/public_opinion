@@ -51,21 +51,24 @@ def initialize_report_engine():
         logger.info(f"  - main_settings.REPORT_ENGINE_MODEL_NAME: {main_settings.REPORT_ENGINE_MODEL_NAME}")
         logger.info("=" * 60)
         
-        # 创建 Report Engine 配置，从主配置读取
-        # 如果主配置中的值为空或空字符串，直接从环境变量读取
-        api_key = main_settings.REPORT_ENGINE_API_KEY
-        if not api_key or (isinstance(api_key, str) and api_key.strip() == ""):
-            # 直接从环境变量读取（绕过 Pydantic Settings）
-            api_key = os.environ.get('REPORT_ENGINE_API_KEY')
+        # 创建 Report Engine 配置，优先从环境变量直接读取（绕过 Pydantic Settings）
+        # 这样可以确保读取到 Railway 设置的环境变量
+        api_key = os.environ.get('REPORT_ENGINE_API_KEY')
+        if not api_key:
+            # 如果环境变量没有，再从主配置读取
+            api_key = main_settings.REPORT_ENGINE_API_KEY
+            logger.info("从主配置读取 API_KEY（环境变量未设置）")
+        else:
             logger.info(f"从环境变量直接读取 - API_KEY存在: {bool(api_key)}")
             logger.info(f"从环境变量直接读取 - API_KEY长度: {len(api_key) if api_key else 0}")
         
+        # BASE_URL 和 MODEL_NAME 优先从主配置读取，如果没有则使用默认值
         base_url = main_settings.REPORT_ENGINE_BASE_URL
-        if not base_url or base_url.strip() == "":
+        if not base_url or (isinstance(base_url, str) and base_url.strip() == ""):
             base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"  # Gemini 官方 API 的 OpenAI 兼容端点
         
         model_name = main_settings.REPORT_ENGINE_MODEL_NAME
-        if not model_name or model_name.strip() == "":
+        if not model_name or (isinstance(model_name, str) and model_name.strip() == ""):
             model_name = "gemini-2.5-pro"
         
         logger.info(f"最终使用的配置 - API_KEY存在: {bool(api_key)}")

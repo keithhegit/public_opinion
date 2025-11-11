@@ -3,11 +3,17 @@ Configuration management module for the Report Engine.
 """
 
 import os
+from pathlib import Path
 from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic import Field, ConfigDict
 from typing import Optional
 
 from loguru import logger
+
+# 计算 .env 优先级：优先当前工作目录，其次项目根目录
+PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
+CWD_ENV: Path = Path.cwd() / ".env"
+ENV_FILE: str = str(CWD_ENV if CWD_ENV.exists() else (PROJECT_ROOT / ".env"))
 
 class Settings(BaseSettings):
     """Report Engine 配置，环境变量与字段均为REPORT_ENGINE_前缀一致大写。"""
@@ -25,11 +31,14 @@ class Settings(BaseSettings):
     ENABLE_PDF_EXPORT: bool = Field(True, description="是否允许导出PDF")
     CHART_STYLE: str = Field("modern", description="图表样式：modern/classic/")
 
-    class Config:
-        env_file = ".env"
-        env_prefix = ""
-        case_sensitive = False
-        extra = "allow"
+    model_config = ConfigDict(
+        env_file=ENV_FILE,
+        env_prefix="",
+        case_sensitive=False,
+        extra="allow",
+        # 如果环境变量为空字符串，不覆盖默认值
+        env_ignore_empty=True
+    )
 
 settings = Settings()
 

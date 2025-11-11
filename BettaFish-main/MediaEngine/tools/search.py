@@ -103,15 +103,20 @@ class BochaMultimodalSearch:
             api_key: Bocha API密钥，若不提供则从环境变量 BOCHA_API_KEY 读取。
         """
         if api_key is None:
-            api_key = settings.BOCHA_WEB_SEARCH_API_KEY
-            if not api_key:
-                raise ValueError("Bocha API Key未找到！请设置 BOCHA_API_KEY 环境变量或在初始化时提供")
-
-        self._headers = {
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json',
-            'Accept': '*/*'
-        }
+            api_key = settings.BOCHA_WEB_SEARCH_API_KEY or settings.BOCHA_API_KEY
+        
+        # 如果 API Key 不存在，设置为禁用状态，但不抛出错误
+        if not api_key:
+            logger.warning("Bocha API Key未找到！Media Engine 的多模态搜索功能将被禁用。请设置 BOCHA_WEB_SEARCH_API_KEY 或 BOCHA_API_KEY 环境变量以启用此功能")
+            self.enabled = False
+            self._headers = None
+        else:
+            self.enabled = True
+            self._headers = {
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json',
+                'Accept': '*/*'
+            }
 
     def _parse_search_response(self, response_dict: Dict[str, Any], query: str) -> BochaResponse:
         """从API的原始字典响应中解析出结构化的BochaResponse对象"""

@@ -41,24 +41,24 @@ class Settings(BaseSettings):
     # ======================= LLM 相关 =======================
     # 我们的LLM模型API赞助商有：https://share.302.ai/P66Qe3、https://aihubmix.com/?aff=8Ds9，提供了非常全面的模型api
     
-    # Insight Agent（使用 Gemini 官方 API）
+    # Insight Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
     INSIGHT_ENGINE_API_KEY: Optional[str] = Field(None, description="Insight Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
-    INSIGHT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta", description="Insight Agent LLM接口BaseUrl，Gemini官方API地址")
+    INSIGHT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Insight Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
     INSIGHT_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Insight Agent LLM模型名称，如gemini-2.0-flash-exp或gemini-1.5-pro")
     
-    # Media Agent（使用 Gemini 官方 API）
+    # Media Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
     MEDIA_ENGINE_API_KEY: Optional[str] = Field(None, description="Media Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
-    MEDIA_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta", description="Media Agent LLM接口BaseUrl，Gemini官方API地址")
+    MEDIA_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Media Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
     MEDIA_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Media Agent LLM模型名称，如gemini-2.0-flash-exp或gemini-1.5-pro")
     
-    # Query Agent（使用 Gemini 官方 API）
+    # Query Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
     QUERY_ENGINE_API_KEY: Optional[str] = Field(None, description="Query Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
-    QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta", description="Query Agent LLM接口BaseUrl，Gemini官方API地址")
+    QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Query Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
     QUERY_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Query Agent LLM模型，如gemini-2.0-flash-exp或gemini-1.5-pro")
     
-    # Report Agent（使用 Gemini 官方 API）
+    # Report Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
     REPORT_ENGINE_API_KEY: Optional[str] = Field(None, description="Report Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
-    REPORT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta", description="Report Agent LLM接口BaseUrl，Gemini官方API地址")
+    REPORT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Report Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
     REPORT_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Report Agent LLM模型，如gemini-2.0-flash-exp或gemini-1.5-pro")
     
     # Forum Host（Qwen3最新模型，这里我使用了硅基流动这个平台，申请地址：https://cloud.siliconflow.cn/）

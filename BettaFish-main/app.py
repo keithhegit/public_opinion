@@ -853,10 +853,11 @@ def report_debug():
                 'REPORT_ENGINE_MODEL_NAME_set': bool(env_model_name),
                 'REPORT_ENGINE_MODEL_NAME_value': env_model_name or '(未设置)',
             },
-            'defaults': {
-                'expected_BASE_URL': 'https://generativelanguage.googleapis.com/v1beta',
-                'expected_MODEL_NAME': 'gemini-2.0-flash-exp',
-            },
+                   'defaults': {
+                       'expected_BASE_URL': 'https://generativelanguage.googleapis.com/v1beta/openai/',
+                       'expected_MODEL_NAME': 'gemini-2.0-flash-exp',
+                       'note': '使用 Gemini 官方 API 的 OpenAI 兼容端点',
+                   },
             'diagnosis': {
                 'pydantic_reads_env': 'Pydantic Settings 应该自动从环境变量读取',
                 'env_ignore_empty': '如果环境变量为空字符串，会被忽略（env_ignore_empty=True）',

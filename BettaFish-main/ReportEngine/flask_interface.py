@@ -51,7 +51,7 @@ def initialize_report_engine():
         
         base_url = main_settings.REPORT_ENGINE_BASE_URL
         if not base_url or base_url.strip() == "":
-            base_url = "https://generativelanguage.googleapis.com/v1beta"
+            base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"  # Gemini 官方 API 的 OpenAI 兼容端点
         
         model_name = main_settings.REPORT_ENGINE_MODEL_NAME
         if not model_name or model_name.strip() == "":

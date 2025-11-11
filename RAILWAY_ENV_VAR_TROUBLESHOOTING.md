@@ -77,9 +77,43 @@ curl https://publicopinion-production.up.railway.app/api/report/debug
 
 这次应该能看到 `"all_report_related_env_vars"` 中有值了。
 
+## 解决方案：在服务级别引用 Shared Variables
+
+Railway 的 Shared Variables 需要被服务显式引用才能使用。
+
+### 步骤：
+
+1. **进入服务级别的 Variables**
+   - Railway Dashboard → 选择 `publicopinion-production` 服务（不是项目）
+   - 点击 **Variables** 标签
+
+2. **添加变量并引用 Shared Variables**
+   
+   对于每个 API Key，添加变量时：
+   - **Variable Name**: `REPORT_ENGINE_API_KEY`
+   - **Value**: `${{REPORT_ENGINE_API_KEY}}` （使用 `${{}}` 语法引用 Shared Variable）
+   - 点击 **Add**
+
+   重复此步骤添加：
+   - `INSIGHT_ENGINE_API_KEY` = `${{INSIGHT_ENGINE_API_KEY}}`
+   - `MEDIA_ENGINE_API_KEY` = `${{MEDIA_ENGINE_API_KEY}}`
+   - `QUERY_ENGINE_API_KEY` = `${{QUERY_ENGINE_API_KEY}}`
+   - `REPORT_ENGINE_API_KEY` = `${{REPORT_ENGINE_API_KEY}}`
+
+3. **重新部署**
+   - 部署会自动触发
+   - 或手动触发：Deployments → 最新部署 → Redeploy
+
+4. **验证**
+   ```bash
+   curl https://publicopinion-production.up.railway.app/api/report/debug
+   ```
+   
+   这次应该能看到 `"all_report_related_env_vars"` 中有值了。
+
 ## 临时解决方案
 
-如果环境变量仍然无法传递，可以通过前端 UI 配置：
+如果上述方法仍然不工作，可以通过前端 UI 配置：
 
 1. 打开前端配置界面
 2. 输入 `REPORT_ENGINE_API_KEY` 的值

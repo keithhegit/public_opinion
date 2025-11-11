@@ -44,24 +44,50 @@ class KeywordOptimizer:
         初始化关键词优化器
         
         Args:
-            api_key: 硅基流动API密钥，如果不提供则从配置文件读取
-            base_url: 接口基础地址，默认使用配置文件提供的SiliconFlow地址
+            api_key: API密钥，如果不提供则从配置文件读取
+            base_url: 接口基础地址
+            model_name: 模型名称
         """
-        self.api_key = api_key or settings.KEYWORD_OPTIMIZER_API_KEY
-        self.base_url = base_url or settings.KEYWORD_OPTIMIZER_BASE_URL
-        self.model = model_name or settings.KEYWORD_OPTIMIZER_MODEL_NAME
+        # 优先级：1. 传入参数 2. KEYWORD_OPTIMIZER_API_KEY 3. INSIGHT_ENGINE_API_KEY（复用 Gemini）
+        if api_key is None:
+            # 优先使用专门的 KEYWORD_OPTIMIZER_API_KEY，如果没有则复用 Insight Engine 的 Gemini API Key
+            self.api_key = settings.KEYWORD_OPTIMIZER_API_KEY or settings.INSIGHT_ENGINE_API_KEY
+        else:
+            self.api_key = api_key
+        
+        if base_url is None:
+            # 优先使用专门的配置，如果没有则复用 Insight Engine 的配置
+            self.base_url = settings.KEYWORD_OPTIMIZER_BASE_URL or settings.INSIGHT_ENGINE_BASE_URL
+        else:
+            self.base_url = base_url
+        
+        if model_name is None:
+            # 优先使用专门的配置，如果没有则复用 Insight Engine 的配置（使用 flash 模型，更快）
+            self.model = settings.KEYWORD_OPTIMIZER_MODEL_NAME or settings.INSIGHT_ENGINE_MODEL_NAME
+        else:
+            self.model = model_name
         
         # 如果 API Key 不存在，设置为禁用状态，但不抛出错误
         if not self.api_key:
-            logger.warning("未找到硅基流动API密钥，关键词优化功能将被禁用。请在config.py中设置KEYWORD_OPTIMIZER_API_KEY以启用此功能")
+            logger.warning("未找到API密钥，关键词优化功能将被禁用。请设置 KEYWORD_OPTIMIZER_API_KEY 或 INSIGHT_ENGINE_API_KEY 以启用此功能")
             self.enabled = False
             self.client = None
         else:
             self.enabled = True
+            # 如果使用 Gemini，确保 base_url 是正确的 OpenAI 兼容端点
+            if self.base_url and "generativelanguage.googleapis.com" in self.base_url:
+                # 确保使用 OpenAI 兼容端点
+                if not self.base_url.endswith("/openai/"):
+                    if self.base_url.endswith("/"):
+                        self.base_url = self.base_url + "openai/"
+                    else:
+                        self.base_url = self.base_url + "/openai/"
+            
             self.client = OpenAI(
                 api_key=self.api_key,
-                base_url=self.base_url
+                base_url=self.base_url if self.base_url else None
             )
+            logger.info(f"关键词优化器已初始化，使用模型: {self.model}, Base URL: {self.base_url or '默认'}")
     
     def optimize_keywords(self, original_query: str, context: str = "") -> KeywordOptimizationResponse:
         """

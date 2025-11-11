@@ -24,6 +24,7 @@
 import os
 import sys
 from typing import List, Dict, Any, Optional
+from loguru import logger
 
 # 添加utils目录到Python路径
 current_dir = os.path.dirname(os.path.abspath(__file__))

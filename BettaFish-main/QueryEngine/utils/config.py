@@ -66,7 +66,6 @@ def print_config(config: Settings):
     message += "=== Query Engine 配置 ===\n"
     message += f"LLM 模型: {config.QUERY_ENGINE_MODEL_NAME}\n"
     message += f"LLM Base URL: {config.QUERY_ENGINE_BASE_URL or '(默认)'}\n"
-    message += f"Tavily API Key: {'已配置' if config.TAVILY_API_KEY else '未配置'}\n"
     message += f"搜索超时: {config.SEARCH_TIMEOUT} 秒\n"
     message += f"最长内容长度: {config.SEARCH_CONTENT_MAX_LENGTH}\n"
     message += f"最大反思次数: {config.MAX_REFLECTIONS}\n"

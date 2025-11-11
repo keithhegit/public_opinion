@@ -180,6 +180,18 @@ class BochaMultimodalSearch:
     def _search_internal(self, **kwargs) -> BochaResponse:
         """内部通用的搜索执行器，所有工具最终都调用此方法"""
         query = kwargs.get("query", "Unknown Query")
+        
+        # 如果功能被禁用，返回空结果
+        if not self.enabled:
+            logger.warning(f"Bocha 搜索功能已禁用（缺少API Key），无法执行查询: '{query}'")
+            return BochaResponse(
+                query=query,
+                ai_summary="Bocha 搜索功能已禁用，请配置 BOCHA_WEB_SEARCH_API_KEY 或 BOCHA_API_KEY 环境变量",
+                webpages=[],
+                images=[],
+                modal_cards=[]
+            )
+        
         payload = {
             "stream": False,  # Agent工具通常使用非流式以获取完整结果
         }

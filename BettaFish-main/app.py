@@ -825,6 +825,14 @@ def report_debug():
         from config import settings as main_settings
         from ReportEngine.flask_interface import report_agent
         
+        # 获取所有环境变量（用于调试）
+        all_env_vars = dict(os.environ)
+        report_related_env_vars = {
+            k: v[:20] + '...' if len(v) > 20 else v 
+            for k, v in all_env_vars.items() 
+            if 'REPORT' in k.upper() or 'ENGINE' in k.upper() or 'API_KEY' in k.upper()
+        }
+        
         # 获取环境变量值（用于诊断）
         env_api_key = os.environ.get('REPORT_ENGINE_API_KEY', '')
         env_base_url = os.environ.get('REPORT_ENGINE_BASE_URL', '')

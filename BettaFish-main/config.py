@@ -44,17 +44,17 @@ class Settings(BaseSettings):
     # Insight Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
     INSIGHT_ENGINE_API_KEY: Optional[str] = Field(None, description="Insight Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
     INSIGHT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Insight Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
-    INSIGHT_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Insight Agent LLM模型名称，如gemini-2.0-flash-exp或gemini-1.5-pro")
+    INSIGHT_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Insight Agent LLM模型名称，如gemini-2.5-pro或gemini-2.5-flash")
     
     # Media Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
     MEDIA_ENGINE_API_KEY: Optional[str] = Field(None, description="Media Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
     MEDIA_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Media Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
-    MEDIA_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Media Agent LLM模型名称，如gemini-2.0-flash-exp或gemini-1.5-pro")
+    MEDIA_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Media Agent LLM模型名称，如gemini-2.5-pro或gemini-2.5-flash")
     
     # Query Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
     QUERY_ENGINE_API_KEY: Optional[str] = Field(None, description="Query Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
     QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Query Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
-    QUERY_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Query Agent LLM模型，如gemini-2.0-flash-exp或gemini-1.5-pro")
+    QUERY_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Query Agent LLM模型，如gemini-2.5-pro或gemini-2.5-flash")
     
     # Report Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
     # 注意：代码使用 OpenAI SDK，需要 OpenAI 兼容端点

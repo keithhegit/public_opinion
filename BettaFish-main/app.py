@@ -862,7 +862,9 @@ def report_debug():
                 'pydantic_reads_env': 'Pydantic Settings 应该自动从环境变量读取',
                 'env_ignore_empty': '如果环境变量为空字符串，会被忽略（env_ignore_empty=True）',
                 'suggestion': '请确认 Railway 环境变量值不是空字符串，且服务已重新部署'
-            }
+            },
+            'all_report_related_env_vars': report_related_env_vars,
+            'all_env_var_keys': list(all_env_vars.keys())[:50]  # 只显示前50个，避免输出过长
         }
         
         return jsonify({

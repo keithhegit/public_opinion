@@ -53,14 +53,23 @@ def initialize_report_engine():
         
         # 创建 Report Engine 配置，优先从环境变量直接读取（绕过 Pydantic Settings）
         # 这样可以确保读取到 Railway 设置的环境变量
+        # 尝试多种方式读取环境变量
+        api_key = None
+        
+        # 方式1: 直接从 os.environ 读取
         api_key = os.environ.get('REPORT_ENGINE_API_KEY')
-        if not api_key:
-            # 如果环境变量没有，再从主配置读取
-            api_key = main_settings.REPORT_ENGINE_API_KEY
-            logger.info("从主配置读取 API_KEY（环境变量未设置）")
+        if api_key:
+            logger.info(f"✓ 从 os.environ 读取到 API_KEY，长度: {len(api_key)}")
         else:
-            logger.info(f"从环境变量直接读取 - API_KEY存在: {bool(api_key)}")
-            logger.info(f"从环境变量直接读取 - API_KEY长度: {len(api_key) if api_key else 0}")
+            # 方式2: 尝试从主配置读取
+            api_key = main_settings.REPORT_ENGINE_API_KEY
+            if api_key:
+                logger.info(f"✓ 从主配置读取到 API_KEY，长度: {len(api_key)}")
+            else:
+                logger.warning("✗ 无法从环境变量或主配置读取 API_KEY")
+                # 方式3: 列出所有相关的环境变量用于调试
+                all_env_keys = [k for k in os.environ.keys() if 'REPORT' in k.upper() or 'ENGINE' in k.upper()]
+                logger.warning(f"相关环境变量键: {all_env_keys}")
         
         # BASE_URL 和 MODEL_NAME 优先从主配置读取，如果没有则使用默认值
         base_url = main_settings.REPORT_ENGINE_BASE_URL

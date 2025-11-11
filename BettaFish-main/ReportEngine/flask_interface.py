@@ -34,11 +34,22 @@ def initialize_report_engine():
         from .utils.config import Settings as ReportSettings
         
         logger.info("开始初始化 Report Engine...")
-        logger.info(f"环境变量 REPORT_ENGINE_API_KEY 是否存在: {'REPORT_ENGINE_API_KEY' in os.environ}")
-        logger.info(f"环境变量 REPORT_ENGINE_API_KEY 值长度: {len(os.environ.get('REPORT_ENGINE_API_KEY', ''))}")
-        logger.info(f"从主配置读取 - API_KEY存在: {bool(main_settings.REPORT_ENGINE_API_KEY)}")
-        logger.info(f"从主配置读取 - BASE_URL: {main_settings.REPORT_ENGINE_BASE_URL}")
-        logger.info(f"从主配置读取 - MODEL_NAME: {main_settings.REPORT_ENGINE_MODEL_NAME}")
+        logger.info("=" * 60)
+        logger.info("环境变量诊断信息：")
+        logger.info(f"  - REPORT_ENGINE_API_KEY 在 os.environ 中: {'REPORT_ENGINE_API_KEY' in os.environ}")
+        env_key_raw = os.environ.get('REPORT_ENGINE_API_KEY')
+        logger.info(f"  - os.environ.get('REPORT_ENGINE_API_KEY') 类型: {type(env_key_raw)}")
+        logger.info(f"  - os.environ.get('REPORT_ENGINE_API_KEY') 是否为 None: {env_key_raw is None}")
+        logger.info(f"  - os.environ.get('REPORT_ENGINE_API_KEY') 值长度: {len(env_key_raw) if env_key_raw else 0}")
+        if env_key_raw:
+            logger.info(f"  - os.environ.get('REPORT_ENGINE_API_KEY') 前10个字符: {env_key_raw[:10]}...")
+        logger.info("主配置诊断信息：")
+        logger.info(f"  - main_settings.REPORT_ENGINE_API_KEY 类型: {type(main_settings.REPORT_ENGINE_API_KEY)}")
+        logger.info(f"  - main_settings.REPORT_ENGINE_API_KEY 是否为 None: {main_settings.REPORT_ENGINE_API_KEY is None}")
+        logger.info(f"  - main_settings.REPORT_ENGINE_API_KEY 值长度: {len(main_settings.REPORT_ENGINE_API_KEY) if main_settings.REPORT_ENGINE_API_KEY else 0}")
+        logger.info(f"  - main_settings.REPORT_ENGINE_BASE_URL: {main_settings.REPORT_ENGINE_BASE_URL}")
+        logger.info(f"  - main_settings.REPORT_ENGINE_MODEL_NAME: {main_settings.REPORT_ENGINE_MODEL_NAME}")
+        logger.info("=" * 60)
         
         # 创建 Report Engine 配置，从主配置读取
         # 如果主配置中的值为空或空字符串，直接从环境变量读取
@@ -55,7 +66,7 @@ def initialize_report_engine():
         
         model_name = main_settings.REPORT_ENGINE_MODEL_NAME
         if not model_name or model_name.strip() == "":
-            model_name = "gemini-2.0-flash-exp"
+            model_name = "gemini-2.5-pro"
         
         logger.info(f"最终使用的配置 - API_KEY存在: {bool(api_key)}")
         logger.info(f"最终使用的配置 - BASE_URL: {base_url}")

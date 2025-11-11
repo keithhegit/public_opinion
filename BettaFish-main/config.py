@@ -57,9 +57,11 @@ class Settings(BaseSettings):
     QUERY_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Query Agent LLM模型，如gemini-2.0-flash-exp或gemini-1.5-pro")
     
     # Report Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
+    # 注意：代码使用 OpenAI SDK，需要 OpenAI 兼容端点
+    # Google 提供了 /v1beta/openai/ 端点用于 OpenAI 兼容格式
     REPORT_ENGINE_API_KEY: Optional[str] = Field(None, description="Report Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
-    REPORT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Report Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
-    REPORT_ENGINE_MODEL_NAME: str = Field("gemini-2.0-flash-exp", description="Report Agent LLM模型，如gemini-2.0-flash-exp或gemini-1.5-pro")
+    REPORT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Report Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点（必须使用 /v1beta/openai/ 路径，因为代码使用 OpenAI SDK）")
+    REPORT_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Report Agent LLM模型，如gemini-2.5-pro或gemini-2.5-flash")
     
     # Forum Host（Qwen3最新模型，这里我使用了硅基流动这个平台，申请地址：https://cloud.siliconflow.cn/）
     FORUM_HOST_API_KEY: Optional[str] = Field(None, description="Forum Host（Qwen3最新模型，这里我使用了硅基流动这个平台，申请地址：https://cloud.siliconflow.cn/）API密钥")

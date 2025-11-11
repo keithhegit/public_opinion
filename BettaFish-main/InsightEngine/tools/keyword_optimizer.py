@@ -74,6 +74,16 @@ class KeywordOptimizer:
         Returns:
             KeywordOptimizationResponse: 优化后的关键词列表
         """
+        # 如果功能被禁用，直接返回原始查询
+        if not self.enabled:
+            logger.info(f"🔍 关键词优化中间件: 功能已禁用，返回原始查询 '{original_query}'")
+            return KeywordOptimizationResponse(
+                original_query=original_query,
+                optimized_keywords=[original_query],
+                success=True,
+                error_message="关键词优化功能已禁用（缺少API Key）"
+            )
+        
         logger.info(f"🔍 关键词优化中间件: 处理查询 '{original_query}'")
         
         try:

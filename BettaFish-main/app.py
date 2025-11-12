@@ -12,6 +12,7 @@ from datetime import datetime
 from queue import Queue
 from flask import Flask, render_template, request, jsonify, Response
 from flask_socketio import SocketIO, emit
+from flask_cors import CORS
 import atexit
 import requests
 from loguru import logger
@@ -36,7 +37,19 @@ except ImportError as e:
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Dedicated-to-creating-a-concise-and-versatile-public-opinion-analysis-platform'
-socketio = SocketIO(app, cors_allowed_origins="*")
+
+# 配置CORS - 允许前端域名访问
+CORS(app, 
+     origins=[
+         "https://bettafish-frontend.pages.dev",
+         "http://localhost:3000",
+         "http://localhost:5173"  # Vite默认端口
+     ],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 # 注册ReportEngine Blueprint
 if REPORT_ENGINE_AVAILABLE:
@@ -990,34 +1003,66 @@ def stop_app(app_name):
 @app.route('/api/output/<app_name>')
 def get_output(app_name):
     """获取应用输出"""
-    if app_name not in processes:
-        return jsonify({'success': False, 'message': '未知应用'})
-    
-    # 特殊处理Forum Engine
-    if app_name == 'forum':
+    try:
+        if app_name not in processes:
+            return jsonify({'success': False, 'message': '未知应用'}), 404
+        
+        # 检查Engine是否还在运行
+        process_info = processes.get(app_name, {})
+        if process_info.get('status') != 'running':
+            logger.warning(f"Engine {app_name} 状态: {process_info.get('status', 'unknown')}")
+        
+        # 特殊处理Forum Engine
+        if app_name == 'forum':
+            try:
+                forum_log_content = read_log_from_file('forum')
+                # 转换为字符串格式
+                output_text = '\n'.join(forum_log_content) if isinstance(forum_log_content, list) else forum_log_content
+                return jsonify({
+                    'success': True,
+                    'data': output_text,
+                    'total_lines': len(forum_log_content) if isinstance(forum_log_content, list) else 0
+                })
+            except Exception as e:
+                logger.exception(f"读取forum日志失败: {e}")
+                return jsonify({'success': False, 'message': f'读取forum日志失败: {str(e)}'}), 500
+        
+        # 从文件读取完整日志
         try:
-            forum_log_content = read_log_from_file('forum')
-            # 转换为字符串格式
-            output_text = '\n'.join(forum_log_content) if isinstance(forum_log_content, list) else forum_log_content
+            output_lines = read_log_from_file(app_name)
+            
+            # 转换为字符串格式（用于流式显示）
+            output_text = '\n'.join(output_lines) if isinstance(output_lines, list) else str(output_lines)
+            
+            # 检查是否有错误信息（如数据库连接错误）
+            if 'socket.gaierror' in output_text or 'your_db_host' in output_text:
+                logger.warning(f"Engine {app_name} 输出中包含数据库连接错误")
+            
             return jsonify({
                 'success': True,
                 'data': output_text,
-                'total_lines': len(forum_log_content) if isinstance(forum_log_content, list) else 0
+                'total_lines': len(output_lines) if isinstance(output_lines, list) else 0
+            })
+        except FileNotFoundError:
+            logger.warning(f"Engine {app_name} 日志文件不存在")
+            return jsonify({
+                'success': True,
+                'data': f'Engine {app_name} 日志文件尚未创建',
+                'total_lines': 0
             })
         except Exception as e:
-            return jsonify({'success': False, 'message': f'读取forum日志失败: {str(e)}'})
-    
-    # 从文件读取完整日志
-    output_lines = read_log_from_file(app_name)
-    
-    # 转换为字符串格式（用于流式显示）
-    output_text = '\n'.join(output_lines) if isinstance(output_lines, list) else str(output_lines)
-    
-    return jsonify({
-        'success': True,
-        'data': output_text,
-        'total_lines': len(output_lines) if isinstance(output_lines, list) else 0
-    })
+            logger.exception(f"读取Engine {app_name} 日志失败: {e}")
+            return jsonify({
+                'success': False,
+                'message': f'读取日志失败: {str(e)}'
+            }), 500
+            
+    except Exception as e:
+        logger.exception(f"获取Engine {app_name} 输出时发生异常: {e}")
+        return jsonify({
+            'success': False,
+            'message': f'获取输出失败: {str(e)}'
+        }), 500
 
 @app.route('/api/reports/list', methods=['GET'])
 def list_reports():

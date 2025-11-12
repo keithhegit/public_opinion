@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     
     # ======================= LLM 相关 =======================
     QUERY_ENGINE_API_KEY: str = Field(..., description="Query Engine LLM API密钥，用于主LLM。您可以更改每个部分LLM使用的API，🚩只要兼容OpenAI请求格式都可以，定义好KEY、BASE_URL与MODEL_NAME即可正常使用。")
-    QUERY_ENGINE_BASE_URL: Optional[str] = Field(None, description="Query Engine LLM接口BaseUrl，可自定义厂商API")
-    QUERY_ENGINE_MODEL_NAME: str = Field(..., description="Query Engine LLM模型名称")
+    QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://api.z.ai/api/paas/v4/", description="Query Engine LLM接口BaseUrl，GLM API的OpenAI兼容端点")
+    QUERY_ENGINE_MODEL_NAME: str = Field("glm-4.6", description="Query Engine LLM模型名称，使用 glm-4.6")
     QUERY_ENGINE_PROVIDER: Optional[str] = Field(None, description="Query Engine LLM提供商（兼容字段）")
     
     # ================== 网络工具配置 ====================

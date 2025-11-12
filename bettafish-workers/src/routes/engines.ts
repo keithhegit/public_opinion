@@ -57,9 +57,27 @@ engineRoutes.post('/start/:app', async (c) => {
       );
     }
     
+    // 检查是否是连接错误（Cloudflare 1003 错误）
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isConnectionError = errorMessage.includes('1003') || 
+                              errorMessage.includes('Failed to fetch') ||
+                              errorMessage.includes('fetch failed');
+    
+    if (isConnectionError) {
+      return c.json(
+        {
+          error: 'Failed to start engine',
+          details: 'error code: 1003',
+          message: `Cannot connect to backend server at ${c.env.BACKEND_URL}. Please check: 1) Backend server is running, 2) BACKEND_URL is correct, 3) Firewall allows Cloudflare IPs, 4) Consider using HTTPS if using HTTP.`,
+        },
+        403
+      );
+    }
+    
     return c.json(
       {
         error: 'Failed to start engine',
+        details: errorMessage,
         message: c.env.ENVIRONMENT === 'development' ? String(error) : undefined,
       },
       500
@@ -124,7 +142,7 @@ engineRoutes.get('/output/:app', async (c) => {
       headers: {
         ...(c.env.BACKEND_TOKEN && { Authorization: `Bearer ${c.env.BACKEND_TOKEN}` }),
       },
-      signal: AbortSignal.timeout(10000), // 10秒超时
+      signal: AbortSignal.timeout(30000), // 30秒超时（Engine处理可能需要较长时间）
     });
 
     if (!response.ok) {
@@ -134,12 +152,36 @@ engineRoutes.get('/output/:app', async (c) => {
 
     const result = await response.json();
     
+    // 检查输出中是否包含错误信息
+    if (result.data && typeof result.data === 'string') {
+      const outputText = result.data.toLowerCase();
+      // 检测常见的数据库连接错误
+      if (outputText.includes('socket.gaierror') || 
+          outputText.includes('your_db_host') ||
+          outputText.includes('name or service not known')) {
+        console.warn(`Engine ${appName} 输出中包含数据库连接错误`);
+        // 不返回错误，但记录警告，让前端可以显示
+      }
+    }
+    
     // 缓存5秒
     await setCachedData(cacheKey, result, c.env.CACHE, 5);
     
     return c.json(result);
   } catch (error) {
     console.error('Get output error:', error);
+    
+    // 检查是否是超时错误
+    if (error instanceof Error && error.name === 'AbortError') {
+      return c.json(
+        {
+          error: 'Request timeout',
+          message: 'Engine响应超时，可能正在处理中或已卡住',
+        },
+        504
+      );
+    }
+    
     return c.json(
       {
         error: 'Failed to get output',

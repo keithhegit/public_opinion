@@ -1005,6 +1005,28 @@ def stop_app(app_name):
 def get_output(app_name):
     """获取应用输出"""
     try:
+        # 特殊处理Report Engine（它不是Streamlit应用，不在processes中）
+        if app_name == 'report':
+            try:
+                report_log_content = read_log_from_file('report')
+                # 转换为字符串格式
+                output_text = '\n'.join(report_log_content) if isinstance(report_log_content, list) else report_log_content
+                return jsonify({
+                    'success': True,
+                    'data': output_text,
+                    'total_lines': len(report_log_content) if isinstance(report_log_content, list) else 0
+                })
+            except FileNotFoundError:
+                logger.warning("Report Engine 日志文件不存在")
+                return jsonify({
+                    'success': True,
+                    'data': 'Report Engine 日志文件尚未创建',
+                    'total_lines': 0
+                })
+            except Exception as e:
+                logger.exception(f"读取report日志失败: {e}")
+                return jsonify({'success': False, 'message': f'读取report日志失败: {str(e)}'}), 500
+        
         if app_name not in processes:
             return jsonify({'success': False, 'message': '未知应用'}), 404
         

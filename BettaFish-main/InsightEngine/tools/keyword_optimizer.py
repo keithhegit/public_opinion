@@ -74,14 +74,11 @@ class KeywordOptimizer:
             self.client = None
         else:
             self.enabled = True
-            # 如果使用 Gemini，确保 base_url 是正确的 OpenAI 兼容端点
-            if self.base_url and "generativelanguage.googleapis.com" in self.base_url:
-                # 确保使用 OpenAI 兼容端点
-                if not self.base_url.endswith("/openai/"):
-                    if self.base_url.endswith("/"):
-                        self.base_url = self.base_url + "openai/"
-                    else:
-                        self.base_url = self.base_url + "/openai/"
+            # 如果使用 GLM，确保 base_url 是正确的 OpenAI 兼容端点
+            if self.base_url and "api.z.ai" in self.base_url:
+                # 确保 URL 以 / 结尾
+                if not self.base_url.endswith("/"):
+                    self.base_url = self.base_url + "/"
             
             self.client = OpenAI(
                 api_key=self.api_key,

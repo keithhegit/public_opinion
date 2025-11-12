@@ -876,9 +876,9 @@ def report_debug():
                 'REPORT_ENGINE_MODEL_NAME_value': env_model_name or '(未设置)',
             },
                    'defaults': {
-                       'expected_BASE_URL': 'https://generativelanguage.googleapis.com/v1beta/openai/',
-                       'expected_MODEL_NAME': 'gemini-2.0-flash-exp',
-                       'note': '使用 Gemini 官方 API 的 OpenAI 兼容端点',
+                       'expected_BASE_URL': 'https://api.z.ai/api/paas/v4/',
+                       'expected_MODEL_NAME': 'glm-4.6',
+                       'note': '使用 GLM API 的 OpenAI 兼容端点',
                    },
             'diagnosis': {
                 'pydantic_reads_env': 'Pydantic Settings 应该自动从环境变量读取',

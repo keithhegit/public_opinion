@@ -58,18 +58,15 @@ class ForumHost:
 
         self.enabled = True
         
-        # 如果使用 Gemini（复用 REPORT_ENGINE_API_KEY），需要调整配置
+        # 如果使用 GLM（复用 REPORT_ENGINE_API_KEY），需要调整配置
         if self.api_key == settings.REPORT_ENGINE_API_KEY:
-            # 使用 Gemini 配置
-            self.base_url = base_url or settings.REPORT_ENGINE_BASE_URL or "https://generativelanguage.googleapis.com/v1beta/openai/"
-            self.model = model_name or settings.REPORT_ENGINE_MODEL_NAME or "gemini-2.5-pro"
+            # 使用 GLM 配置
+            self.base_url = base_url or settings.REPORT_ENGINE_BASE_URL or "https://api.z.ai/api/paas/v4/"
+            self.model = model_name or settings.REPORT_ENGINE_MODEL_NAME or "glm-4.6"
             # 确保 base_url 是正确的 OpenAI 兼容端点
-            if self.base_url and "generativelanguage.googleapis.com" in self.base_url:
-                if not self.base_url.endswith("/openai/"):
-                    if self.base_url.endswith("/"):
-                        self.base_url = self.base_url + "openai/"
-                    else:
-                        self.base_url = self.base_url + "/openai/"
+            if self.base_url and "api.z.ai" in self.base_url:
+                if not self.base_url.endswith("/"):
+                    self.base_url = self.base_url + "/"
         else:
             # 使用原配置（硅基流动 Qwen3）
             self.base_url = base_url or settings.FORUM_HOST_BASE_URL

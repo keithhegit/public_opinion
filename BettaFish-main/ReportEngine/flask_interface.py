@@ -74,11 +74,11 @@ def initialize_report_engine():
         # BASE_URL 和 MODEL_NAME 优先从主配置读取，如果没有则使用默认值
         base_url = main_settings.REPORT_ENGINE_BASE_URL
         if not base_url or (isinstance(base_url, str) and base_url.strip() == ""):
-            base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"  # Gemini 官方 API 的 OpenAI 兼容端点
+            base_url = "https://api.z.ai/api/paas/v4/"  # GLM API 的 OpenAI 兼容端点
         
         model_name = main_settings.REPORT_ENGINE_MODEL_NAME
         if not model_name or (isinstance(model_name, str) and model_name.strip() == ""):
-            model_name = "gemini-2.5-pro"
+            model_name = "glm-4.6"
         
         logger.info(f"最终使用的配置 - API_KEY存在: {bool(api_key)}")
         logger.info(f"最终使用的配置 - BASE_URL: {base_url}")

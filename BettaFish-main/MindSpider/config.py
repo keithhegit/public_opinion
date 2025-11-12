@@ -22,9 +22,9 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = Field("your_password", description="数据库密码")
     DB_NAME: str = Field("mindspider", description="数据库名称")
     DB_CHARSET: str = Field("utf8mb4", description="数据库字符集")
-    MINDSPIDER_API_KEY: Optional[str] = Field(None, description="MINDSPIDER API密钥（使用 Gemini API，从 Google AI Studio (https://aistudio.google.com/) 获取）")
-    MINDSPIDER_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="MINDSPIDER API基础URL，Gemini官方API的OpenAI兼容端点")
-    MINDSPIDER_MODEL_NAME: Optional[str] = Field("gemini-2.5-pro", description="MINDSPIDER API模型名称，推荐gemini-2.5-pro或gemini-2.5-flash")
+    MINDSPIDER_API_KEY: Optional[str] = Field(None, description="MINDSPIDER API密钥（使用 GLM API，从 Z.AI (https://docs.z.ai/) 获取）")
+    MINDSPIDER_BASE_URL: Optional[str] = Field("https://api.z.ai/api/paas/v4/", description="MINDSPIDER API基础URL，GLM API的OpenAI兼容端点")
+    MINDSPIDER_MODEL_NAME: Optional[str] = Field("glm-4.6", description="MINDSPIDER API模型名称，使用 glm-4.6")
 
     class Config:
         env_file = ENV_FILE

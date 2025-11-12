@@ -27,15 +27,12 @@ class TopicExtractor:
 
     def __init__(self):
         """初始化话题提取器"""
-        # 如果使用 Gemini，确保 base_url 是正确的 OpenAI 兼容端点
+        # 如果使用 GLM，确保 base_url 是正确的 OpenAI 兼容端点
         base_url = settings.MINDSPIDER_BASE_URL
-        if base_url and "generativelanguage.googleapis.com" in base_url:
-            # 确保使用 OpenAI 兼容端点
-            if not base_url.endswith("/openai/"):
-                if base_url.endswith("/"):
-                    base_url = base_url + "openai/"
-                else:
-                    base_url = base_url + "/openai/"
+        if base_url and "api.z.ai" in base_url:
+            # 确保 URL 以 / 结尾
+            if not base_url.endswith("/"):
+                base_url = base_url + "/"
         
         self.client = OpenAI(
             api_key=settings.MINDSPIDER_API_KEY,

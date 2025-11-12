@@ -41,27 +41,26 @@ class Settings(BaseSettings):
     # ======================= LLM 相关 =======================
     # 我们的LLM模型API赞助商有：https://share.302.ai/P66Qe3、https://aihubmix.com/?aff=8Ds9，提供了非常全面的模型api
     
-    # Insight Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
-    INSIGHT_ENGINE_API_KEY: Optional[str] = Field(None, description="Insight Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
-    INSIGHT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Insight Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
-    INSIGHT_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Insight Agent LLM模型名称，如gemini-2.5-pro或gemini-2.5-flash")
+    # Insight Agent（使用 GLM API - OpenAI 兼容端点）
+    INSIGHT_ENGINE_API_KEY: Optional[str] = Field(None, description="Insight Agent GLM API密钥，从 Z.AI (https://docs.z.ai/) 获取")
+    INSIGHT_ENGINE_BASE_URL: Optional[str] = Field("https://api.z.ai/api/paas/v4/", description="Insight Agent LLM接口BaseUrl，GLM API的OpenAI兼容端点")
+    INSIGHT_ENGINE_MODEL_NAME: str = Field("glm-4.6", description="Insight Agent LLM模型名称，使用 glm-4.6")
     
-    # Media Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
-    MEDIA_ENGINE_API_KEY: Optional[str] = Field(None, description="Media Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
-    MEDIA_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Media Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
-    MEDIA_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Media Agent LLM模型名称，如gemini-2.5-pro或gemini-2.5-flash")
+    # Media Agent（使用 GLM API - OpenAI 兼容端点）
+    MEDIA_ENGINE_API_KEY: Optional[str] = Field(None, description="Media Agent GLM API密钥，从 Z.AI (https://docs.z.ai/) 获取")
+    MEDIA_ENGINE_BASE_URL: Optional[str] = Field("https://api.z.ai/api/paas/v4/", description="Media Agent LLM接口BaseUrl，GLM API的OpenAI兼容端点")
+    MEDIA_ENGINE_MODEL_NAME: str = Field("glm-4.6", description="Media Agent LLM模型名称，使用 glm-4.6")
     
-    # Query Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
-    QUERY_ENGINE_API_KEY: Optional[str] = Field(None, description="Query Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
-    QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Query Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点")
-    QUERY_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Query Agent LLM模型，如gemini-2.5-pro或gemini-2.5-flash")
+    # Query Agent（使用 GLM API - OpenAI 兼容端点）
+    QUERY_ENGINE_API_KEY: Optional[str] = Field(None, description="Query Agent GLM API密钥，从 Z.AI (https://docs.z.ai/) 获取")
+    QUERY_ENGINE_BASE_URL: Optional[str] = Field("https://api.z.ai/api/paas/v4/", description="Query Agent LLM接口BaseUrl，GLM API的OpenAI兼容端点")
+    QUERY_ENGINE_MODEL_NAME: str = Field("glm-4.6", description="Query Agent LLM模型，使用 glm-4.6")
     
-    # Report Agent（使用 Gemini 官方 API - OpenAI 兼容端点）
-    # 注意：代码使用 OpenAI SDK，需要 OpenAI 兼容端点
-    # Google 提供了 /v1beta/openai/ 端点用于 OpenAI 兼容格式
-    REPORT_ENGINE_API_KEY: Optional[str] = Field(None, description="Report Agent Gemini API密钥，从 Google AI Studio (https://aistudio.google.com/) 获取")
-    REPORT_ENGINE_BASE_URL: Optional[str] = Field("https://generativelanguage.googleapis.com/v1beta/openai/", description="Report Agent LLM接口BaseUrl，Gemini官方API的OpenAI兼容端点（必须使用 /v1beta/openai/ 路径，因为代码使用 OpenAI SDK）")
-    REPORT_ENGINE_MODEL_NAME: str = Field("gemini-2.5-pro", description="Report Agent LLM模型，如gemini-2.5-pro或gemini-2.5-flash")
+    # Report Agent（使用 GLM API - OpenAI 兼容端点）
+    # 注意：代码使用 OpenAI SDK，GLM 提供 OpenAI 兼容端点
+    REPORT_ENGINE_API_KEY: Optional[str] = Field(None, description="Report Agent GLM API密钥，从 Z.AI (https://docs.z.ai/) 获取")
+    REPORT_ENGINE_BASE_URL: Optional[str] = Field("https://api.z.ai/api/paas/v4/", description="Report Agent LLM接口BaseUrl，GLM API的OpenAI兼容端点")
+    REPORT_ENGINE_MODEL_NAME: str = Field("glm-4.6", description="Report Agent LLM模型，使用 glm-4.6")
     
     # Forum Host（Qwen3最新模型，这里我使用了硅基流动这个平台，申请地址：https://cloud.siliconflow.cn/）
     FORUM_HOST_API_KEY: Optional[str] = Field(None, description="Forum Host（Qwen3最新模型，这里我使用了硅基流动这个平台，申请地址：https://cloud.siliconflow.cn/）API密钥")

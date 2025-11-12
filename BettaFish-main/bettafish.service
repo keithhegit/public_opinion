@@ -1,0 +1,27 @@
+# systemd服务文件
+# 复制到 /etc/systemd/system/bettafish.service
+
+[Unit]
+Description=BettaFish Flask Application
+After=network.target
+
+[Service]
+Type=simple
+User=bettafish
+Group=bettafish
+WorkingDirectory=/home/bettafish/Public_Opinion/BettaFish-main
+Environment="PATH=/home/bettafish/Public_Opinion/BettaFish-main/venv/bin"
+EnvironmentFile=/home/bettafish/Public_Opinion/BettaFish-main/.env
+ExecStart=/home/bettafish/Public_Opinion/BettaFish-main/venv/bin/python app.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# 资源限制（可选）
+# LimitNOFILE=65536
+# LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
+

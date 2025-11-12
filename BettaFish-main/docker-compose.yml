@@ -7,6 +7,8 @@ services:
     # image: ghcr.nju.edu.cn/666ghj/bettafish:latest
     container_name: bettafish
     restart: unless-stopped
+    env_file:
+      - .env  # 加载.env文件中的所有环境变量（包括API Keys）
     environment:
       - PYTHONUNBUFFERED=1
       - STREAMLIT_SERVER_ENABLE_FILE_WATCHER=false

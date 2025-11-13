@@ -119,59 +119,166 @@ class BochaMultimodalSearch:
             }
 
     def _parse_search_response(self, response_dict: Dict[str, Any], query: str) -> BochaResponse:
-        """从API的原始字典响应中解析出结构化的BochaResponse对象"""
+        """从API的原始字典响应中解析出结构化的BochaResponse对象（AI Search API格式）"""
 
         final_response = BochaResponse(query=query)
-        final_response.conversation_id = response_dict.get('conversation_id')
-
-        messages = response_dict.get('messages', [])
+        
+        # AI Search API 响应格式
+        # 检查响应结构：可能是 {code: 200, data: {...}} 或直接是 {...}
+        if response_dict.get("code") == 200:
+            data = response_dict.get('data', {})
+            # 如果 data 为空，可能 conversation_id 和 messages 在顶层
+            if not data:
+                data = response_dict
+        else:
+            data = response_dict
+        
+        # 解析会话ID（可能在顶层或 data 中）
+        final_response.conversation_id = data.get('conversation_id') or response_dict.get('conversation_id')
+        
+        # 解析 messages 数组（AI Search API 的实际格式）
+        messages = data.get('messages', [])
+        if not messages:
+            messages = response_dict.get('messages', [])
+        
         for msg in messages:
-            role = msg.get('role')
-            if role != 'assistant':
+            if not isinstance(msg, dict):
                 continue
-
-            msg_type = msg.get('type')
-            content_type = msg.get('content_type')
-            content_str = msg.get('content', '{}')
-
-            try:
-                content_data = json.loads(content_str)
-            except json.JSONDecodeError:
-                # 如果内容不是合法的JSON字符串（例如纯文本的answer），则直接使用
-                content_data = content_str
-
+            
+            msg_type = msg.get('type', '')
+            content_type = msg.get('content_type', '')
+            content = msg.get('content', '')
+            
+            # 解析 answer (AI生成的总结)
             if msg_type == 'answer' and content_type == 'text':
-                final_response.answer = content_data
-
+                final_response.answer = content
+            
+            # 解析 follow_ups (追问建议)
             elif msg_type == 'follow_up' and content_type == 'text':
-                final_response.follow_ups.append(content_data)
-
-            elif msg_type == 'source':
-                if content_type == 'webpage':
-                    web_results = content_data.get('value', [])
+                try:
+                    # content 可能是 JSON 字符串数组
+                    if isinstance(content, str):
+                        follow_ups_list = json.loads(content)
+                    else:
+                        follow_ups_list = content
+                    
+                    if isinstance(follow_ups_list, list):
+                        final_response.follow_ups.extend(follow_ups_list)
+                except (json.JSONDecodeError, TypeError):
+                    # 如果不是 JSON，直接作为字符串添加
+                    if content:
+                        final_response.follow_ups.append(content)
+            
+            # 解析网页结果 (type: source, content_type: webpage)
+            elif msg_type == 'source' and content_type == 'webpage':
+                try:
+                    if isinstance(content, str):
+                        webpage_data = json.loads(content)
+                    else:
+                        webpage_data = content
+                    
+                    web_results = webpage_data.get('value', [])
                     for item in web_results:
                         final_response.webpages.append(WebpageResult(
-                            name=item.get('name'),
-                            url=item.get('url'),
-                            snippet=item.get('snippet'),
+                            name=item.get('name', ''),
+                            url=item.get('url', ''),
+                            snippet=item.get('snippet', '') or item.get('summary', ''),
                             display_url=item.get('displayUrl'),
-                            date_last_crawled=item.get('dateLastCrawled')
+                            date_last_crawled=item.get('datePublished') or item.get('dateLastCrawled')
                         ))
-                elif content_type == 'image':
-                    final_response.images.append(ImageResult(
-                        name=content_data.get('name'),
-                        content_url=content_data.get('contentUrl'),
-                        host_page_url=content_data.get('hostPageUrl'),
-                        thumbnail_url=content_data.get('thumbnailUrl'),
-                        width=content_data.get('width'),
-                        height=content_data.get('height')
-                    ))
-                # 所有其他 content_type 都视为模态卡
+                except (json.JSONDecodeError, TypeError, KeyError) as e:
+                    logger.warning(f"解析网页结果失败: {e}")
+            
+            # 解析图片结果 (type: source, content_type: image)
+            elif msg_type == 'source' and content_type == 'image':
+                try:
+                    if isinstance(content, str):
+                        image_data = json.loads(content)
+                    else:
+                        image_data = content
+                    
+                    image_results = image_data.get('value', [])
+                    for item in image_results:
+                        final_response.images.append(ImageResult(
+                            name=item.get('name', ''),
+                            content_url=item.get('contentUrl', ''),
+                            host_page_url=item.get('hostPageUrl'),
+                            thumbnail_url=item.get('thumbnailUrl'),
+                            width=item.get('width'),
+                            height=item.get('height')
+                        ))
+                except (json.JSONDecodeError, TypeError, KeyError) as e:
+                    logger.warning(f"解析图片结果失败: {e}")
+            
+            # 解析视频结果 (type: source, content_type: video)
+            elif msg_type == 'source' and content_type == 'video':
+                try:
+                    if isinstance(content, str):
+                        video_data = json.loads(content)
+                    else:
+                        video_data = content
+                    
+                    video_results = video_data.get('value', [])
+                    # 注意：当前 BochaResponse 没有 videos 字段，如果需要可以扩展
+                    if video_results:
+                        logger.info(f"找到 {len(video_results)} 个视频结果（当前未解析）")
+                except (json.JSONDecodeError, TypeError, KeyError) as e:
+                    logger.warning(f"解析视频结果失败: {e}")
+        
+        # 兼容旧格式：如果没有在 messages 中找到，尝试直接从 data 中获取
+        if not final_response.answer:
+            final_response.answer = data.get('answer')
+        if not final_response.follow_ups:
+            follow_ups = data.get('follow_ups')
+            if follow_ups:
+                if isinstance(follow_ups, list):
+                    final_response.follow_ups.extend(follow_ups)
                 else:
-                    final_response.modal_cards.append(ModalCardResult(
-                        card_type=content_type,
-                        content=content_data
-                    ))
+                    final_response.follow_ups.append(follow_ups)
+        
+        # 兼容旧格式：直接从 data 中解析网页和图片（如果 messages 中没有）
+        if not final_response.webpages:
+            web_pages = data.get('webPages', {})
+            if isinstance(web_pages, dict):
+                web_results = web_pages.get('value', [])
+            else:
+                web_results = web_pages if isinstance(web_pages, list) else []
+            
+            for item in web_results:
+                final_response.webpages.append(WebpageResult(
+                    name=item.get('name', ''),
+                    url=item.get('url', ''),
+                    snippet=item.get('snippet', '') or item.get('summary', ''),
+                    display_url=item.get('displayUrl'),
+                    date_last_crawled=item.get('datePublished') or item.get('dateLastCrawled')
+                ))
+        
+        if not final_response.images:
+            images = data.get('images', {})
+            if isinstance(images, dict):
+                image_results = images.get('value', [])
+            else:
+                image_results = images if isinstance(images, list) else []
+            
+            for item in image_results:
+                final_response.images.append(ImageResult(
+                    name=item.get('name', ''),
+                    content_url=item.get('contentUrl', ''),
+                    host_page_url=item.get('hostPageUrl'),
+                    thumbnail_url=item.get('thumbnailUrl'),
+                    width=item.get('width'),
+                    height=item.get('height')
+                ))
+        
+        # 解析模态卡（AI Search API 特有）
+        modal_cards = data.get('modalCards', []) or data.get('modal_cards', [])
+        for card in modal_cards:
+            if isinstance(card, dict):
+                card_type = card.get('type') or card.get('card_type', 'unknown')
+                final_response.modal_cards.append(ModalCardResult(
+                    card_type=card_type,
+                    content=card
+                ))
 
         return final_response
 
@@ -186,16 +293,30 @@ class BochaMultimodalSearch:
             logger.warning(f"Bocha 搜索功能已禁用（缺少API Key），无法执行查询: '{query}'")
             return BochaResponse(
                 query=query,
-                ai_summary="Bocha 搜索功能已禁用，请配置 BOCHA_WEB_SEARCH_API_KEY 或 BOCHA_API_KEY 环境变量",
+                answer="Bocha 搜索功能已禁用，请配置 BOCHA_WEB_SEARCH_API_KEY 或 BOCHA_API_KEY 环境变量",
                 webpages=[],
                 images=[],
                 modal_cards=[]
             )
         
+        # AI Search API 参数格式
         payload = {
-            "stream": False,  # Agent工具通常使用非流式以获取完整结果
+            "query": query,
+            "count": kwargs.get("count", 10),  # 返回结果数量
         }
-        payload.update(kwargs)
+        
+        # 可选参数
+        if "freshness" in kwargs:
+            payload["freshness"] = kwargs["freshness"]
+        if "include" in kwargs:
+            payload["include"] = kwargs["include"]
+        if "exclude" in kwargs:
+            payload["exclude"] = kwargs["exclude"]
+        # AI Search API 使用 answer 参数控制是否生成 AI 总结
+        if "answer" in kwargs:
+            payload["answer"] = kwargs["answer"]
+        elif kwargs.get("summary", True):  # 默认开启 AI 总结
+            payload["answer"] = True
 
         try:
             import time
@@ -242,7 +363,7 @@ class BochaMultimodalSearch:
         return self._search_internal(
             query=query,
             count=max_results,
-            answer=True  # 开启AI总结
+            answer=True  # 开启 AI 生成的总结（AI Search API 使用 answer）
         )
 
     def web_search_only(self, query: str, max_results: int = 15) -> BochaResponse:
@@ -254,7 +375,7 @@ class BochaMultimodalSearch:
         return self._search_internal(
             query=query,
             count=max_results,
-            answer=False # 关闭AI总结
+            answer=False  # 关闭 AI 生成的总结，只返回原始搜索结果
         )
 
     def search_for_structured_data(self, query: str) -> BochaResponse:
@@ -268,7 +389,7 @@ class BochaMultimodalSearch:
         return self._search_internal(
             query=query,
             count=5, # 结构化查询通常不需要太多网页结果
-            answer=True
+            answer=True  # 开启 AI 总结，AI Search API 支持模态卡返回
         )
 
     def search_last_24_hours(self, query: str) -> BochaResponse:

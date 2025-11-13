@@ -1277,6 +1277,151 @@ def get_forum_log():
     except Exception as e:
         return jsonify({'success': False, 'message': f'读取forum.log失败: {str(e)}'})
 
+@app.route('/api/forum/log/download')
+def download_forum_log():
+    """下载ForumEngine的forum.log文件"""
+    try:
+        from flask import send_file
+        forum_log_file = LOG_DIR / "forum.log"
+        if not forum_log_file.exists():
+            return jsonify({'success': False, 'message': 'forum.log文件不存在'}), 404
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        return send_file(
+            str(forum_log_file),
+            as_attachment=True,
+            download_name=f'forum_engine_log_{timestamp}.txt',
+            mimetype='text/plain'
+        )
+    except Exception as e:
+        logger.exception(f"下载forum.log失败: {e}")
+        return jsonify({'success': False, 'message': f'下载失败: {str(e)}'}), 500
+
+# ================== MindSpider API ==================
+
+@app.route('/api/mindspider/status')
+def get_mindspider_status():
+    """获取MindSpider状态"""
+    try:
+        spider = MindSpider()
+        config_ok = spider.check_config()
+        db_conn_ok = spider.check_database_connection() if config_ok else False
+        db_tables_ok = spider.check_database_tables() if db_conn_ok else False
+        deps_ok = spider.check_dependencies()
+        
+        return jsonify({
+            'success': True,
+            'status': {
+                'config': 'ok' if config_ok else 'error',
+                'database_connection': 'ok' if db_conn_ok else 'error',
+                'database_tables': 'ok' if db_tables_ok else 'missing',
+                'dependencies': 'ok' if deps_ok else 'missing'
+            }
+        })
+    except Exception as e:
+        logger.exception(f"获取MindSpider状态失败: {e}")
+        return jsonify({'success': False, 'message': f'获取状态失败: {str(e)}'}), 500
+
+@app.route('/api/mindspider/init_db', methods=['POST'])
+def init_mindspider_db():
+    """初始化MindSpider数据库"""
+    try:
+        spider = MindSpider()
+        success = spider.initialize_database()
+        if success:
+            return jsonify({'success': True, 'message': '数据库初始化成功'})
+        else:
+            return jsonify({'success': False, 'message': '数据库初始化失败'}), 500
+    except Exception as e:
+        logger.exception(f"初始化MindSpider数据库失败: {e}")
+        return jsonify({'success': False, 'message': f'初始化失败: {str(e)}'}), 500
+
+@app.route('/api/mindspider/data/topics')
+def get_mindspider_topics():
+    """获取MindSpider话题数据"""
+    try:
+        from datetime import date
+        from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+        from sqlalchemy.orm import sessionmaker
+        from sqlalchemy import text
+        from urllib.parse import quote_plus
+        
+        # 构建数据库URL
+        dialect = (settings.DB_DIALECT or "mysql").lower()
+        if dialect == "postgresql":
+            db_url = f"postgresql+asyncpg://{settings.DB_USER}:{quote_plus(settings.DB_PASSWORD)}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+        else:
+            db_url = f"mysql+asyncmy://{settings.DB_USER}:{quote_plus(settings.DB_PASSWORD)}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}?charset={settings.DB_CHARSET}"
+        
+        engine = create_async_engine(db_url, pool_pre_ping=True)
+        async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+        
+        async def fetch_topics():
+            async with async_session() as session:
+                # 获取最近30天的话题
+                result = await session.execute(
+                    text("SELECT * FROM daily_topics ORDER BY extract_date DESC, add_ts DESC LIMIT 100")
+                )
+                rows = result.fetchall()
+                # 转换为字典列表
+                topics = []
+                for row in rows:
+                    topics.append(dict(row._mapping))
+                return topics
+        
+        topics = asyncio.run(fetch_topics())
+        await engine.dispose()
+        
+        return jsonify({
+            'success': True,
+            'data': topics,
+            'total': len(topics)
+        })
+    except Exception as e:
+        logger.exception(f"获取MindSpider话题数据失败: {e}")
+        return jsonify({'success': False, 'message': f'获取数据失败: {str(e)}'}), 500
+
+@app.route('/api/mindspider/data/news')
+def get_mindspider_news():
+    """获取MindSpider新闻数据"""
+    try:
+        from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+        from sqlalchemy.orm import sessionmaker
+        from sqlalchemy import text
+        from urllib.parse import quote_plus
+        
+        dialect = (settings.DB_DIALECT or "mysql").lower()
+        if dialect == "postgresql":
+            db_url = f"postgresql+asyncpg://{settings.DB_USER}:{quote_plus(settings.DB_PASSWORD)}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+        else:
+            db_url = f"mysql+asyncmy://{settings.DB_USER}:{quote_plus(settings.DB_PASSWORD)}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}?charset={settings.DB_CHARSET}"
+        
+        engine = create_async_engine(db_url, pool_pre_ping=True)
+        async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+        
+        async def fetch_news():
+            async with async_session() as session:
+                result = await session.execute(
+                    text("SELECT * FROM daily_news ORDER BY crawl_date DESC, add_ts DESC LIMIT 100")
+                )
+                rows = result.fetchall()
+                news = []
+                for row in rows:
+                    news.append(dict(row._mapping))
+                return news
+        
+        news = asyncio.run(fetch_news())
+        await engine.dispose()
+        
+        return jsonify({
+            'success': True,
+            'data': news,
+            'total': len(news)
+        })
+    except Exception as e:
+        logger.exception(f"获取MindSpider新闻数据失败: {e}")
+        return jsonify({'success': False, 'message': f'获取数据失败: {str(e)}'}), 500
+
 # 搜索任务存储（用于异步搜索）
 search_tasks = {}
 search_tasks_lock = threading.Lock()

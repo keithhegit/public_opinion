@@ -64,15 +64,15 @@ def get_async_engine() -> Optional[AsyncEngine]:
     
     if _engine is None:
         try:
-            database_url: str = _build_database_url()
-            _engine = create_async_engine(
-                database_url,
-                pool_pre_ping=True,
-                pool_recycle=1800,
+        database_url: str = _build_database_url()
+        _engine = create_async_engine(
+            database_url,
+            pool_pre_ping=True,
+            pool_recycle=1800,
                 connect_args={
                     "connect_timeout": 5,  # 5秒连接超时
                 } if "mysql" in database_url else {}
-            )
+        )
             logger.info(f"数据库引擎已创建: {host}:{settings.DB_PORT}")
         except Exception as e:
             logger.error(f"创建数据库引擎失败: {e}")

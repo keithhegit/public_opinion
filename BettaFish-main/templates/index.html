@@ -732,6 +732,111 @@
         }
 
         /* Forum Engine 专用样式 */
+        .forum-download-btn, .forum-view-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+            border: 1px solid #000000;
+            background-color: #ffffff;
+            color: #000000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2px;
+        }
+
+        .forum-download-btn:hover, .forum-view-btn:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .forum-log-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .forum-log-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .forum-log-modal-content {
+            background-color: #ffffff;
+            border: 3px solid #000000;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .forum-log-modal-header {
+            padding: 15px 20px;
+            border-bottom: 2px solid #000000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .forum-log-modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .forum-log-modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #ffffff;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .forum-log-modal-close:hover {
+            background-color: #333333;
+        }
+
+        .forum-log-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+        }
+
+        .forum-log-line {
+            margin-bottom: 4px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .forum-log-line.system {
+            color: #666666;
+        }
+
+        .forum-log-line.agent {
+            color: #000000;
+        }
+
+        .forum-log-line.host {
+            color: #0066cc;
+            font-weight: bold;
+        }
+
         .forum-container {
             display: none;
             height: 100%;
@@ -1072,10 +1177,18 @@
                         <span class="status-indicator" id="status-query"></span>
                         Query Engine
                     </button>
-                    <button class="app-button" data-app="forum">
-                        <span class="status-indicator running" id="status-forum"></span>
-                        Forum Engine
-                    </button>
+                    <div style="display: flex; flex-direction: column; flex: 1;">
+                        <button class="app-button" data-app="forum" style="flex: 1;">
+                            <span class="status-indicator running" id="status-forum"></span>
+                            Forum Engine
+                        </button>
+                        <button class="forum-download-btn" id="forumDownloadBtn" title="下载Forum日志">
+                            下载日志
+                        </button>
+                        <button class="forum-view-btn" id="forumViewBtn" title="查看Forum日志">
+                            查看日志
+                        </button>
+                    </div>
                     <button class="app-button locked" data-app="report" title="需等待其余三个Agent工作完毕">
                         <span class="status-indicator" id="status-report"></span>
                         Report Engine
@@ -1120,6 +1233,19 @@
 
     <!-- 消息提示 -->
     <div class="message" id="message"></div>
+
+    <!-- Forum Engine 日志查看模态窗口 -->
+    <div class="forum-log-modal" id="forumLogModal">
+        <div class="forum-log-modal-content">
+            <div class="forum-log-modal-header">
+                <div class="forum-log-modal-title">Forum Engine 日志查看</div>
+                <button class="forum-log-modal-close" id="forumLogModalClose">×</button>
+            </div>
+            <div class="forum-log-modal-body" id="forumLogModalBody">
+                <div class="forum-log-line">正在加载日志...</div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 全局变量
@@ -2310,6 +2436,73 @@
 
         // Forum Engine 相关函数
         let forumLogLineCount = 0;
+
+        // Forum Engine 日志下载功能
+        document.getElementById('forumDownloadBtn').addEventListener('click', function() {
+            window.location.href = '/api/forum/log/download';
+        });
+
+        // Forum Engine 日志查看功能
+        const forumLogModal = document.getElementById('forumLogModal');
+        const forumLogModalBody = document.getElementById('forumLogModalBody');
+        const forumLogModalClose = document.getElementById('forumLogModalClose');
+
+        document.getElementById('forumViewBtn').addEventListener('click', function() {
+            forumLogModal.classList.add('active');
+            loadForumLogToModal();
+        });
+
+        forumLogModalClose.addEventListener('click', function() {
+            forumLogModal.classList.remove('active');
+        });
+
+        forumLogModal.addEventListener('click', function(e) {
+            if (e.target === forumLogModal) {
+                forumLogModal.classList.remove('active');
+            }
+        });
+
+        function loadForumLogToModal() {
+            forumLogModalBody.innerHTML = '<div class="forum-log-line">正在加载日志...</div>';
+            
+            fetch('/api/forum/log')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        forumLogModalBody.innerHTML = '';
+                        
+                        if (data.log_lines && data.log_lines.length > 0) {
+                            data.log_lines.forEach(line => {
+                                const lineDiv = document.createElement('div');
+                                lineDiv.className = 'forum-log-line';
+                                
+                                // 根据日志内容分类
+                                if (line.includes('[SYSTEM]') || line.includes('=== ForumEngine')) {
+                                    lineDiv.classList.add('system');
+                                } else if (line.includes('[HOST]')) {
+                                    lineDiv.classList.add('host');
+                                } else {
+                                    lineDiv.classList.add('agent');
+                                }
+                                
+                                lineDiv.textContent = line;
+                                forumLogModalBody.appendChild(lineDiv);
+                            });
+                            
+                            // 滚动到底部
+                            forumLogModalBody.scrollTop = forumLogModalBody.scrollHeight;
+                        } else {
+                            forumLogModalBody.innerHTML = '<div class="forum-log-line">暂无日志内容</div>';
+                        }
+                    } else {
+                        forumLogModalBody.innerHTML = '<div class="forum-log-line" style="color: red;">加载失败: ' + (data.message || '未知错误') + '</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('加载Forum日志失败:', error);
+                    forumLogModalBody.innerHTML = '<div class="forum-log-line" style="color: red;">加载失败: ' + error.message + '</div>';
+                });
+        }
         
         // Report Engine 相关函数
         let reportLogLineCount = 0;

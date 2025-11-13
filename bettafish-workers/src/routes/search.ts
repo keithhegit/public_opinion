@@ -4,7 +4,6 @@
  */
 
 import { Hono } from 'hono';
-import { getCachedData, setCachedData } from '../utils/cache';
 
 export const searchRoutes = new Hono<{ Bindings: Env }>();
 
@@ -16,15 +15,6 @@ searchRoutes.post('/', async (c) => {
 
     if (!query) {
       return c.json({ error: 'Query is required' }, 400);
-    }
-
-    // 生成缓存键
-    const cacheKey = `search:${JSON.stringify({ query, engine, ...params })}`;
-    
-    // 检查缓存（1分钟缓存）
-    const cached = await getCachedData(cacheKey, c.env.CACHE);
-    if (cached) {
-      return c.json(cached);
     }
 
     // 转发到Python后端
@@ -44,9 +34,6 @@ searchRoutes.post('/', async (c) => {
     }
 
     const result = await response.json();
-    
-    // 缓存1分钟
-    await setCachedData(cacheKey, result, c.env.CACHE, 60);
     
     return c.json(result);
   } catch (error) {

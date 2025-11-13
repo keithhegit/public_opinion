@@ -8,7 +8,6 @@
  */
 
 import { Hono } from 'hono';
-import { getCachedData, setCachedData } from '../utils/cache';
 
 export const reportRoutes = new Hono<{ Bindings: Env }>();
 
@@ -58,13 +57,6 @@ reportRoutes.get('/status/:id', async (c) => {
   try {
     const taskId = c.req.param('id');
     
-    // 检查缓存（5秒缓存）
-    const cacheKey = `report:status:${taskId}`;
-    const cached = await getCachedData(cacheKey, c.env.CACHE);
-    if (cached) {
-      return c.json(cached);
-    }
-
     // 转发到Python后端
     const response = await fetch(`${c.env.BACKEND_URL}/api/report/status/${taskId}`, {
       method: 'GET',
@@ -80,9 +72,6 @@ reportRoutes.get('/status/:id', async (c) => {
     }
 
     const result = await response.json();
-    
-    // 缓存5秒
-    await setCachedData(cacheKey, result, c.env.CACHE, 5);
     
     return c.json(result);
   } catch (error) {
@@ -134,13 +123,6 @@ reportRoutes.get('/result/:id', async (c) => {
 // 检查引擎就绪状态
 reportRoutes.get('/check', async (c) => {
   try {
-    // 检查缓存（30秒缓存）
-    const cacheKey = 'report:check';
-    const cached = await getCachedData(cacheKey, c.env.CACHE);
-    if (cached) {
-      return c.json(cached);
-    }
-
     // 转发到Python后端
     const response = await fetch(`${c.env.BACKEND_URL}/api/report/check`, {
       method: 'GET',
@@ -156,9 +138,6 @@ reportRoutes.get('/check', async (c) => {
     }
 
     const result = await response.json();
-    
-    // 缓存30秒
-    await setCachedData(cacheKey, result, c.env.CACHE, 30);
     
     return c.json(result);
   } catch (error) {

@@ -6,7 +6,6 @@
  */
 
 import { Hono } from 'hono';
-import { getCachedData, setCachedData } from '../utils/cache';
 
 export const configRoutes = new Hono<{ Bindings: Env }>();
 
@@ -24,13 +23,6 @@ configRoutes.get('/', async (c) => {
       );
     }
 
-    // 检查缓存（5分钟缓存）
-    const cacheKey = 'config:all';
-    const cached = await getCachedData(cacheKey, c.env.CACHE);
-    if (cached) {
-      return c.json(cached);
-    }
-
     // 转发到Python后端
     const response = await fetch(`${c.env.BACKEND_URL}/api/config`, {
       method: 'GET',
@@ -46,9 +38,6 @@ configRoutes.get('/', async (c) => {
     }
 
     const result = await response.json();
-    
-    // 缓存5分钟
-    await setCachedData(cacheKey, result, c.env.CACHE, 300);
     
     return c.json(result);
   } catch (error) {
@@ -112,9 +101,6 @@ configRoutes.post('/', async (c) => {
     }
 
     const result = await response.json();
-    
-    // 清除配置缓存
-    await c.env.CACHE.delete('config:all');
     
     return c.json(result);
   } catch (error) {

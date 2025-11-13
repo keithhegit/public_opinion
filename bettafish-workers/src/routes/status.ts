@@ -4,20 +4,12 @@
  */
 
 import { Hono } from 'hono';
-import { getCachedData, setCachedData } from '../utils/cache';
 
 export const statusRoutes = new Hono<{ Bindings: Env }>();
 
 // 获取系统状态
 statusRoutes.get('/', async (c) => {
   try {
-    // 检查缓存（30秒缓存）
-    const cacheKey = 'system:status';
-    const cached = await getCachedData(cacheKey, c.env.CACHE);
-    if (cached) {
-      return c.json(cached);
-    }
-
     // 检查Workers状态
     const workersStatus = {
       status: 'ok',
@@ -54,9 +46,6 @@ statusRoutes.get('/', async (c) => {
       backend: backendStatus,
       timestamp: new Date().toISOString(),
     };
-
-    // 缓存5秒（减少延迟，让状态更新更快）
-    await setCachedData(cacheKey, status, c.env.CACHE, 5);
 
     return c.json(status);
   } catch (error) {

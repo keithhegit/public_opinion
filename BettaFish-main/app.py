@@ -289,18 +289,11 @@ def initialize_system_components():
         logs.append(error_msg)
         errors.append(error_msg)
 
+    # Report Engine 不在系统启动时初始化
+    # 它应该等待其他三个 Engine（insight, media, query）完成后再启动
+    # 初始化逻辑在 /api/start/report 端点中处理
     if REPORT_ENGINE_AVAILABLE:
-        try:
-            if initialize_report_engine():
-                logs.append("ReportEngine 初始化成功")
-            else:
-                msg = "ReportEngine 初始化失败"
-                logs.append(msg)
-                errors.append(msg)
-        except Exception as exc:  # pragma: no cover
-            msg = f"ReportEngine 初始化异常: {exc}"
-            logs.append(msg)
-            errors.append(msg)
+        logs.append("ReportEngine 将在其他引擎完成后手动启动")
 
     if errors:
         cleanup_processes()

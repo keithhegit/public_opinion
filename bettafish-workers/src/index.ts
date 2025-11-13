@@ -17,7 +17,7 @@ import { reportRoutes } from './routes/report';
 // 类型定义
 export interface Env {
   DB: D1Database;
-  CACHE: KVNamespace;
+  // CACHE: KVNamespace; // 已移除 KV 缓存
   BACKEND_URL: string;
   BACKEND_TOKEN?: string;
   ENVIRONMENT: string;

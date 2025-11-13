@@ -6,10 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 [env.production]
 name = "bettafish-api-prod"
 
-[[env.production.kv_namespaces]]
-binding = "CACHE"
-id = "fbcd352267ab44469f583f708df73477"
-preview_id = "387703a9dc0843f7a045d4c8af5ff995"
+# KV 缓存已移除，直接转发请求到后端
 
 [[env.production.d1_databases]]
 binding = "DB"
@@ -24,10 +21,7 @@ BACKEND_TOKEN = ""
 [env.development]
 name = "bettafish-api-dev"
 
-[[env.development.kv_namespaces]]
-binding = "CACHE"
-id = "d95cf70ff8764716badc415268f53db3"
-preview_id = "4d9fa232348a43fb82a747d44a721516"
+# KV 缓存已移除，直接转发请求到后端
 
 [[env.development.d1_databases]]
 binding = "DB"

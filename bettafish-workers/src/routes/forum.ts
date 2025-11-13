@@ -7,20 +7,12 @@
  */
 
 import { Hono } from 'hono';
-import { getCachedData, setCachedData } from '../utils/cache';
 
 export const forumRoutes = new Hono<{ Bindings: Env }>();
 
 // 获取论坛日志
 forumRoutes.get('/log', async (c) => {
   try {
-    // 检查缓存（10秒缓存）
-    const cacheKey = 'forum:log';
-    const cached = await getCachedData(cacheKey, c.env.CACHE);
-    if (cached) {
-      return c.json(cached);
-    }
-
     // 转发到Python后端
     const response = await fetch(`${c.env.BACKEND_URL}/api/forum/log`, {
       method: 'GET',
@@ -36,9 +28,6 @@ forumRoutes.get('/log', async (c) => {
     }
 
     const result = await response.json();
-    
-    // 缓存10秒
-    await setCachedData(cacheKey, result, c.env.CACHE, 10);
     
     return c.json(result);
   } catch (error) {
@@ -85,9 +74,6 @@ forumRoutes.post('/start', async (c) => {
 
     const result = await response.json();
     
-    // 清除论坛日志缓存
-    await c.env.CACHE.delete('forum:log');
-    
     return c.json(result);
   } catch (error) {
     console.error('Start forum error:', error);
@@ -120,9 +106,6 @@ forumRoutes.post('/stop', async (c) => {
     }
 
     const result = await response.json();
-    
-    // 清除论坛日志缓存
-    await c.env.CACHE.delete('forum:log');
     
     return c.json(result);
   } catch (error) {

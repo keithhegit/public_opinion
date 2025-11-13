@@ -7,7 +7,6 @@
  */
 
 import { Hono } from 'hono';
-import { getCachedData, setCachedData } from '../utils/cache';
 
 export const engineRoutes = new Hono<{ Bindings: Env }>();
 
@@ -38,9 +37,6 @@ engineRoutes.post('/start/:app', async (c) => {
     }
 
     const result = await response.json();
-    
-    // 清除相关缓存
-    await c.env.CACHE.delete(`engine:status:${appName}`);
     
     return c.json(result);
   } catch (error) {
@@ -107,10 +103,6 @@ engineRoutes.post('/stop/:app', async (c) => {
 
     const result = await response.json();
     
-    // 清除相关缓存
-    await c.env.CACHE.delete(`engine:status:${appName}`);
-    await c.env.CACHE.delete(`engine:output:${appName}`);
-    
     return c.json(result);
   } catch (error) {
     console.error('Stop engine error:', error);
@@ -129,13 +121,6 @@ engineRoutes.get('/output/:app', async (c) => {
   try {
     const appName = c.req.param('app');
     
-    // 检查缓存（5秒缓存）
-    const cacheKey = `engine:output:${appName}`;
-    const cached = await getCachedData(cacheKey, c.env.CACHE);
-    if (cached) {
-      return c.json(cached);
-    }
-
     // 转发到Python后端
     const response = await fetch(`${c.env.BACKEND_URL}/api/output/${appName}`, {
       method: 'GET',
@@ -163,9 +148,6 @@ engineRoutes.get('/output/:app', async (c) => {
         // 不返回错误，但记录警告，让前端可以显示
       }
     }
-    
-    // 缓存5秒
-    await setCachedData(cacheKey, result, c.env.CACHE, 5);
     
     return c.json(result);
   } catch (error) {

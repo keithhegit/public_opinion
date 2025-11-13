@@ -1370,7 +1370,7 @@ def get_mindspider_topics():
                 return topics
         
         topics = asyncio.run(fetch_topics())
-        await engine.dispose()
+        asyncio.run(engine.dispose())
         
         return jsonify({
             'success': True,
@@ -1411,7 +1411,7 @@ def get_mindspider_news():
                 return news
         
         news = asyncio.run(fetch_news())
-        await engine.dispose()
+        asyncio.run(engine.dispose())
         
         return jsonify({
             'success': True,

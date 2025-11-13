@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { apiClient } from '@/lib/api-client';
 
 interface Engine {
@@ -34,7 +34,10 @@ export const ConsoleSection = ({
     { name: 'media', label: 'Media' },
     { name: 'query', label: 'Query' },
     { name: 'report', label: 'Report' },
+    { name: 'forum', label: 'Forum' },
   ];
+
+  const [showForumLogModal, setShowForumLogModal] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -54,6 +57,13 @@ export const ConsoleSection = ({
   // 导出日志功能
   const handleExportLog = async (appName: string) => {
     try {
+      if (appName === 'forum') {
+        // Forum Engine 使用专门的下载端点
+        const downloadUrl = apiClient.downloadForumLog();
+        window.open(downloadUrl, '_blank');
+        return;
+      }
+      
       const output = await apiClient.getEngineOutput(appName);
       const logContent = output.data || '';
       
@@ -71,6 +81,11 @@ export const ConsoleSection = ({
       console.error(`Failed to export log for ${appName}:`, error);
       alert(`导出日志失败: ${error instanceof Error ? error.message : '未知错误'}`);
     }
+  };
+
+  // Forum Engine 日志查看
+  const handleViewForumLog = () => {
+    setShowForumLogModal(true);
   };
 
   return (
@@ -109,13 +124,24 @@ export const ConsoleSection = ({
                   )}
                 </div>
               </button>
-              <button
-                onClick={() => handleExportLog(app.name)}
-                className="px-2 py-1 text-xs border-r-2 border-black bg-gray-50 hover:bg-gray-100 text-gray-700"
-                title={`导出 ${app.label} 日志`}
-              >
-                导出日志
-              </button>
+              <div className="flex">
+                <button
+                  onClick={() => handleExportLog(app.name)}
+                  className="px-2 py-1 text-xs border-r-2 border-black bg-gray-50 hover:bg-gray-100 text-gray-700"
+                  title={`导出 ${app.label} 日志`}
+                >
+                  导出日志
+                </button>
+                {app.name === 'forum' && (
+                  <button
+                    onClick={handleViewForumLog}
+                    className="px-2 py-1 text-xs border-r-2 border-black bg-gray-50 hover:bg-gray-100 text-gray-700"
+                    title="查看 Forum 日志"
+                  >
+                    查看日志
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
@@ -131,6 +157,31 @@ export const ConsoleSection = ({
           {currentOutput || '等待输出...'}
         </pre>
       </div>
+
+      {/* Forum Log Modal */}
+      {showForumLogModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white border-4 border-black w-[90%] max-w-4xl max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="p-4 border-b-4 border-black bg-black text-white flex justify-between items-center">
+              <h2 className="text-lg font-bold">Forum Engine 日志查看</h2>
+              <button
+                onClick={() => setShowForumLogModal(false)}
+                className="text-white hover:text-gray-300 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto p-4 bg-black text-green-400 font-mono text-sm">
+              <pre className="whitespace-pre-wrap break-words">
+                {forumLog || '正在加载日志...'}
+              </pre>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

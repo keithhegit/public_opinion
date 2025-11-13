@@ -145,6 +145,22 @@ class ApiClient {
   async checkEnginesReady() {
     return this.request<ApiResponse>('/api/report/check');
   }
+
+  // 报告下载
+  async listReports() {
+    return this.request<ApiResponse>('/api/reports/list');
+  }
+
+  async downloadReport(filepath: string) {
+    // 直接返回下载URL，由浏览器处理
+    return `${this.baseUrl}/api/reports/download/${encodeURIComponent(filepath)}`;
+  }
+
+  // Forum Engine 日志下载
+  async downloadForumLog() {
+    // 直接返回下载URL，由浏览器处理
+    return `${this.baseUrl}/api/forum/log/download`;
+  }
 }
 
 export const apiClient = new ApiClient();

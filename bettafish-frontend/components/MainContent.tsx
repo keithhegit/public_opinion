@@ -1,5 +1,8 @@
 'use client';
 
+import { useState } from 'react';
+import { ReportsDialog } from './ReportsDialog';
+
 interface Engine {
   status: 'stopped' | 'starting' | 'running';
   output: string;
@@ -19,6 +22,8 @@ export const MainContent = ({
   onStopEngine,
 }: MainContentProps) => {
   const currentEngine = engines[activeApp];
+  const [showReportsDialog, setShowReportsDialog] = useState(false);
+  const [reportsEngineType, setReportsEngineType] = useState<'media' | 'query' | 'insight'>('media');
 
   return (
     <div className="flex-[1.8] border-r-2 border-black bg-white relative">
@@ -54,13 +59,24 @@ export const MainContent = ({
                 </p>
               </div>
             )}
-            <div className="mt-4">
+            <div className="mt-4 flex gap-2">
               <button
                 onClick={() => onStopEngine(activeApp)}
                 className="px-4 py-2 bg-red-600 text-white text-sm font-bold hover:bg-red-700 rounded"
               >
                 停止 Engine
               </button>
+              {(activeApp === 'media' || activeApp === 'query' || activeApp === 'insight') && (
+                <button
+                  onClick={() => {
+                    setReportsEngineType(activeApp as 'media' | 'query' | 'insight');
+                    setShowReportsDialog(true);
+                  }}
+                  className="px-4 py-2 border-2 border-black bg-white hover:bg-black hover:text-white text-sm font-bold transition-colors"
+                >
+                  下载报告
+                </button>
+              )}
             </div>
           </div>
         ) : (
@@ -82,6 +98,13 @@ export const MainContent = ({
           </div>
         )}
       </div>
+      
+      {/* Reports Dialog */}
+      <ReportsDialog
+        engineType={reportsEngineType}
+        isOpen={showReportsDialog}
+        onClose={() => setShowReportsDialog(false)}
+      />
     </div>
   );
 };

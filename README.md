@@ -22,6 +22,8 @@
 
 📋 **详细部署信息**: 请查看 [DEPLOYMENT_STATUS.md](./DEPLOYMENT_STATUS.md)
 
+📚 **文档索引**: 项目文档较多，请查看 [DOCUMENTATION_INDEX.md](./DOCUMENTATION_INDEX.md) 快速定位需要的文档
+
 **当前提供的资源**:
 - 📋 [项目深度分析报告](./PROJECT_ANALYSIS_REPORT.md) - 基于实际代码的完整分析
 - 📝 [更新迁移方案](./UPDATED_MIGRATION_PLAN.md) - 基于实际架构的迁移方案

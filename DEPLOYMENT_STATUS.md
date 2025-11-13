@@ -75,6 +75,9 @@
 - **Worker 名称**: 
   - 生产环境: `bettafish-api-prod`
   - 开发环境: `bettafish-api-dev`
+- **Worker URL**: 
+  - 生产环境: `https://bettafish-api-prod.keithhe2021.workers.dev`
+  - 开发环境: `https://bettafish-api-dev.keithhe2021.workers.dev`
 - **部署方式**: 手动部署（通过 `wrangler` CLI）
 - **后端 URL**: `https://api.keithhe.com` (HK 服务器)
 

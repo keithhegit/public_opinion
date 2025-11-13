@@ -1289,9 +1289,12 @@
         let systemStarting = false;
         let configModalLocked = false;
 
-        const CONFIG_ENDPOINT = '/api/config';
-        const SYSTEM_STATUS_ENDPOINT = '/api/system/status';
-        const SYSTEM_START_ENDPOINT = '/api/system/start';
+        // API 基础 URL - 指向 Workers
+        const API_BASE_URL = 'https://bettafish-api-prod.keithhe2021.workers.dev';
+        
+        const CONFIG_ENDPOINT = `${API_BASE_URL}/api/config`;
+        const SYSTEM_STATUS_ENDPOINT = `${API_BASE_URL}/api/system/status`;
+        const SYSTEM_START_ENDPOINT = `${API_BASE_URL}/api/system/start`;
         const START_BUTTON_DEFAULT_TEXT = '保存并启动系统';
 
         const configFieldGroups = [
@@ -1988,14 +1991,14 @@
             }
             
             // 清除后端可能存在的旧任务（如果已完成或出错）
-            fetch('/api/report/status')
+            fetch(`${API_BASE_URL}/api/report/status`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.current_task) {
                         const task = data.current_task;
                         // 如果任务已完成或出错，清除它
                         if (task.status === 'completed' || task.status === 'error') {
-                            fetch(`/api/report/cancel/${task.task_id}`, { method: 'POST' })
+                            fetch(`${API_BASE_URL}/api/report/cancel/${task.task_id}`, { method: 'POST' })
                                 .catch(err => console.log('清除旧任务失败（可能已不存在）:', err));
                         }
                     }
@@ -2015,8 +2018,9 @@
                 if (appStatus[app] === 'running' && preloadedIframes[app]) {
                     totalRunning++;
                     
-                    // 构建搜索URL
-                    const searchUrl = `http://${window.location.hostname}:${ports[app]}?query=${encodeURIComponent(query)}&auto_search=true`;
+                    // 构建搜索URL - 通过 Workers 代理到后端 Streamlit
+                    // 注意：这些端口是后端 Streamlit 服务的端口，需要通过 Workers 代理
+                    const searchUrl = `${API_BASE_URL}/api/proxy/${app}?query=${encodeURIComponent(query)}&auto_search=true`;
                     console.log(`向 ${app} 发送搜索请求: ${searchUrl}`);
                     
                     // 直接更新主iframe的src来传递搜索参数
@@ -2127,7 +2131,7 @@
                 return;
             }
             
-            fetch(`/api/output/${app}`)
+            fetch(`${API_BASE_URL}/api/output/${app}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.output.length > 0) {
@@ -2166,7 +2170,7 @@
             }
             
             if (appStatus[currentApp] === 'running' || appStatus[currentApp] === 'starting') {
-                fetch(`/api/output/${currentApp}`)
+                fetch(`${API_BASE_URL}/api/output/${currentApp}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.output.length > 0) {
@@ -2220,7 +2224,8 @@
             
             for (const [app, port] of Object.entries(ports)) {
                 const iframe = document.createElement('iframe');
-                iframe.src = `http://${window.location.hostname}:${port}`;
+                // 通过 Workers 代理到后端 Streamlit 服务
+                iframe.src = `${API_BASE_URL}/api/proxy/${app}`;
                 iframe.style.width = '100%';
                 iframe.style.height = '100%';
                 iframe.style.border = 'none';
@@ -2345,7 +2350,7 @@
 
         // 检查应用状态
         function checkStatus() {
-            fetch('/api/status')
+            fetch(`${API_BASE_URL}/api/status`)
             .then(response => response.json())
             .then(data => {
                 updateAppStatus(data);
@@ -2477,7 +2482,7 @@
 
         // Forum Engine 日志下载功能
         document.getElementById('forumDownloadBtn').addEventListener('click', function() {
-            window.location.href = '/api/forum/log/download';
+            window.location.href = `${API_BASE_URL}/api/forum/log/download`;
         });
 
         // Media Engine 报告下载功能
@@ -2518,7 +2523,7 @@
             reportsModalBody.innerHTML = '<div class="forum-log-line">正在加载报告列表...</div>';
             
             // 获取报告列表
-            fetch('/api/reports/list')
+            fetch(`${API_BASE_URL}/api/reports/list`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.reports && data.reports[engineType]) {
@@ -2533,7 +2538,7 @@
                         reports.forEach(report => {
                             const fileSize = (report.size / 1024).toFixed(2); // KB
                             const modifiedDate = new Date(report.modified * 1000).toLocaleString('zh-CN');
-                            const downloadUrl = `/api/reports/download/${encodeURIComponent(report.path)}`;
+                            const downloadUrl = `${API_BASE_URL}/api/reports/download/${encodeURIComponent(report.path)}`;
                             
                             html += `
                                 <div style="border: 1px solid #000; padding: 10px; margin-bottom: 10px; background-color: #fff;">
@@ -2585,7 +2590,7 @@
         function loadForumLogToModal() {
             forumLogModalBody.innerHTML = '<div class="forum-log-line">正在加载日志...</div>';
             
-            fetch('/api/forum/log')
+            fetch(`${API_BASE_URL}/api/forum/log`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -2630,7 +2635,7 @@
 
         // 实时刷新论坛消息（适用于所有页面）
         function refreshForumMessages() {
-            fetch('/api/forum/log')
+            fetch(`${API_BASE_URL}/api/forum/log`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.log_lines.length > forumLogLineCount) {
@@ -2662,7 +2667,7 @@
 
         // 加载论坛日志
         function loadForumLog() {
-            fetch('/api/forum/log')
+            fetch(`${API_BASE_URL}/api/forum/log`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -2718,7 +2723,7 @@
 
         // 刷新论坛日志
         function refreshForumLog() {
-            fetch('/api/forum/log')
+            fetch(`${API_BASE_URL}/api/forum/log`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.log_lines.length > forumLogLineCount) {
@@ -2753,7 +2758,7 @@
         let autoGenerateTriggered = false; // 防止重复触发
         
         function checkReportLockStatus() {
-            fetch('/api/report/status')
+            fetch(`${API_BASE_URL}/api/report/status`)
             .then(response => response.json())
             .then(data => {
                 const reportButton = document.querySelector('[data-app="report"]');
@@ -2801,7 +2806,7 @@
         }
 
         function refreshReportLog() {
-            fetch('/api/report/log')
+            fetch(`${API_BASE_URL}/api/report/log`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.log_lines.length > reportLogLineCount) {
@@ -2827,7 +2832,7 @@
 
         // 加载Report Engine日志
         function loadReportLog() {
-            fetch('/api/report/log')
+            fetch(`${API_BASE_URL}/api/report/log`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -2985,7 +2990,7 @@
             const reportContent = document.getElementById('reportContent');
             
             // 检查ReportEngine状态
-            fetch('/api/report/status')
+            fetch(`${API_BASE_URL}/api/report/status`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -3157,7 +3162,7 @@
                 console.log('使用自定义模板生成报告');
             }
             
-            fetch('/api/report/generate', {
+            fetch(`${API_BASE_URL}/api/report/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -3216,7 +3221,7 @@
 
         // 检查任务进度
         function checkTaskProgress(taskId) {
-            fetch(`/api/report/progress/${taskId}`)
+            fetch(`${API_BASE_URL}/api/report/progress/${taskId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -3306,7 +3311,7 @@
             const reportPreview = document.getElementById('reportPreview');
             reportPreview.innerHTML = '<div class="report-loading"><span class="report-loading-spinner"></span>加载报告中...</div>';
             
-            fetch(`/api/report/result/${taskId}`)
+            fetch(`${API_BASE_URL}/api/report/result/${taskId}`)
             .then(response => {
                 if (response.ok) {
                     return response.text();
@@ -3452,7 +3457,7 @@
         // 检查报告状态（不重新加载整个界面）
         function checkReportStatus() {
             // 只更新状态信息，不重新渲染整个界面
-            fetch('/api/report/status')
+            fetch(`${API_BASE_URL}/api/report/status`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {

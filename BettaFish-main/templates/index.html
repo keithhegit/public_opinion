@@ -1169,14 +1169,24 @@
                         <span class="status-indicator" id="status-insight"></span>
                         Insight Engine
                     </button>
-                    <button class="app-button" data-app="media">
-                        <span class="status-indicator" id="status-media"></span>
-                        Media Engine
-                    </button>
-                    <button class="app-button" data-app="query">
-                        <span class="status-indicator" id="status-query"></span>
-                        Query Engine
-                    </button>
+                    <div style="display: flex; flex-direction: column; flex: 1;">
+                        <button class="app-button" data-app="media" style="flex: 1;">
+                            <span class="status-indicator" id="status-media"></span>
+                            Media Engine
+                        </button>
+                        <button class="forum-download-btn" id="mediaDownloadBtn" title="下载Media报告">
+                            下载报告
+                        </button>
+                    </div>
+                    <div style="display: flex; flex-direction: column; flex: 1;">
+                        <button class="app-button" data-app="query" style="flex: 1;">
+                            <span class="status-indicator" id="status-query"></span>
+                            Query Engine
+                        </button>
+                        <button class="forum-download-btn" id="queryDownloadBtn" title="下载Query报告">
+                            下载报告
+                        </button>
+                    </div>
                     <div style="display: flex; flex-direction: column; flex: 1;">
                         <button class="app-button" data-app="forum" style="flex: 1;">
                             <span class="status-indicator running" id="status-forum"></span>
@@ -1243,6 +1253,19 @@
             </div>
             <div class="forum-log-modal-body" id="forumLogModalBody">
                 <div class="forum-log-line">正在加载日志...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 报告下载模态窗口 -->
+    <div class="forum-log-modal" id="reportsModal">
+        <div class="forum-log-modal-content">
+            <div class="forum-log-modal-header">
+                <div class="forum-log-modal-title" id="reportsModalTitle">报告下载</div>
+                <button class="forum-log-modal-close" id="reportsModalClose">×</button>
+            </div>
+            <div class="forum-log-modal-body" id="reportsModalBody">
+                <div class="forum-log-line">正在加载报告列表...</div>
             </div>
         </div>
     </div>
@@ -2456,6 +2479,88 @@
         document.getElementById('forumDownloadBtn').addEventListener('click', function() {
             window.location.href = '/api/forum/log/download';
         });
+
+        // Media Engine 报告下载功能
+        document.getElementById('mediaDownloadBtn').addEventListener('click', function() {
+            showReportsModal('media');
+        });
+
+        // Query Engine 报告下载功能
+        document.getElementById('queryDownloadBtn').addEventListener('click', function() {
+            showReportsModal('query');
+        });
+
+        // 报告下载模态窗口
+        const reportsModal = document.getElementById('reportsModal');
+        const reportsModalBody = document.getElementById('reportsModalBody');
+        const reportsModalTitle = document.getElementById('reportsModalTitle');
+        const reportsModalClose = document.getElementById('reportsModalClose');
+
+        reportsModalClose.addEventListener('click', function() {
+            reportsModal.classList.remove('active');
+        });
+
+        reportsModal.addEventListener('click', function(e) {
+            if (e.target === reportsModal) {
+                reportsModal.classList.remove('active');
+            }
+        });
+
+        function showReportsModal(engineType) {
+            const engineNames = {
+                'media': 'Media Engine',
+                'query': 'Query Engine',
+                'insight': 'Insight Engine'
+            };
+            
+            reportsModalTitle.textContent = `${engineNames[engineType] || engineType} 报告下载`;
+            reportsModal.classList.add('active');
+            reportsModalBody.innerHTML = '<div class="forum-log-line">正在加载报告列表...</div>';
+            
+            // 获取报告列表
+            fetch('/api/reports/list')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.reports && data.reports[engineType]) {
+                        const reports = data.reports[engineType];
+                        
+                        if (reports.length === 0) {
+                            reportsModalBody.innerHTML = '<div class="forum-log-line">暂无可用报告</div>';
+                            return;
+                        }
+                        
+                        let html = '<div style="padding: 10px;">';
+                        reports.forEach(report => {
+                            const fileSize = (report.size / 1024).toFixed(2); // KB
+                            const modifiedDate = new Date(report.modified * 1000).toLocaleString('zh-CN');
+                            const downloadUrl = `/api/reports/download/${encodeURIComponent(report.path)}`;
+                            
+                            html += `
+                                <div style="border: 1px solid #000; padding: 10px; margin-bottom: 10px; background-color: #fff;">
+                                    <div style="font-weight: bold; margin-bottom: 5px;">${report.name}</div>
+                                    <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                                        大小: ${fileSize} KB | 修改时间: ${modifiedDate}
+                                    </div>
+                                    <a href="${downloadUrl}" 
+                                       style="display: inline-block; padding: 5px 15px; border: 2px solid #000; background-color: #fff; color: #000; text-decoration: none; font-weight: bold; cursor: pointer;"
+                                       onmouseover="this.style.backgroundColor='#000'; this.style.color='#fff';"
+                                       onmouseout="this.style.backgroundColor='#fff'; this.style.color='#000';">
+                                        下载
+                                    </a>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        reportsModalBody.innerHTML = html;
+                    } else {
+                        reportsModalBody.innerHTML = '<div class="forum-log-line">加载报告列表失败</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('加载报告列表失败:', error);
+                    reportsModalBody.innerHTML = `<div class="forum-log-line">错误: ${error.message}</div>`;
+                });
+        }
 
         // Forum Engine 日志查看功能
         const forumLogModal = document.getElementById('forumLogModal');

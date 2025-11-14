@@ -30,10 +30,10 @@ export const ConsoleSection = ({
   }, [engines, forumLog]);
 
   const apps = [
-    { name: 'insight', label: 'Insight' },
-    { name: 'media', label: 'Media' },
-    { name: 'query', label: 'Query' },
-    { name: 'report', label: 'Report' },
+    { name: 'insight', label: '舆情数据库' },
+    { name: 'media', label: '媒体爬虫' },
+    { name: 'query', label: '热搜分析' },
+    { name: 'report', label: '报表分析' },
   ];
 
   const getStatusColor = (status: string) => {

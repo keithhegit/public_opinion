@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ConfigDialog } from './ConfigDialog';
 import { ReportDialog } from './ReportDialog';
 
 interface Engine {
@@ -43,12 +43,12 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
     return engineStatuses[name]?.status || 'stopped';
   };
 
-  // 引擎状态显示
+  // 引擎状态显示（只修改显示文本，不影响代码逻辑）
   const engineLabels: Record<string, string> = {
-    insight: 'Insight Engine',
-    media: 'Media Engine',
-    query: 'Query Engine',
-    report: 'Report Engine',
+    insight: '舆情数据库',
+    media: '媒体爬虫',
+    query: '热搜分析',
+    report: '报表分析',
   };
 
   const engineStatusList = ['insight', 'media', 'query', 'report'].map((name) => {
@@ -69,9 +69,21 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
   });
 
   return (
-    <div className="border-b-2 border-black p-5 bg-white">
+    <div className="border-b-2 border-black p-5 bg-white relative">
+      {/* Logo 在左上角 */}
+      <div className="absolute top-5 left-5">
+        <Image
+          src="https://pub-c98d5902eedf42f6a9765dfad981fd88.r2.dev/Icon/2023.10.24--ogcloudlogo-RGB-TM.png"
+          alt="OgInight Logo"
+          width={120}
+          height={40}
+          className="object-contain"
+          unoptimized
+        />
+      </div>
+      
       <h1 className="text-2xl font-bold text-center mb-5 tracking-wide">
-        微舆
+        OgInight
       </h1>
       
       {/* 引擎启动状态提示 */}
@@ -109,14 +121,7 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
       </div>
       
       <div className="flex items-stretch gap-3 max-w-[950px] mx-auto mb-2">
-        <ConfigDialog>
-          <Button
-            variant="outline"
-            className="border-2 border-black min-w-[120px]"
-          >
-            配置
-          </Button>
-        </ConfigDialog>
+        {/* 配置按钮已隐藏 */}
         
         <div className="flex flex-1 border-2 border-black">
           <Input

@@ -23,10 +23,10 @@ export const MainContent = ({
   return (
     <div className="flex-[1.8] border-r-2 border-black bg-white relative">
       <div className="p-4 border-b-2 border-black bg-white font-bold text-center">
-        {activeApp === 'insight' && 'Insight Engine'}
-        {activeApp === 'media' && 'Media Engine'}
-        {activeApp === 'query' && 'Query Engine'}
-        {activeApp === 'report' && 'Report Engine'}
+        {activeApp === 'insight' && '舆情数据库'}
+        {activeApp === 'media' && '媒体爬虫'}
+        {activeApp === 'query' && '热搜分析'}
+        {activeApp === 'report' && '报表分析'}
       </div>
       
       <div className="h-[calc(100%-60px)] relative overflow-hidden">

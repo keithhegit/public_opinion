@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { apiClient } from '@/lib/api-client';
 import { SearchSection } from '@/components/SearchSection';
 import { MainContent } from '@/components/MainContent';
 import { ConsoleSection } from '@/components/ConsoleSection';
+import { LoadingProgress } from '@/components/LoadingProgress';
 
 type EngineStatus = 'stopped' | 'starting' | 'running';
 
@@ -25,6 +27,8 @@ export default function Home() {
   const [forumLog, setForumLog] = useState<string>('');
   const [autoStartAttempted, setAutoStartAttempted] = useState(false);
   const [allEnginesReady, setAllEnginesReady] = useState(false);
+  const [showLoading, setShowLoading] = useState(true);
+  const [loadingComplete, setLoadingComplete] = useState(false);
 
   // 自动启动所有引擎（页面加载时）
   useEffect(() => {
@@ -60,7 +64,28 @@ export default function Home() {
       (name) => engines[name]?.status === 'running'
     );
     setAllEnginesReady(allRunning);
-  }, [engines]);
+    
+    // 如果所有引擎就绪且加载进度条还在显示，完成加载
+    if (allRunning && showLoading && !loadingComplete) {
+      // 触发进度条完成
+      if (typeof window !== 'undefined' && (window as any).completeLoadingProgress) {
+        (window as any).completeLoadingProgress();
+      }
+      setLoadingComplete(true);
+      
+      // 延迟隐藏加载界面并显示Toast
+      setTimeout(() => {
+        setShowLoading(false);
+        toast.success('启动成功，请在输入框输入您要分析的舆情主题', {
+          duration: 5000,
+          style: {
+            fontSize: '16px',
+            padding: '20px',
+          },
+        });
+      }, 500);
+    }
+  }, [engines, showLoading, loadingComplete]);
 
   // 轮询系统状态
   useEffect(() => {
@@ -173,10 +198,10 @@ export default function Home() {
   const getEngineStatusText = (name: string) => {
     const status = engines[name]?.status;
     const labels: Record<string, string> = {
-      insight: 'Insight Engine',
-      media: 'Media Engine',
-      query: 'Query Engine',
-      report: 'Report Engine',
+      insight: '舆情数据库',
+      media: '媒体爬虫',
+      query: '热搜分析',
+      report: '报表分析',
     };
     const label = labels[name] || name;
     
@@ -191,8 +216,16 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen border-2 border-black overflow-hidden">
-      <SearchSection
+    <>
+      <LoadingProgress 
+        isVisible={showLoading} 
+        onComplete={() => {
+          // 加载完成回调
+        }}
+      />
+      
+      <div className="flex flex-col h-screen border-2 border-black overflow-hidden">
+        <SearchSection
         onSearch={async (query) => {
           if (!allEnginesReady) {
             alert('请等待所有引擎启动完成后再进行搜索');
@@ -233,5 +266,6 @@ export default function Home() {
         />
       </div>
     </div>
+    </>
   );
 }

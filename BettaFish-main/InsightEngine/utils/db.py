@@ -94,14 +94,14 @@ async def fetch_all(query: str, params: Optional[Union[Iterable[Any], Dict[str, 
         
         # 使用超时机制，避免长时间卡住
         try:
-    async with engine.connect() as conn:
+            async with engine.connect() as conn:
                 result = await asyncio.wait_for(
                     conn.execute(text(query), params or {}),
                     timeout=10.0  # 10秒查询超时
                 )
-        rows = result.mappings().all()
-        # 将 RowMapping 转换为普通字典
-        return [dict(row) for row in rows]
+                rows = result.mappings().all()
+                # 将 RowMapping 转换为普通字典
+                return [dict(row) for row in rows]
         except asyncio.TimeoutError:
             logger.error(f"数据库查询超时: {query[:100]}...")
             return []

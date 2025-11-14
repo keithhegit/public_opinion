@@ -7,7 +7,38 @@ import { Hono } from 'hono';
 
 export const tasksRoutes = new Hono<{ Bindings: Env }>();
 
-// 获取历史任务列表
+// 注意：路由顺序很重要！具体路径必须在参数路径之前
+// 清空当前任务状态（必须在 /:taskId 之前）
+tasksRoutes.post('/clear', async (c) => {
+  try {
+    const response = await fetch(`${c.env.BACKEND_URL}/api/tasks/clear`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(c.env.BACKEND_TOKEN && { Authorization: `Bearer ${c.env.BACKEND_TOKEN}` }),
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      return c.json({ error: 'Failed to clear tasks', details: error }, response.status);
+    }
+
+    const result = await response.json();
+    return c.json(result);
+  } catch (error) {
+    console.error('Clear tasks error:', error);
+    return c.json(
+      {
+        error: 'Failed to clear tasks',
+        message: c.env.ENVIRONMENT === 'development' ? String(error) : undefined,
+      },
+      500
+    );
+  }
+});
+
+// 获取历史任务列表（必须在 /:taskId 之前）
 tasksRoutes.get('/history', async (c) => {
   try {
     const limit = c.req.query('limit') || '50';
@@ -41,68 +72,7 @@ tasksRoutes.get('/history', async (c) => {
   }
 });
 
-// 清空当前任务状态
-tasksRoutes.post('/clear', async (c) => {
-  try {
-    const response = await fetch(`${c.env.BACKEND_URL}/api/tasks/clear`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(c.env.BACKEND_TOKEN && { Authorization: `Bearer ${c.env.BACKEND_TOKEN}` }),
-      },
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      return c.json({ error: 'Failed to clear tasks', details: error }, response.status);
-    }
-
-    const result = await response.json();
-    return c.json(result);
-  } catch (error) {
-    console.error('Clear tasks error:', error);
-    return c.json(
-      {
-        error: 'Failed to clear tasks',
-        message: c.env.ENVIRONMENT === 'development' ? String(error) : undefined,
-      },
-      500
-    );
-  }
-});
-
-// 获取任务详细信息
-tasksRoutes.get('/:taskId', async (c) => {
-  try {
-    const taskId = c.req.param('taskId');
-    const response = await fetch(`${c.env.BACKEND_URL}/api/tasks/${taskId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(c.env.BACKEND_TOKEN && { Authorization: `Bearer ${c.env.BACKEND_TOKEN}` }),
-      },
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      return c.json({ error: 'Failed to fetch task info', details: error }, response.status);
-    }
-
-    const result = await response.json();
-    return c.json(result);
-  } catch (error) {
-    console.error('Get task info error:', error);
-    return c.json(
-      {
-        error: 'Failed to fetch task info',
-        message: c.env.ENVIRONMENT === 'development' ? String(error) : undefined,
-      },
-      500
-    );
-  }
-});
-
-// 获取任务日志
+// 获取任务日志（必须在 /:taskId 之前，因为路径更长更具体）
 tasksRoutes.get('/:taskId/logs/:appName', async (c) => {
   try {
     const taskId = c.req.param('taskId');
@@ -130,6 +100,37 @@ tasksRoutes.get('/:taskId/logs/:appName', async (c) => {
     return c.json(
       {
         error: 'Failed to fetch task log',
+        message: c.env.ENVIRONMENT === 'development' ? String(error) : undefined,
+      },
+      500
+    );
+  }
+});
+
+// 获取任务详细信息（必须在最后，因为它是参数路由）
+tasksRoutes.get('/:taskId', async (c) => {
+  try {
+    const taskId = c.req.param('taskId');
+    const response = await fetch(`${c.env.BACKEND_URL}/api/tasks/${taskId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(c.env.BACKEND_TOKEN && { Authorization: `Bearer ${c.env.BACKEND_TOKEN}` }),
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      return c.json({ error: 'Failed to fetch task info', details: error }, response.status);
+    }
+
+    const result = await response.json();
+    return c.json(result);
+  } catch (error) {
+    console.error('Get task info error:', error);
+    return c.json(
+      {
+        error: 'Failed to fetch task info',
         message: c.env.ENVIRONMENT === 'development' ? String(error) : undefined,
       },
       500

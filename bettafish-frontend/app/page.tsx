@@ -90,13 +90,22 @@ export default function Home() {
   // 页面加载时清除旧日志（只在首次加载时执行）
   useEffect(() => {
     // 清除所有引擎的旧输出
-    setEngines({
-      insight: { status: 'stopped' as EngineStatus, output: '' },
-      media: { status: 'stopped' as EngineStatus, output: '' },
-      query: { status: 'stopped' as EngineStatus, output: '' },
-      report: { status: 'stopped' as EngineStatus, output: '' },
-    });
-    setForumLog('');
+    const clearLogs = () => {
+      setEngines({
+        insight: { status: 'stopped' as EngineStatus, output: '' },
+        media: { status: 'stopped' as EngineStatus, output: '' },
+        query: { status: 'stopped' as EngineStatus, output: '' },
+        report: { status: 'stopped' as EngineStatus, output: '' },
+      });
+      setForumLog('');
+    };
+    
+    // 立即清除
+    clearLogs();
+    
+    // 延迟再次清除（确保清除所有状态）
+    const timer = setTimeout(clearLogs, 100);
+    return () => clearTimeout(timer);
   }, []); // 只在组件挂载时执行一次
 
   // 轮询系统状态

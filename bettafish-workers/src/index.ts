@@ -13,6 +13,7 @@ import { searchRoutes } from './routes/search';
 import { configRoutes } from './routes/config';
 import { forumRoutes } from './routes/forum';
 import { reportRoutes } from './routes/report';
+import { tasksRoutes } from './routes/tasks';
 
 // 类型定义
 export interface Env {
@@ -74,6 +75,7 @@ app.route('/api/search', searchRoutes);
 app.route('/api/config', configRoutes);
 app.route('/api/forum', forumRoutes);
 app.route('/api/report', reportRoutes);
+app.route('/api/tasks', tasksRoutes);
 
 // 404 处理
 app.notFound((c) => {

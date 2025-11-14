@@ -732,7 +732,7 @@
         }
 
         /* Forum Engine 专用样式 */
-        .forum-download-btn, .forum-view-btn {
+        .forum-download-btn, .forum-view-btn, .forum-stats-btn, .forum-search-btn, .forum-export-btn {
             padding: 4px 8px;
             font-size: 11px;
             border: 1px solid #000000;
@@ -743,7 +743,7 @@
             margin-top: 2px;
         }
 
-        .forum-download-btn:hover, .forum-view-btn:hover {
+        .forum-download-btn:hover, .forum-view-btn:hover, .forum-stats-btn:hover, .forum-search-btn:hover, .forum-export-btn:hover {
             background-color: #000000;
             color: #ffffff;
         }
@@ -1197,6 +1197,15 @@
                         </button>
                         <button class="forum-view-btn" id="forumViewBtn" title="查看Forum日志">
                             查看日志
+                        </button>
+                        <button class="forum-stats-btn" id="forumStatsBtn" title="统计信息">
+                            统计
+                        </button>
+                        <button class="forum-search-btn" id="forumSearchBtn" title="搜索消息">
+                            搜索
+                        </button>
+                        <button class="forum-export-btn" id="forumExportBtn" title="导出数据">
+                            导出
                         </button>
                     </div>
                     <button class="app-button locked" data-app="report" title="需等待其余三个Agent工作完毕">

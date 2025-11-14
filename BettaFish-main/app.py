@@ -1290,6 +1290,447 @@ def download_forum_log():
         logger.exception(f"下载forum.log失败: {e}")
         return jsonify({'success': False, 'message': f'下载失败: {str(e)}'}), 500
 
+@app.route('/api/forum/stats')
+def get_forum_stats():
+    """获取ForumEngine统计信息"""
+    try:
+        from ForumEngine.monitor import get_monitor
+        import re
+        from collections import defaultdict
+        
+        forum_log_file = LOG_DIR / "forum.log"
+        if not forum_log_file.exists():
+            return jsonify({
+                'success': True,
+                'stats': {
+                    'total_messages': 0,
+                    'engine_counts': {'INSIGHT': 0, 'MEDIA': 0, 'QUERY': 0},
+                    'host_count': 0,
+                    'system_count': 0,
+                    'total_length': 0,
+                    'avg_length': 0,
+                    'hourly_distribution': {},
+                    'last_activity': None
+                }
+            })
+        
+        with open(forum_log_file, 'r', encoding='utf-8', errors='ignore') as f:
+            lines = f.readlines()
+        
+        # 统计信息
+        engine_counts = defaultdict(int)
+        host_count = 0
+        system_count = 0
+        total_length = 0
+        hourly_distribution = defaultdict(int)
+        last_activity = None
+        
+        # 解析每一行
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            
+            # 匹配格式: [HH:MM:SS] [SOURCE] content
+            match = re.match(r'\[(\d{2}):(\d{2}):(\d{2})\]\s*\[(\w+)\]\s*(.+)', line)
+            if match:
+                hour, minute, second, source, content = match.groups()
+                hour = int(hour)
+                
+                # 统计各 Engine 发言
+                if source in ['INSIGHT', 'MEDIA', 'QUERY']:
+                    engine_counts[source] += 1
+                    total_length += len(content)
+                    hourly_distribution[hour] += 1
+                elif source == 'HOST':
+                    host_count += 1
+                    total_length += len(content)
+                    hourly_distribution[hour] += 1
+                elif source == 'SYSTEM':
+                    system_count += 1
+                
+                # 更新最后活动时间
+                last_activity = f"{hour:02d}:{minute:02d}:{second:02d}"
+        
+        total_messages = sum(engine_counts.values()) + host_count
+        avg_length = total_length / total_messages if total_messages > 0 else 0
+        
+        return jsonify({
+            'success': True,
+            'stats': {
+                'total_messages': total_messages,
+                'engine_counts': {
+                    'INSIGHT': engine_counts.get('INSIGHT', 0),
+                    'MEDIA': engine_counts.get('MEDIA', 0),
+                    'QUERY': engine_counts.get('QUERY', 0)
+                },
+                'host_count': host_count,
+                'system_count': system_count,
+                'total_length': total_length,
+                'avg_length': round(avg_length, 2),
+                'hourly_distribution': dict(hourly_distribution),
+                'last_activity': last_activity
+            }
+        })
+    except Exception as e:
+        logger.exception(f"获取Forum统计信息失败: {e}")
+        return jsonify({'success': False, 'message': f'获取统计信息失败: {str(e)}'}), 500
+
+@app.route('/api/forum/status')
+def get_forum_status():
+    """获取ForumEngine运行状态"""
+    try:
+        import re
+        from ForumEngine.monitor import get_monitor
+        from ForumEngine.llm_host import get_forum_host
+        
+        monitor = get_monitor()
+        host = get_forum_host()
+        
+        # 获取监控器状态
+        is_monitoring = monitor.is_monitoring if hasattr(monitor, 'is_monitoring') else False
+        is_searching = monitor.is_searching if hasattr(monitor, 'is_searching') else False
+        buffer_size = len(monitor.agent_speeches_buffer) if hasattr(monitor, 'agent_speeches_buffer') else 0
+        is_host_generating = monitor.is_host_generating if hasattr(monitor, 'is_host_generating') else False
+        
+        # 获取主持人状态
+        host_enabled = host.enabled if hasattr(host, 'enabled') else False
+        
+        # 获取最后活动时间
+        forum_log_file = LOG_DIR / "forum.log"
+        last_activity = None
+        if forum_log_file.exists():
+            try:
+                with open(forum_log_file, 'r', encoding='utf-8', errors='ignore') as f:
+                    lines = f.readlines()
+                    if lines:
+                        # 获取最后一行的时间戳
+                        last_line = lines[-1].strip()
+                        match = re.match(r'\[(\d{2}:\d{2}:\d{2})\]', last_line)
+                        if match:
+                            last_activity = match.group(1)
+            except:
+                pass
+        
+        return jsonify({
+            'success': True,
+            'status': {
+                'monitoring': is_monitoring,
+                'searching': is_searching,
+                'host_enabled': host_enabled,
+                'host_generating': is_host_generating,
+                'buffer_size': buffer_size,
+                'last_activity': last_activity
+            }
+        })
+    except Exception as e:
+        logger.exception(f"获取Forum状态失败: {e}")
+        return jsonify({'success': False, 'message': f'获取状态失败: {str(e)}'}), 500
+
+@app.route('/api/forum/history')
+def get_forum_history():
+    """获取ForumEngine历史记录（支持分页和过滤）"""
+    try:
+        import re
+        from datetime import datetime as dt
+        
+        forum_log_file = LOG_DIR / "forum.log"
+        if not forum_log_file.exists():
+            return jsonify({
+                'success': True,
+                'messages': [],
+                'total': 0,
+                'page': 1,
+                'page_size': 50,
+                'total_pages': 0
+            })
+        
+        # 获取查询参数
+        page = int(request.args.get('page', 1))
+        page_size = int(request.args.get('page_size', 50))
+        engine_filter = request.args.get('engine', '').upper()  # INSIGHT/MEDIA/QUERY/HOST
+        start_time = request.args.get('start_time')  # HH:MM:SS 格式
+        end_time = request.args.get('end_time')  # HH:MM:SS 格式
+        
+        with open(forum_log_file, 'r', encoding='utf-8', errors='ignore') as f:
+            lines = f.readlines()
+        
+        # 解析和过滤消息
+        messages = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            
+            # 匹配格式: [HH:MM:SS] [SOURCE] content
+            match = re.match(r'\[(\d{2}:\d{2}:\d{2})\]\s*\[(\w+)\]\s*(.+)', line)
+            if match:
+                timestamp, source, content = match.groups()
+                
+                # 过滤 Engine
+                if engine_filter and source != engine_filter:
+                    continue
+                
+                # 过滤时间范围
+                if start_time and timestamp < start_time:
+                    continue
+                if end_time and timestamp > end_time:
+                    continue
+                
+                # 跳过系统消息
+                if source == 'SYSTEM':
+                    continue
+                
+                # 处理转义的换行符
+                content = content.replace('\\n', '\n').replace('\\r', '')
+                
+                messages.append({
+                    'timestamp': timestamp,
+                    'source': source,
+                    'content': content,
+                    'type': 'host' if source == 'HOST' else 'agent'
+                })
+        
+        # 分页
+        total = len(messages)
+        total_pages = (total + page_size - 1) // page_size
+        start_idx = (page - 1) * page_size
+        end_idx = start_idx + page_size
+        paginated_messages = messages[start_idx:end_idx]
+        
+        return jsonify({
+            'success': True,
+            'messages': paginated_messages,
+            'total': total,
+            'page': page,
+            'page_size': page_size,
+            'total_pages': total_pages
+        })
+    except Exception as e:
+        logger.exception(f"获取Forum历史记录失败: {e}")
+        return jsonify({'success': False, 'message': f'获取历史记录失败: {str(e)}'}), 500
+
+@app.route('/api/forum/search')
+def search_forum_messages():
+    """搜索ForumEngine消息"""
+    try:
+        import re
+        
+        forum_log_file = LOG_DIR / "forum.log"
+        if not forum_log_file.exists():
+            return jsonify({
+                'success': True,
+                'results': [],
+                'total': 0
+            })
+        
+        # 获取查询参数
+        keyword = request.args.get('keyword', '').strip()
+        if not keyword:
+            return jsonify({'success': False, 'message': '关键词不能为空'}), 400
+        
+        engine_filter = request.args.get('engine', '').upper()
+        start_time = request.args.get('start_time')
+        end_time = request.args.get('end_time')
+        limit = int(request.args.get('limit', 100))
+        
+        with open(forum_log_file, 'r', encoding='utf-8', errors='ignore') as f:
+            lines = f.readlines()
+        
+        # 搜索消息
+        results = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            
+            # 匹配格式: [HH:MM:SS] [SOURCE] content
+            match = re.match(r'\[(\d{2}:\d{2}:\d{2})\]\s*\[(\w+)\]\s*(.+)', line)
+            if match:
+                timestamp, source, content = match.groups()
+                
+                # 关键词搜索（不区分大小写）
+                if keyword.lower() not in content.lower():
+                    continue
+                
+                # 过滤 Engine
+                if engine_filter and source != engine_filter:
+                    continue
+                
+                # 过滤时间范围
+                if start_time and timestamp < start_time:
+                    continue
+                if end_time and timestamp > end_time:
+                    continue
+                
+                # 跳过系统消息
+                if source == 'SYSTEM':
+                    continue
+                
+                # 处理转义的换行符
+                content = content.replace('\\n', '\n').replace('\\r', '')
+                
+                # 高亮关键词（简单实现）
+                highlighted_content = content.replace(
+                    keyword, f'<mark>{keyword}</mark>'
+                ) if keyword in content else content
+                
+                results.append({
+                    'timestamp': timestamp,
+                    'source': source,
+                    'content': content,
+                    'highlighted_content': highlighted_content,
+                    'type': 'host' if source == 'HOST' else 'agent'
+                })
+                
+                if len(results) >= limit:
+                    break
+        
+        return jsonify({
+            'success': True,
+            'results': results,
+            'total': len(results)
+        })
+    except Exception as e:
+        logger.exception(f"搜索Forum消息失败: {e}")
+        return jsonify({'success': False, 'message': f'搜索失败: {str(e)}'}), 500
+
+@app.route('/api/forum/export')
+def export_forum_data():
+    """导出ForumEngine数据"""
+    try:
+        import re
+        import csv
+        import json as json_lib
+        from io import StringIO
+        from flask import Response
+        
+        forum_log_file = LOG_DIR / "forum.log"
+        if not forum_log_file.exists():
+            return jsonify({'success': False, 'message': 'forum.log文件不存在'}), 404
+        
+        # 获取查询参数
+        export_format = request.args.get('format', 'json').lower()  # json/csv/html
+        engine_filter = request.args.get('engine', '').upper()
+        start_time = request.args.get('start_time')
+        end_time = request.args.get('end_time')
+        
+        with open(forum_log_file, 'r', encoding='utf-8', errors='ignore') as f:
+            lines = f.readlines()
+        
+        # 解析消息
+        messages = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            
+            match = re.match(r'\[(\d{2}:\d{2}:\d{2})\]\s*\[(\w+)\]\s*(.+)', line)
+            if match:
+                timestamp, source, content = match.groups()
+                
+                # 过滤 Engine
+                if engine_filter and source != engine_filter:
+                    continue
+                
+                # 过滤时间范围
+                if start_time and timestamp < start_time:
+                    continue
+                if end_time and timestamp > end_time:
+                    continue
+                
+                # 跳过系统消息
+                if source == 'SYSTEM':
+                    continue
+                
+                # 处理转义的换行符
+                content = content.replace('\\n', '\n').replace('\\r', '')
+                
+                messages.append({
+                    'timestamp': timestamp,
+                    'source': source,
+                    'content': content,
+                    'type': 'host' if source == 'HOST' else 'agent'
+                })
+        
+        # 根据格式导出
+        timestamp_str = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        if export_format == 'json':
+            output = StringIO()
+            json_lib.dump(messages, output, ensure_ascii=False, indent=2)
+            return Response(
+                output.getvalue(),
+                mimetype='application/json',
+                headers={
+                    'Content-Disposition': f'attachment; filename=forum_export_{timestamp_str}.json'
+                }
+            )
+        
+        elif export_format == 'csv':
+            output = StringIO()
+            writer = csv.DictWriter(output, fieldnames=['timestamp', 'source', 'type', 'content'])
+            writer.writeheader()
+            for msg in messages:
+                writer.writerow(msg)
+            return Response(
+                output.getvalue(),
+                mimetype='text/csv',
+                headers={
+                    'Content-Disposition': f'attachment; filename=forum_export_{timestamp_str}.csv'
+                }
+            )
+        
+        elif export_format == 'html':
+            html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Forum Engine 导出 - {timestamp_str}</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        .message {{ margin-bottom: 20px; padding: 10px; border-left: 4px solid #000; }}
+        .message.host {{ border-color: #ff6b6b; }}
+        .message.agent {{ border-color: #4ecdc4; }}
+        .timestamp {{ color: #666; font-size: 12px; }}
+        .source {{ font-weight: bold; margin-bottom: 5px; }}
+        .content {{ margin-top: 5px; white-space: pre-wrap; }}
+    </style>
+</head>
+<body>
+    <h1>Forum Engine 导出</h1>
+    <p>导出时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+    <p>消息总数: {len(messages)}</p>
+    <hr>
+"""
+            for msg in messages:
+                msg_class = msg['type']
+                html_content += f"""
+    <div class="message {msg_class}">
+        <div class="timestamp">{msg['timestamp']}</div>
+        <div class="source">{msg['source']}</div>
+        <div class="content">{msg['content']}</div>
+    </div>
+"""
+            html_content += """
+</body>
+</html>
+"""
+            return Response(
+                html_content,
+                mimetype='text/html',
+                headers={
+                    'Content-Disposition': f'attachment; filename=forum_export_{timestamp_str}.html'
+                }
+            )
+        
+        else:
+            return jsonify({'success': False, 'message': f'不支持的导出格式: {export_format}'}), 400
+        
+    except Exception as e:
+        logger.exception(f"导出Forum数据失败: {e}")
+        return jsonify({'success': False, 'message': f'导出失败: {str(e)}'}), 500
+
 # ================== MindSpider API ==================
 
 @app.route('/api/mindspider/status')

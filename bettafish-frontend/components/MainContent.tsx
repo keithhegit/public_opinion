@@ -57,7 +57,14 @@ export const MainContent = ({
             <div className="mt-4">
               <button
                 onClick={() => onStopEngine(activeApp)}
-                className="px-4 py-2 bg-red-600 text-white text-sm font-bold hover:bg-red-700 rounded"
+                className="px-4 py-2 text-white text-sm font-bold rounded transition-all duration-200 active:scale-95"
+                style={{ backgroundColor: '#ef4444' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#dc2626';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ef4444';
+                }}
               >
                 停止 Engine
               </button>

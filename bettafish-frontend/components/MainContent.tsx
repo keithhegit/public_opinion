@@ -74,9 +74,16 @@ export const MainContent = ({
               <button
                 onClick={() => onStartEngine(activeApp)}
                 disabled={currentEngine?.status === 'starting'}
-                className="px-6 py-2 bg-black text-white font-bold hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-black text-white font-bold hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
               >
-                {currentEngine?.status === 'starting' ? '启动中...' : '启动Engine'}
+                {currentEngine?.status === 'starting' ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    启动中...
+                  </span>
+                ) : (
+                  '启动Engine'
+                )}
               </button>
             </div>
           </div>

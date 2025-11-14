@@ -61,17 +61,20 @@ export const LoadingProgress = ({ isVisible, onComplete }: LoadingProgressProps)
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center">
+    <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center animate-fade-in">
       <div className="w-full max-w-md px-8">
-        <h2 className="text-2xl font-bold text-center mb-8">OgInight</h2>
+        <h2 className="text-3xl font-bold text-center mb-8 tracking-wide">OgInight</h2>
         
-        <div className="mb-4">
-          <div className="w-full bg-gray-200 border-2 border-black h-8 relative">
+        <div className="mb-6">
+          <div className="w-full bg-gray-100 border-2 border-black h-10 relative overflow-hidden">
             <div
-              className="h-full bg-black transition-all duration-300 ease-out"
+              className="h-full bg-black transition-all duration-300 ease-out relative"
               style={{ width: `${progress}%` }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
+            >
+              {/* 进度条动画效果 */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-sm font-bold text-black">
                 {Math.round(progress)}%
               </span>
@@ -79,9 +82,16 @@ export const LoadingProgress = ({ isVisible, onComplete }: LoadingProgressProps)
           </div>
         </div>
         
-        <p className="text-center text-gray-600 text-sm">
-          正在启动引擎...
-        </p>
+        <div className="text-center">
+          <p className="text-gray-700 text-base font-medium mb-2">
+            正在启动引擎...
+          </p>
+          <div className="flex justify-center gap-1">
+            <span className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-2 h-2 bg-black rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+        </div>
       </div>
     </div>
   );

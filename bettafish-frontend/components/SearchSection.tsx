@@ -136,10 +136,17 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
           <Button
             onClick={handleSearch}
             disabled={isSearching || !query.trim() || !allEnginesReady}
-            className="px-6 py-3 border-l-2 border-black bg-black text-white font-bold hover:bg-gray-800 disabled:bg-gray-600 disabled:cursor-not-allowed"
+            className="px-6 py-3 border-l-2 border-black bg-black text-white font-bold hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
             title={!allEnginesReady ? '请等待所有引擎启动完成' : ''}
           >
-            {isSearching ? '搜索中...' : '搜索'}
+            {isSearching ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                搜索中...
+              </span>
+            ) : (
+              '搜索'
+            )}
           </Button>
           <ReportDialog>
             <Button

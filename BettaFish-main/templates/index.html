@@ -2489,6 +2489,183 @@
             window.location.href = '/api/forum/log/download';
         });
 
+        // Forum Engine 统计信息功能
+        const forumStatsModal = document.getElementById('forumStatsModal');
+        const forumStatsModalBody = document.getElementById('forumStatsModalBody');
+        const forumStatsModalClose = document.getElementById('forumStatsModalClose');
+
+        document.getElementById('forumStatsBtn').addEventListener('click', function() {
+            forumStatsModal.classList.add('active');
+            loadForumStats();
+        });
+
+        forumStatsModalClose.addEventListener('click', function() {
+            forumStatsModal.classList.remove('active');
+        });
+
+        forumStatsModal.addEventListener('click', function(e) {
+            if (e.target === forumStatsModal) {
+                forumStatsModal.classList.remove('active');
+            }
+        });
+
+        function loadForumStats() {
+            forumStatsModalBody.innerHTML = '<div class="forum-log-line">正在加载统计信息...</div>';
+            
+            Promise.all([
+                fetch('/api/forum/stats').then(r => r.json()),
+                fetch('/api/forum/status').then(r => r.json())
+            ]).then(([statsData, statusData]) => {
+                if (statsData.success && statusData.success) {
+                    const stats = statsData.stats;
+                    const status = statusData.status;
+                    
+                    let html = '<div style="padding: 20px;">';
+                    
+                    // 运行状态
+                    html += '<div style="margin-bottom: 20px; padding: 15px; border: 2px solid #000; background: #f5f5f5;">';
+                    html += '<h3 style="margin-top: 0;">运行状态</h3>';
+                    html += `<p><strong>监控状态:</strong> ${status.monitoring ? '运行中' : '已停止'}</p>`;
+                    html += `<p><strong>搜索会话:</strong> ${status.searching ? '进行中' : '未开始'}</p>`;
+                    html += `<p><strong>主持人状态:</strong> ${status.host_enabled ? '已启用' : '已禁用'}</p>`;
+                    html += `<p><strong>主持人生成中:</strong> ${status.host_generating ? '是' : '否'}</p>`;
+                    html += `<p><strong>缓冲区大小:</strong> ${status.buffer_size} 条消息</p>`;
+                    html += `<p><strong>最后活动:</strong> ${status.last_activity || '无'}</p>`;
+                    html += '</div>';
+                    
+                    // 消息统计
+                    html += '<div style="margin-bottom: 20px; padding: 15px; border: 2px solid #000; background: #f5f5f5;">';
+                    html += '<h3 style="margin-top: 0;">消息统计</h3>';
+                    html += `<p><strong>总消息数:</strong> ${stats.total_messages}</p>`;
+                    html += `<p><strong>Insight Engine:</strong> ${stats.engine_counts.INSIGHT} 条</p>`;
+                    html += `<p><strong>Media Engine:</strong> ${stats.engine_counts.MEDIA} 条</p>`;
+                    html += `<p><strong>Query Engine:</strong> ${stats.engine_counts.QUERY} 条</p>`;
+                    html += `<p><strong>Forum Host:</strong> ${stats.host_count} 条</p>`;
+                    html += `<p><strong>系统消息:</strong> ${stats.system_count} 条</p>`;
+                    html += `<p><strong>平均长度:</strong> ${stats.avg_length} 字符</p>`;
+                    html += `<p><strong>总长度:</strong> ${stats.total_length} 字符</p>`;
+                    html += `<p><strong>最后活动:</strong> ${stats.last_activity || '无'}</p>`;
+                    html += '</div>';
+                    
+                    // 时间分布
+                    if (Object.keys(stats.hourly_distribution).length > 0) {
+                        html += '<div style="margin-bottom: 20px; padding: 15px; border: 2px solid #000; background: #f5f5f5;">';
+                        html += '<h3 style="margin-top: 0;">时间分布（按小时）</h3>';
+                        const sortedHours = Object.keys(stats.hourly_distribution).sort((a, b) => parseInt(a) - parseInt(b));
+                        sortedHours.forEach(hour => {
+                            const count = stats.hourly_distribution[hour];
+                            const maxCount = Math.max(...Object.values(stats.hourly_distribution));
+                            const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                            html += `<div style="margin-bottom: 5px;">`;
+                            html += `<span style="display: inline-block; width: 60px;">${hour}:00</span>`;
+                            html += `<div style="display: inline-block; width: 200px; height: 20px; background: #ddd; border: 1px solid #000; position: relative;">`;
+                            html += `<div style="width: ${barWidth}%; height: 100%; background: #000;"></div>`;
+                            html += `</div> <span>${count} 条</span>`;
+                            html += `</div>`;
+                        });
+                        html += '</div>';
+                    }
+                    
+                    html += '</div>';
+                    forumStatsModalBody.innerHTML = html;
+                } else {
+                    forumStatsModalBody.innerHTML = '<div class="forum-log-line" style="color: red;">加载失败</div>';
+                }
+            }).catch(error => {
+                console.error('加载Forum统计信息失败:', error);
+                forumStatsModalBody.innerHTML = '<div class="forum-log-line" style="color: red;">加载失败: ' + error.message + '</div>';
+            });
+        }
+
+        // Forum Engine 搜索功能
+        const forumSearchModal = document.getElementById('forumSearchModal');
+        const forumSearchModalClose = document.getElementById('forumSearchModalClose');
+        const forumSearchResults = document.getElementById('forumSearchResults');
+        const forumSearchExecuteBtn = document.getElementById('forumSearchExecuteBtn');
+
+        document.getElementById('forumSearchBtn').addEventListener('click', function() {
+            forumSearchModal.classList.add('active');
+        });
+
+        forumSearchModalClose.addEventListener('click', function() {
+            forumSearchModal.classList.remove('active');
+        });
+
+        forumSearchModal.addEventListener('click', function(e) {
+            if (e.target === forumSearchModal) {
+                forumSearchModal.classList.remove('active');
+            }
+        });
+
+        forumSearchExecuteBtn.addEventListener('click', function() {
+            const keyword = document.getElementById('forumSearchKeyword').value.trim();
+            if (!keyword) {
+                alert('请输入搜索关键词');
+                return;
+            }
+            
+            const engine = document.getElementById('forumSearchEngine').value;
+            const startTime = document.getElementById('forumSearchStartTime').value;
+            const endTime = document.getElementById('forumSearchEndTime').value;
+            
+            forumSearchResults.innerHTML = '<div class="forum-log-line">正在搜索...</div>';
+            
+            let url = `/api/forum/search?keyword=${encodeURIComponent(keyword)}`;
+            if (engine) url += `&engine=${encodeURIComponent(engine)}`;
+            if (startTime) url += `&start_time=${encodeURIComponent(startTime)}`;
+            if (endTime) url += `&end_time=${encodeURIComponent(endTime)}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.results && data.results.length > 0) {
+                            let html = `<div style="margin-bottom: 10px; font-weight: bold;">找到 ${data.total} 条结果</div>`;
+                            data.results.forEach(result => {
+                                const msgClass = result.type;
+                                html += `<div style="margin-bottom: 15px; padding: 10px; border-left: 4px solid ${msgClass === 'host' ? '#ff6b6b' : '#4ecdc4'}; background: #f9f9f9;">`;
+                                html += `<div style="font-size: 12px; color: #666; margin-bottom: 5px;">${result.timestamp} - ${result.source}</div>`;
+                                html += `<div style="white-space: pre-wrap;">${result.highlighted_content}</div>`;
+                                html += `</div>`;
+                            });
+                            forumSearchResults.innerHTML = html;
+                        } else {
+                            forumSearchResults.innerHTML = '<div class="forum-log-line">未找到匹配的结果</div>';
+                        }
+                    } else {
+                        forumSearchResults.innerHTML = '<div class="forum-log-line" style="color: red;">搜索失败: ' + (data.message || '未知错误') + '</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('搜索Forum消息失败:', error);
+                    forumSearchResults.innerHTML = '<div class="forum-log-line" style="color: red;">搜索失败: ' + error.message + '</div>';
+                });
+        });
+
+        // Forum Engine 导出功能
+        document.getElementById('forumExportBtn').addEventListener('click', function() {
+            const format = prompt('选择导出格式:\n1. JSON\n2. CSV\n3. HTML\n\n请输入 1、2 或 3:', '1');
+            if (!format) return;
+            
+            const formatMap = {'1': 'json', '2': 'csv', '3': 'html'};
+            const exportFormat = formatMap[format];
+            if (!exportFormat) {
+                alert('无效的格式选择');
+                return;
+            }
+            
+            const engine = prompt('过滤 Engine (可选，留空表示全部):\nINSIGHT / MEDIA / QUERY / HOST', '');
+            const startTime = prompt('开始时间 (可选，格式: HH:MM:SS，留空表示全部)', '');
+            const endTime = prompt('结束时间 (可选，格式: HH:MM:SS，留空表示全部)', '');
+            
+            let url = `/api/forum/export?format=${exportFormat}`;
+            if (engine) url += `&engine=${encodeURIComponent(engine)}`;
+            if (startTime) url += `&start_time=${encodeURIComponent(startTime)}`;
+            if (endTime) url += `&end_time=${encodeURIComponent(endTime)}`;
+            
+            window.location.href = url;
+        });
+
         // Media Engine 报告下载功能
         document.getElementById('mediaDownloadBtn').addEventListener('click', function() {
             showReportsModal('media');

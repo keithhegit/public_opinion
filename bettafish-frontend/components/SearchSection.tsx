@@ -89,16 +89,31 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
       {/* 引擎启动状态提示 */}
       <div className="max-w-[950px] mx-auto mb-3">
         <div className="flex flex-wrap gap-3 justify-center text-sm">
-          {engineStatusList.map(({ name, label, statusIcon, statusText }) => (
+          {engineStatusList.map(({ name, label, statusIcon, statusText }) => {
+            const status = getEngineStatus(name);
+            let bgColor = '#f3f4f6';
+            let borderColor = '#e5e7eb';
+            let textColor = '#6b7280';
+            
+            if (status === 'running') {
+              bgColor = '#e6f0ff';
+              borderColor = '#1574FF';
+              textColor = '#1574FF';
+            } else if (status === 'starting') {
+              bgColor = '#fef3c7';
+              borderColor = '#f59e0b';
+              textColor = '#d97706';
+            }
+            
+            return (
             <div
               key={name}
-              className={`px-3 py-1 rounded border ${
-                getEngineStatus(name) === 'running'
-                  ? 'bg-green-50 border-green-200 text-green-700'
-                  : getEngineStatus(name) === 'starting'
-                  ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
-                  : 'bg-gray-50 border-gray-200 text-gray-500'
-              }`}
+              className="px-3 py-1 rounded border transition-all duration-200"
+              style={{
+                backgroundColor: bgColor,
+                borderColor: borderColor,
+                color: textColor,
+              }}
             >
               <span className="mr-1">{statusIcon}</span>
               <span className="font-medium">{label}</span>
@@ -111,10 +126,10 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
         {/* 所有引擎就绪提示 */}
         {allEnginesReady && (
           <div className="mt-3 text-center">
-            <p className="text-green-600 font-semibold text-base">
+            <p className="font-semibold text-base" style={{ color: '#1574FF' }}>
               ✅ 所有引擎已就绪，现在可以开始搜索舆情了！
             </p>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="text-sm mt-1" style={{ color: '#6b7280' }}>
               请在下方输入框输入您要分析的舆情主题
             </p>
           </div>

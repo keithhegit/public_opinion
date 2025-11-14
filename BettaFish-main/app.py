@@ -66,6 +66,11 @@ os.environ['PYTHONUTF8'] = '1'
 LOG_DIR = Path('logs')
 LOG_DIR.mkdir(exist_ok=True)
 
+# 历史任务存储目录
+TASKS_DIR = Path('tasks_history')
+TASKS_DIR.mkdir(exist_ok=True)
+TASKS_INDEX_FILE = TASKS_DIR / 'tasks_index.json'
+
 CONFIG_MODULE_NAME = 'config'
 CONFIG_FILE_PATH = Path(__file__).resolve().parent / 'config.py'
 CONFIG_KEYS = [
@@ -1419,6 +1424,114 @@ def get_mindspider_news():
 search_tasks = {}
 search_tasks_lock = threading.Lock()
 
+# 历史任务管理函数
+import json
+
+def load_tasks_index():
+    """加载任务索引"""
+    try:
+        if TASKS_INDEX_FILE.exists():
+            with open(TASKS_INDEX_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        logger.error(f"加载任务索引失败: {e}")
+    return []
+
+def save_tasks_index(tasks):
+    """保存任务索引"""
+    try:
+        with open(TASKS_INDEX_FILE, 'w', encoding='utf-8') as f:
+            json.dump(tasks, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"保存任务索引失败: {e}")
+
+def save_task_to_index(unified_task_id, query, engines, task_ids):
+    """保存任务到索引"""
+    try:
+        tasks = load_tasks_index()
+        task_info = {
+            'task_id': unified_task_id,
+            'query': query,
+            'engines': engines,
+            'task_ids': task_ids,
+            'start_time': datetime.now().isoformat(),
+            'status': 'running'
+        }
+        tasks.insert(0, task_info)  # 新任务插入到最前面
+        # 只保留最近100个任务
+        if len(tasks) > 100:
+            tasks = tasks[:100]
+        save_tasks_index(tasks)
+    except Exception as e:
+        logger.error(f"保存任务到索引失败: {e}")
+
+def archive_task_log(app_name, task_info):
+    """归档任务日志"""
+    try:
+        task_id = task_info.get('task_id', 'unknown')
+        # 从task_id中提取unified_task_id
+        unified_task_id = None
+        with search_tasks_lock:
+            for key, task in search_tasks.items():
+                if task.get('task_id') == task_id:
+                    unified_task_id = task.get('unified_task_id')
+                    break
+        
+        if not unified_task_id:
+            # 如果找不到，尝试从任务索引中查找
+            tasks = load_tasks_index()
+            for task in tasks:
+                if task_id in task.get('task_ids', {}).values():
+                    unified_task_id = task.get('task_id')
+                    break
+        
+        if not unified_task_id:
+            unified_task_id = f"task_{int(time.time() * 1000)}"
+        
+        # 读取当前日志文件
+        log_file_path = LOG_DIR / f"{app_name}.log"
+        if not log_file_path.exists():
+            return
+        
+        # 创建任务归档目录
+        task_archive_dir = TASKS_DIR / unified_task_id
+        task_archive_dir.mkdir(exist_ok=True)
+        
+        # 复制日志文件到归档目录（只复制任务相关的日志，从"新任务开始"或"开始执行搜索"开始）
+        archive_log_path = task_archive_dir / f"{app_name}.log"
+        with open(log_file_path, 'r', encoding='utf-8') as src:
+            lines = src.readlines()
+            # 找到任务开始的标记
+            task_start_idx = -1
+            for i, line in enumerate(lines):
+                if '========== 新任务开始:' in line or '========== 开始执行搜索:' in line:
+                    task_start_idx = i
+                    break
+            
+            # 如果找到任务开始标记，只保存从该标记开始的日志
+            if task_start_idx >= 0:
+                with open(archive_log_path, 'w', encoding='utf-8') as dst:
+                    dst.writelines(lines[task_start_idx:])
+            else:
+                # 如果找不到标记，保存全部日志
+                with open(archive_log_path, 'w', encoding='utf-8') as dst:
+                    dst.writelines(lines)
+        
+        # 更新任务索引中的状态
+        tasks = load_tasks_index()
+        for task in tasks:
+            if task.get('task_id') == unified_task_id:
+                task['status'] = task_info.get('status', 'completed')
+                task['end_time'] = task_info.get('end_time', datetime.now().isoformat())
+                if app_name not in task.get('completed_engines', []):
+                    task.setdefault('completed_engines', []).append(app_name)
+                break
+        save_tasks_index(tasks)
+        
+        logger.info(f"任务日志已归档: {unified_task_id}/{app_name}")
+    except Exception as e:
+        logger.error(f"归档任务日志失败: {e}")
+
 def execute_engine_search(app_name: str, query: str):
     """在后台线程中执行引擎搜索"""
     from loguru import logger as loguru_logger
@@ -1483,8 +1596,30 @@ def execute_engine_search(app_name: str, query: str):
             loguru_logger.error(f"未知的引擎类型: {app_name}")
             return
         
-        # 写入开始标记
-        write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ========== 开始执行搜索: {query} ==========")
+        # 新任务开始前，清空旧日志文件（只保留引擎启动时的日志）
+        log_file_path = LOG_DIR / f"{app_name}.log"
+        if log_file_path.exists():
+            try:
+                with open(log_file_path, 'r', encoding='utf-8') as f:
+                    existing_lines = f.readlines()
+                
+                # 保留引擎启动相关的日志行
+                startup_lines = [
+                    line for line in existing_lines 
+                    if any(keyword in line for keyword in ['已启动', '启动成功', 'Engine', 'Streamlit', 'Running on'])
+                ]
+                
+                # 写入保留的启动日志 + 新任务标记
+                with open(log_file_path, 'w', encoding='utf-8') as f:
+                    f.writelines(startup_lines)
+                    if startup_lines and not startup_lines[-1].endswith('\n'):
+                        f.write('\n')
+                    f.write(f"[{datetime.now().strftime('%H:%M:%S')}] ========== 新任务开始: {query} ==========\n")
+            except Exception as e:
+                loguru_logger.warning(f"清空日志文件失败，继续追加: {e}")
+                write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ========== 开始执行搜索: {query} ==========")
+        else:
+            write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ========== 开始执行搜索: {query} ==========")
         
         # 执行研究（这会输出日志到引擎的输出缓冲区）
         loguru_logger.info(f"[{app_name}] 开始执行搜索: {query}")
@@ -1494,11 +1629,15 @@ def execute_engine_search(app_name: str, query: str):
         # 写入完成标记
         write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ========== 搜索完成 ==========")
         
-        # 更新任务状态
+        # 更新任务状态并归档任务
         with search_tasks_lock:
             if app_name in search_tasks:
                 search_tasks[app_name]['status'] = 'completed'
                 search_tasks[app_name]['result'] = final_report
+                search_tasks[app_name]['end_time'] = datetime.now().isoformat()
+                
+                # 归档任务日志
+                archive_task_log(app_name, search_tasks[app_name])
         
     except Exception as e:
         loguru_logger.exception(f"[{app_name}] 搜索执行失败: {str(e)}")
@@ -1507,6 +1646,10 @@ def execute_engine_search(app_name: str, query: str):
             if app_name in search_tasks:
                 search_tasks[app_name]['status'] = 'error'
                 search_tasks[app_name]['error'] = str(e)
+                search_tasks[app_name]['end_time'] = datetime.now().isoformat()
+                
+                # 归档任务日志（即使失败也归档）
+                archive_task_log(app_name, search_tasks[app_name])
     finally:
         # 移除文件处理器
         loguru_logger.remove(handler_id)
@@ -1528,6 +1671,9 @@ def search():
     if not running_apps:
         return jsonify({'success': False, 'message': '没有运行中的引擎，请先启动引擎'})
     
+    # 创建统一的任务ID（用于跨引擎关联）
+    unified_task_id = f"task_{int(time.time() * 1000)}"
+    
     # 为每个运行的引擎创建搜索任务
     task_ids = {}
     with search_tasks_lock:
@@ -1535,6 +1681,7 @@ def search():
             task_id = f"{app_name}_{int(time.time() * 1000)}"
             search_tasks[app_name] = {
                 'task_id': task_id,
+                'unified_task_id': unified_task_id,
                 'query': query,
                 'status': 'running',
                 'start_time': datetime.now().isoformat(),
@@ -1553,14 +1700,98 @@ def search():
     
     logger.info(f"搜索任务已启动: {query}, 引擎: {running_apps}")
     
+    # 保存任务信息到索引
+    save_task_to_index(unified_task_id, query, running_apps, task_ids)
+    
     return jsonify({
         'success': True,
         'query': query,
         'message': '搜索任务已启动，请查看引擎输出获取进度',
         'task_ids': task_ids,
+        'unified_task_id': unified_task_id,
         'engines': running_apps
     })
 
+
+# 历史任务管理API
+@app.route('/api/tasks/history', methods=['GET'])
+def get_tasks_history():
+    """获取历史任务列表"""
+    try:
+        tasks = load_tasks_index()
+        # 返回最近的任务，限制数量
+        limit = request.args.get('limit', 50, type=int)
+        tasks = tasks[:limit]
+        return jsonify({'success': True, 'tasks': tasks, 'total': len(tasks)})
+    except Exception as e:
+        logger.exception(f"获取历史任务失败: {e}")
+        return jsonify({'success': False, 'message': f'获取历史任务失败: {str(e)}'}), 500
+
+@app.route('/api/tasks/<task_id>/logs/<app_name>', methods=['GET'])
+def get_task_log(app_name, task_id):
+    """获取指定任务的日志"""
+    try:
+        archive_log_path = TASKS_DIR / task_id / f"{app_name}.log"
+        if not archive_log_path.exists():
+            return jsonify({'success': False, 'message': '日志文件不存在'}), 404
+        
+        with open(archive_log_path, 'r', encoding='utf-8') as f:
+            log_content = f.read()
+        
+        return jsonify({
+            'success': True,
+            'data': log_content,
+            'task_id': task_id,
+            'app_name': app_name
+        })
+    except Exception as e:
+        logger.exception(f"获取任务日志失败: {e}")
+        return jsonify({'success': False, 'message': f'获取任务日志失败: {str(e)}'}), 500
+
+@app.route('/api/tasks/<task_id>', methods=['GET'])
+def get_task_info(task_id):
+    """获取任务详细信息"""
+    try:
+        tasks = load_tasks_index()
+        for task in tasks:
+            if task.get('task_id') == task_id:
+                return jsonify({'success': True, 'task': task})
+        return jsonify({'success': False, 'message': '任务不存在'}), 404
+    except Exception as e:
+        logger.exception(f"获取任务信息失败: {e}")
+        return jsonify({'success': False, 'message': f'获取任务信息失败: {str(e)}'}), 500
+
+@app.route('/api/tasks/clear', methods=['POST'])
+def clear_current_tasks():
+    """清空当前任务状态（用于开始新任务）"""
+    try:
+        # 清空所有引擎的输出状态
+        with search_tasks_lock:
+            search_tasks.clear()
+        
+        # 清空日志文件（保留启动日志）
+        for app_name in ['insight', 'media', 'query', 'report']:
+            log_file_path = LOG_DIR / f"{app_name}.log"
+            if log_file_path.exists():
+                try:
+                    with open(log_file_path, 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+                    
+                    # 保留启动相关的日志
+                    startup_lines = [
+                        line for line in lines 
+                        if any(keyword in line for keyword in ['已启动', '启动成功', 'Engine', 'Streamlit', 'Running on'])
+                    ]
+                    
+                    with open(log_file_path, 'w', encoding='utf-8') as f:
+                        f.writelines(startup_lines)
+                except Exception as e:
+                    logger.warning(f"清空{app_name}日志失败: {e}")
+        
+        return jsonify({'success': True, 'message': '当前任务状态已清空'})
+    except Exception as e:
+        logger.exception(f"清空任务状态失败: {e}")
+        return jsonify({'success': False, 'message': f'清空任务状态失败: {str(e)}'}), 500
 
 @app.route('/api/config', methods=['GET'])
 def get_config():

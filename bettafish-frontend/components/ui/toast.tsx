@@ -9,9 +9,9 @@ export function ToastProvider() {
       toastOptions={{
         duration: 4000,
         style: {
-          background: '#000',
+          background: '#1574FF',
           color: '#fff',
-          border: '2px solid #000',
+          border: '2px solid #1574FF',
           borderRadius: '0',
           padding: '16px',
           fontSize: '14px',

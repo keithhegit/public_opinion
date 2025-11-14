@@ -147,4 +147,25 @@
   .animate-shimmer {
     animation: shimmer 2s infinite;
   }
+  
+  /* 品牌主色 #1574FF */
+  .brand-primary {
+    color: #1574FF;
+  }
+  
+  .brand-bg {
+    background-color: #1574FF;
+  }
+  
+  .brand-border {
+    border-color: #1574FF;
+  }
+  
+  .brand-hover:hover {
+    background-color: #0d5acc;
+  }
+  
+  .brand-light-bg {
+    background-color: #e6f0ff;
+  }
 }

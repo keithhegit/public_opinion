@@ -21,8 +21,8 @@ export const MainContent = ({
   const currentEngine = engines[activeApp];
 
   return (
-    <div className="flex-[1.8] border-r-2 border-black bg-white relative">
-      <div className="p-4 border-b-2 border-black bg-white font-bold text-center">
+    <div className="flex-[1.8] border-r-2 bg-white relative" style={{ borderColor: '#1574FF' }}>
+      <div className="p-4 border-b-2 bg-white font-bold text-center" style={{ borderColor: '#1574FF', color: '#1574FF' }}>
         {activeApp === 'insight' && '舆情数据库'}
         {activeApp === 'media' && '媒体爬虫'}
         {activeApp === 'query' && '热搜分析'}
@@ -74,7 +74,20 @@ export const MainContent = ({
               <button
                 onClick={() => onStartEngine(activeApp)}
                 disabled={currentEngine?.status === 'starting'}
-                className="px-6 py-2 bg-black text-white font-bold hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+                className="px-6 py-2 text-white font-bold disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+                style={{ 
+                  backgroundColor: currentEngine?.status === 'starting' ? '#9ca3af' : '#1574FF',
+                }}
+                onMouseEnter={(e) => {
+                  if (currentEngine?.status !== 'starting') {
+                    e.currentTarget.style.backgroundColor = '#0d5acc';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentEngine?.status !== 'starting') {
+                    e.currentTarget.style.backgroundColor = '#1574FF';
+                  }
+                }}
               >
                 {currentEngine?.status === 'starting' ? (
                   <span className="flex items-center gap-2">

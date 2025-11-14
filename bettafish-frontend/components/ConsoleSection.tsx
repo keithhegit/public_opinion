@@ -76,7 +76,7 @@ export const ConsoleSection = ({
   return (
     <div className="flex-[1.2] flex flex-col bg-white min-h-0 overflow-hidden">
       {/* 应用切换按钮和导出按钮 */}
-      <div className="flex border-b-2 border-black">
+      <div className="flex border-b-2" style={{ borderColor: '#1574FF' }}>
         {apps.map((app) => {
           const engine = engines[app.name];
           const isActive = activeApp === app.name;
@@ -90,13 +90,26 @@ export const ConsoleSection = ({
               <button
                 onClick={() => !isLocked && onAppChange(app.name)}
                 disabled={isLocked}
-                className={`flex-1 p-4 border-r-2 border-black font-bold transition-all ${
-                  isActive
-                    ? 'bg-black text-white'
-                    : isLocked
+                className={`flex-1 p-4 border-r-2 font-bold transition-all ${
+                  isLocked
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white hover:bg-gray-100'
+                    : 'bg-white'
                 }`}
+                style={{
+                  borderColor: '#1574FF',
+                  backgroundColor: isActive ? '#1574FF' : (isLocked ? '#f3f4f6' : '#ffffff'),
+                  color: isActive ? '#ffffff' : (isLocked ? '#9ca3af' : '#1574FF'),
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive && !isLocked) {
+                    e.currentTarget.style.backgroundColor = '#e6f0ff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive && !isLocked) {
+                    e.currentTarget.style.backgroundColor = '#ffffff';
+                  }
+                }}
               >
                 <div className="relative">
                   {app.label}
@@ -111,7 +124,17 @@ export const ConsoleSection = ({
               </button>
               <button
                 onClick={() => handleExportLog(app.name)}
-                className="px-2 py-1 text-xs border-r-2 border-black bg-gray-50 hover:bg-gray-100 text-gray-700"
+                className="px-2 py-1 text-xs border-r-2 bg-gray-50 transition-all duration-200"
+                style={{ 
+                  borderColor: '#1574FF',
+                  color: '#1574FF',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e6f0ff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }}
                 title={`导出 ${app.label} 日志`}
               >
                 导出日志
@@ -124,8 +147,12 @@ export const ConsoleSection = ({
       {/* 控制台输出 */}
       <div
         ref={consoleRef}
-        className="flex-1 p-4 bg-black text-green-400 font-mono text-sm overflow-y-auto"
-        style={{ fontFamily: 'monospace' }}
+        className="flex-1 p-4 font-mono text-sm overflow-y-auto"
+        style={{ 
+          backgroundColor: '#1a1a1a',
+          color: '#10b981',
+          fontFamily: 'monospace',
+        }}
       >
         <pre className="whitespace-pre-wrap break-words">
           {currentOutput || '等待输出...'}

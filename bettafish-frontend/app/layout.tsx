@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OgInight - 舆情分析平台",
-  description: "OgInight 舆情分析平台",
+  title: "OgInsigh-多智能体舆情分析工具",
+  description: "OgInsigh-多智能体舆情分析工具",
 };
 
 export default function RootLayout({

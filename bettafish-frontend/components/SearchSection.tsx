@@ -69,7 +69,7 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
   });
 
   return (
-    <div className="border-b-2 border-black p-5 bg-white relative">
+    <div className="border-b-2 p-5 bg-white relative" style={{ borderColor: '#1574FF' }}>
       {/* Logo 在左上角 */}
       <div className="absolute top-5 left-5">
         <Image
@@ -82,8 +82,8 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
         />
       </div>
       
-      <h1 className="text-2xl font-bold text-center mb-5 tracking-wide">
-        OgInight
+      <h1 className="text-2xl font-bold text-center mb-5 tracking-wide" style={{ color: '#1574FF' }}>
+        OgInsigh-多智能体舆情分析工具
       </h1>
       
       {/* 引擎启动状态提示 */}
@@ -104,7 +104,8 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
               <span className="font-medium">{label}</span>
               <span className="ml-1">{statusText}</span>
             </div>
-          ))}
+            );
+          })}
         </div>
         
         {/* 所有引擎就绪提示 */}
@@ -123,7 +124,7 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
       <div className="flex items-stretch gap-3 max-w-[950px] mx-auto mb-2">
         {/* 配置按钮已隐藏 */}
         
-        <div className="flex flex-1 border-2 border-black">
+        <div className="flex flex-1 border-2" style={{ borderColor: '#1574FF' }}>
           <Input
             type="text"
             value={query}
@@ -131,12 +132,36 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
             onKeyPress={handleKeyPress}
             placeholder={allEnginesReady ? "请输入搜索查询..." : "等待引擎启动中..."}
             disabled={!allEnginesReady}
-            className="flex-1 px-4 py-3 border-none outline-none text-base bg-white"
+            className="flex-1 px-4 py-3 border-none outline-none text-base bg-white focus:outline-none focus:ring-2 transition-all"
+            style={{ 
+              '--tw-ring-color': '#1574FF',
+            } as React.CSSProperties}
+            onFocus={(e) => {
+              e.target.style.outline = 'none';
+              e.target.style.boxShadow = '0 0 0 2px #1574FF';
+            }}
+            onBlur={(e) => {
+              e.target.style.boxShadow = 'none';
+            }}
           />
           <Button
             onClick={handleSearch}
             disabled={isSearching || !query.trim() || !allEnginesReady}
-            className="px-6 py-3 border-l-2 border-black bg-black text-white font-bold hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+            className="px-6 py-3 border-l-2 text-white font-bold disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+            style={{ 
+              borderColor: '#1574FF',
+              backgroundColor: isSearching || !query.trim() || !allEnginesReady ? '#9ca3af' : '#1574FF',
+            }}
+            onMouseEnter={(e) => {
+              if (!isSearching && query.trim() && allEnginesReady) {
+                e.currentTarget.style.backgroundColor = '#0d5acc';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isSearching && query.trim() && allEnginesReady) {
+                e.currentTarget.style.backgroundColor = '#1574FF';
+              }
+            }}
             title={!allEnginesReady ? '请等待所有引擎启动完成' : ''}
           >
             {isSearching ? (
@@ -151,7 +176,17 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
           <ReportDialog>
             <Button
               variant="outline"
-              className="px-5 py-3 border-l-2 border-black bg-white hover:bg-gray-100"
+              className="px-5 py-3 border-l-2 bg-white transition-all duration-200"
+              style={{ 
+                borderColor: '#1574FF',
+                color: '#1574FF',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#e6f0ff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#ffffff';
+              }}
             >
               生成报告
             </Button>

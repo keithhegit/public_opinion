@@ -224,7 +224,7 @@ export default function Home() {
         }}
       />
       
-      <div className="flex flex-col h-screen border-2 border-black overflow-hidden">
+      <div className="flex flex-col h-screen border-2 overflow-hidden" style={{ borderColor: '#1574FF' }}>
         <SearchSection
         onSearch={async (query) => {
           if (!allEnginesReady) {

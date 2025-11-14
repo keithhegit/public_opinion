@@ -3,7 +3,9 @@
  * 封装所有API调用
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
+// API 基础 URL - 优先使用环境变量（Cloudflare Pages 会注入）
+// 生产环境默认指向 Workers，开发环境可以指向本地
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bettafish-api-prod.keithhe2021.workers.dev';
 
 export interface ApiResponse<T = any> {
   success?: boolean;

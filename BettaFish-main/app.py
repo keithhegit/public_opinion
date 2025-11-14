@@ -1924,8 +1924,32 @@ def execute_engine_search(app_name: str, query: str):
             loguru_logger.error(f"未知的引擎类型: {app_name}")
             return
         
-        # 写入开始标记
-        write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ========== 开始执行搜索: {query} ==========")
+        # 新任务开始前，清空旧日志文件（只保留引擎启动时的日志）
+        # 通过写入分隔符来标记新任务开始
+        log_file_path = LOG_DIR / f"{app_name}.log"
+        if log_file_path.exists():
+            # 读取现有日志，保留引擎启动相关的日志（包含"已启动"、"启动成功"等关键词）
+            try:
+                with open(log_file_path, 'r', encoding='utf-8') as f:
+                    existing_lines = f.readlines()
+                
+                # 保留引擎启动相关的日志行
+                startup_lines = [
+                    line for line in existing_lines 
+                    if any(keyword in line for keyword in ['已启动', '启动成功', 'Engine', 'Streamlit', 'Running on'])
+                ]
+                
+                # 写入保留的启动日志 + 新任务标记
+                with open(log_file_path, 'w', encoding='utf-8') as f:
+                    f.writelines(startup_lines)
+                    if startup_lines and not startup_lines[-1].endswith('\n'):
+                        f.write('\n')
+                    f.write(f"[{datetime.now().strftime('%H:%M:%S')}] ========== 新任务开始: {query} ==========\n")
+            except Exception as e:
+                loguru_logger.warning(f"清空日志文件失败，继续追加: {e}")
+                write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ========== 开始执行搜索: {query} ==========")
+        else:
+            write_log_to_file(app_name, f"[{datetime.now().strftime('%H:%M:%S')}] ========== 开始执行搜索: {query} ==========")
         
         # 执行研究（这会输出日志到引擎的输出缓冲区）
         loguru_logger.info(f"[{app_name}] 开始执行搜索: {query}")

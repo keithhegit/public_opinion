@@ -1,0 +1,689 @@
+[01:54:51] 启动 media 应用...
+[01:54:55] You can now view your Streamlit app in your browser.
+[01:54:55] Network URL: [已隐藏]
+[01:54:55] External URL: [已隐藏]
+2025-11-14 09:34:35.587 | INFO | Meida Agent已初始化
+2025-11-14 09:34:35.590 | INFO | 使用LLM: {'provider': 'openai-compatible', 'model': 'glm-4.6', 'api_base': 'https://api.z.ai/api/paas/v4/'}
+[09:34:35] ========== 开始执行搜索: 第十五届全国运动会吉祥物大湾鸡舆情 ==========
+2025-11-14 09:34:35.590 | INFO | 搜索工具集: BochaMultimodalSearch (支持5种多模态搜索工具)
+2025-11-14 09:34:35.593 | INFO | [media] 开始执行搜索: 第十五届全国运动会吉祥物大湾鸡舆情
+2025-11-14 09:34:35.593 | INFO | 
+============================================================
+2025-11-14 09:34:35.586 | ERROR | [insight] 搜索执行失败: expected an indented block after 'try' statement on line 96 (db.py, line 97)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7fc5403f11c0>
+    └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+  File "/usr/local/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7fc5403f0ea0>
+    └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+  File "/usr/local/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+    │    │        │    └ ('insight', '第十五届全国运动会吉祥物大湾鸡舆情')
+    │    │        └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+    │    └ <function execute_engine_search at 0x7fc53bb53600>
+    └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+> File "/app/app.py", line 1446, in execute_engine_search
+    from InsightEngine import DeepSearchAgent, Settings as EngineSettings
+  File "/app/InsightEngine/__init__.py", line 6, in <module>
+    from .agent import DeepSearchAgent, create_agent
+  File "/app/InsightEngine/agent.py", line 23, in <module>
+    from .tools import MediaCrawlerDB, DBResponse, keyword_optimizer, multilingual_sentiment_analyzer
+  File "/app/InsightEngine/tools/__init__.py", line 6, in <module>
+    from .search import (
+  File "/app/InsightEngine/tools/search.py", line 32, in <module>
+    from ..utils.db import fetch_all
+  File "/app/InsightEngine/utils/db.py", line 97
+    async with engine.connect() as conn:
+IndentationError: expected an indented block after 'try' statement on line 96
+2025-11-14 09:34:35.598 | INFO | 开始深度研究: 第十五届全国运动会吉祥物大湾鸡舆情
+2025-11-14 09:34:35.602 | INFO | ============================================================
+2025-11-14 09:34:35.603 | INFO | 
+[步骤 1] 生成报告结构...
+2025-11-14 09:34:35.603 | INFO | 正在为查询生成报告结构: 第十五届全国运动会吉祥物大湾鸡舆情
+2025-11-14 09:34:35.641 | INFO | Query Agent已初始化
+2025-11-14 09:34:35.642 | INFO | 使用LLM: {'provider': 'openai-compatible', 'model': 'glm-4.6', 'api_base': 'https://api.z.ai/api/paas/v4/'}
+2025-11-14 09:34:35.642 | INFO | 搜索工具集: TavilyNewsAgency (支持6种搜索工具)
+2025-11-14 09:34:35.643 | INFO | [query] 开始执行搜索: 第十五届全国运动会吉祥物大湾鸡舆情
+2025-11-14 09:34:35.643 | INFO | 
+============================================================
+2025-11-14 09:34:35.643 | INFO | 开始深度研究: 第十五届全国运动会吉祥物大湾鸡舆情
+2025-11-14 09:34:35.644 | INFO | ============================================================
+2025-11-14 09:34:35.644 | INFO | 
+[步骤 1] 生成报告结构...
+2025-11-14 09:34:35.644 | INFO | 正在为查询生成报告结构: 第十五届全国运动会吉祥物大湾鸡舆情
+2025-11-14 09:34:36.295 | ERROR | 流式请求失败: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+2025-11-14 09:34:36.296 | ERROR | 生成报告结构失败: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7fc5403f11c0>
+    └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+  File "/usr/local/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7fc5403f0ea0>
+    └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+  File "/usr/local/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+    │    │        │    └ ('query', '第十五届全国运动会吉祥物大湾鸡舆情')
+    │    │        └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+    │    └ <function execute_engine_search at 0x7fc53bb53600>
+    └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+  File "/app/app.py", line 1491, in execute_engine_search
+    final_report = agent.research(query, save_report=True)
+                   │     │        └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                   │     └ <function DeepSearchAgent.research at 0x7fc519fbb380>
+                   └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+  File "/app/QueryEngine/agent.py", line 158, in research
+    self._generate_report_structure(query)
+    │    │                          └ '第十五届全国运动会吉祥物大湾鸡舆情'
+    │    └ <function DeepSearchAgent._generate_report_structure at 0x7fc519fbb420>
+    └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+  File "/app/QueryEngine/agent.py", line 190, in _generate_report_structure
+    self.state = report_structure_node.mutate_state(state=self.state)
+    │    │       │                     │                  │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.641697',...
+    │    │       │                     │                  └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+    │    │       │                     └ <function ReportStructureNode.mutate_state at 0x7fc5390dbce0>
+    │    │       └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+    │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.641697',...
+    └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 185, in mutate_state
+    report_structure = self.run(input_data, **kwargs)
+                       │    │   │             └ {}
+                       │    │   └ None
+                       │    └ <function ReportStructureNode.run at 0x7fc5390d8860>
+                       └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+> File "/app/QueryEngine/nodes/report_structure_node.py", line 55, in run
+    response = self.llm_client.stream_invoke_to_string(SYSTEM_PROMPT_REPORT_STRUCTURE, self.query)
+               │    │          │                       │                               │    └ '第十五届全国运动会吉祥物大湾鸡舆情'
+               │    │          │                       │                               └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+               │    │          │                       └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多五个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+               │    │          └ <function LLMClient.stream_invoke_to_string at 0x7fc53907ca40>
+               │    └ <QueryEngine.llms.base.LLMClient object at 0x7fc5391413d0>
+               └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+  File "/app/QueryEngine/llms/base.py", line 164, in stream_invoke_to_string
+    for chunk in self.stream_invoke(system_prompt, user_prompt, **kwargs):
+                 │    │             │              │              └ {}
+                 │    │             │              └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                 │    │             └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多五个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+                 │    └ <function LLMClient.stream_invoke at 0x7fc53907ccc0>
+                 └ <QueryEngine.llms.base.LLMClient object at 0x7fc5391413d0>
+  File "/app/QueryEngine/llms/base.py", line 148, in stream_invoke
+    raise e
+  File "/app/QueryEngine/llms/base.py", line 134, in stream_invoke
+    stream = self.client.chat.completions.create(
+             │    │      │    │           └ <function Completions.create at 0x7fc5193eafc0>
+             │    │      │    └ <openai.resources.chat.completions.completions.Completions object at 0x7fc518fe9d10>
+             │    │      └ <openai.resources.chat.chat.Chat object at 0x7fc518fe8150>
+             │    └ <openai.OpenAI object at 0x7fc5390ddad0>
+             └ <QueryEngine.llms.base.LLMClient object at 0x7fc5391413d0>
+  File "/usr/local/lib/python3.11/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           │     │       └ {'model': 'glm-4.6', 'messages': [{'role': 'system', 'content': '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多五个段落。\n确保段落的排序合理有...
+           │     └ (<openai.resources.chat.completions.completions.Completions object at 0x7fc518fe9d10>,)
+           └ <function Completions.create at 0x7fc5193eae80>
+  File "/usr/local/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 1156, in create
+    return self._post(
+           │    └ <bound method SyncAPIClient.post of <openai.OpenAI object at 0x7fc5390ddad0>>
+           └ <openai.resources.chat.completions.completions.Completions object at 0x7fc518fe9d10>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+           │    │          │    │       │        │            │                  └ openai.Stream[openai.types.chat.chat_completion_chunk.ChatCompletionChunk]
+           │    │          │    │       │        │            └ True
+           │    │          │    │       │        └ FinalRequestOptions(method='post', url='/chat/completions', timeout=1800.0, files=None, json_data={'messages': [{'role': 'sys...
+           │    │          │    │       └ <class 'openai.types.chat.chat_completion.ChatCompletion'>
+           │    │          │    └ <function SyncAPIClient.request at 0x7fc53bcc8b80>
+           │    │          └ <openai.OpenAI object at 0x7fc5390ddad0>
+           │    └ ~ResponseT
+           └ <function cast at 0x7fc54017a7a0>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+          │    └ <function BaseClient._make_status_error_from_response at 0x7fc53bd272e0>
+          └ <openai.OpenAI object at 0x7fc5390ddad0>
+openai.AuthenticationError: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+2025-11-14 09:34:36.304 | ERROR | 状态更新失败: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7fc5403f11c0>
+    └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+  File "/usr/local/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7fc5403f0ea0>
+    └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+  File "/usr/local/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+    │    │        │    └ ('query', '第十五届全国运动会吉祥物大湾鸡舆情')
+    │    │        └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+    │    └ <function execute_engine_search at 0x7fc53bb53600>
+    └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+  File "/app/app.py", line 1491, in execute_engine_search
+    final_report = agent.research(query, save_report=True)
+                   │     │        └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                   │     └ <function DeepSearchAgent.research at 0x7fc519fbb380>
+                   └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+  File "/app/QueryEngine/agent.py", line 158, in research
+    self._generate_report_structure(query)
+    │    │                          └ '第十五届全国运动会吉祥物大湾鸡舆情'
+    │    └ <function DeepSearchAgent._generate_report_structure at 0x7fc519fbb420>
+    └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+  File "/app/QueryEngine/agent.py", line 190, in _generate_report_structure
+    self.state = report_structure_node.mutate_state(state=self.state)
+    │    │       │                     │                  │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.641697',...
+    │    │       │                     │                  └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+    │    │       │                     └ <function ReportStructureNode.mutate_state at 0x7fc5390dbce0>
+    │    │       └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+    │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.641697',...
+    └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+> File "/app/QueryEngine/nodes/report_structure_node.py", line 185, in mutate_state
+    report_structure = self.run(input_data, **kwargs)
+                       │    │   │             └ {}
+                       │    │   └ None
+                       │    └ <function ReportStructureNode.run at 0x7fc5390d8860>
+                       └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 65, in run
+    raise e
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 55, in run
+    response = self.llm_client.stream_invoke_to_string(SYSTEM_PROMPT_REPORT_STRUCTURE, self.query)
+               │    │          │                       │                               │    └ '第十五届全国运动会吉祥物大湾鸡舆情'
+               │    │          │                       │                               └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+               │    │          │                       └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多五个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+               │    │          └ <function LLMClient.stream_invoke_to_string at 0x7fc53907ca40>
+               │    └ <QueryEngine.llms.base.LLMClient object at 0x7fc5391413d0>
+               └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+  File "/app/QueryEngine/llms/base.py", line 164, in stream_invoke_to_string
+    for chunk in self.stream_invoke(system_prompt, user_prompt, **kwargs):
+                 │    │             │              │              └ {}
+                 │    │             │              └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                 │    │             └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多五个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+                 │    └ <function LLMClient.stream_invoke at 0x7fc53907ccc0>
+                 └ <QueryEngine.llms.base.LLMClient object at 0x7fc5391413d0>
+  File "/app/QueryEngine/llms/base.py", line 148, in stream_invoke
+    raise e
+  File "/app/QueryEngine/llms/base.py", line 134, in stream_invoke
+    stream = self.client.chat.completions.create(
+             │    │      │    │           └ <function Completions.create at 0x7fc5193eafc0>
+             │    │      │    └ <openai.resources.chat.completions.completions.Completions object at 0x7fc518fe9d10>
+             │    │      └ <openai.resources.chat.chat.Chat object at 0x7fc518fe8150>
+             │    └ <openai.OpenAI object at 0x7fc5390ddad0>
+             └ <QueryEngine.llms.base.LLMClient object at 0x7fc5391413d0>
+  File "/usr/local/lib/python3.11/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           │     │       └ {'model': 'glm-4.6', 'messages': [{'role': 'system', 'content': '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多五个段落。\n确保段落的排序合理有...
+           │     └ (<openai.resources.chat.completions.completions.Completions object at 0x7fc518fe9d10>,)
+           └ <function Completions.create at 0x7fc5193eae80>
+  File "/usr/local/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 1156, in create
+    return self._post(
+           │    └ <bound method SyncAPIClient.post of <openai.OpenAI object at 0x7fc5390ddad0>>
+           └ <openai.resources.chat.completions.completions.Completions object at 0x7fc518fe9d10>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+           │    │          │    │       │        │            │                  └ openai.Stream[openai.types.chat.chat_completion_chunk.ChatCompletionChunk]
+           │    │          │    │       │        │            └ True
+           │    │          │    │       │        └ FinalRequestOptions(method='post', url='/chat/completions', timeout=1800.0, files=None, json_data={'messages': [{'role': 'sys...
+           │    │          │    │       └ <class 'openai.types.chat.chat_completion.ChatCompletion'>
+           │    │          │    └ <function SyncAPIClient.request at 0x7fc53bcc8b80>
+           │    │          └ <openai.OpenAI object at 0x7fc5390ddad0>
+           │    └ ~ResponseT
+           └ <function cast at 0x7fc54017a7a0>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+          │    └ <function BaseClient._make_status_error_from_response at 0x7fc53bd272e0>
+          └ <openai.OpenAI object at 0x7fc5390ddad0>
+openai.AuthenticationError: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+2025-11-14 09:34:36.310 | ERROR | 研究过程中发生错误: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}} 
+错误堆栈: Traceback (most recent call last):
+  File "/app/QueryEngine/agent.py", line 158, in research
+    self._generate_report_structure(query)
+  File "/app/QueryEngine/agent.py", line 190, in _generate_report_structure
+    self.state = report_structure_node.mutate_state(state=self.state)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 204, in mutate_state
+    raise e
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 185, in mutate_state
+    report_structure = self.run(input_data, **kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 65, in run
+    raise e
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 55, in run
+    response = self.llm_client.stream_invoke_to_string(SYSTEM_PROMPT_REPORT_STRUCTURE, self.query)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/QueryEngine/llms/base.py", line 164, in stream_invoke_to_string
+    for chunk in self.stream_invoke(system_prompt, user_prompt, **kwargs):
+  File "/app/QueryEngine/llms/base.py", line 148, in stream_invoke
+    raise e
+  File "/app/QueryEngine/llms/base.py", line 134, in stream_invoke
+    stream = self.client.chat.completions.create(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 1156, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+2025-11-14 09:34:36.311 | ERROR | [query] 搜索执行失败: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7fc5403f11c0>
+    └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+  File "/usr/local/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7fc5403f0ea0>
+    └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+  File "/usr/local/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+    │    │        │    └ ('query', '第十五届全国运动会吉祥物大湾鸡舆情')
+    │    │        └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+    │    └ <function execute_engine_search at 0x7fc53bb53600>
+    └ <Thread(Thread-18983 (execute_engine_search), started daemon 140485051373248)>
+> File "/app/app.py", line 1491, in execute_engine_search
+    final_report = agent.research(query, save_report=True)
+                   │     │        └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                   │     └ <function DeepSearchAgent.research at 0x7fc519fbb380>
+                   └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+  File "/app/QueryEngine/agent.py", line 180, in research
+    raise e
+  File "/app/QueryEngine/agent.py", line 158, in research
+    self._generate_report_structure(query)
+    │    │                          └ '第十五届全国运动会吉祥物大湾鸡舆情'
+    │    └ <function DeepSearchAgent._generate_report_structure at 0x7fc519fbb420>
+    └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+  File "/app/QueryEngine/agent.py", line 190, in _generate_report_structure
+    self.state = report_structure_node.mutate_state(state=self.state)
+    │    │       │                     │                  │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.641697',...
+    │    │       │                     │                  └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+    │    │       │                     └ <function ReportStructureNode.mutate_state at 0x7fc5390dbce0>
+    │    │       └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+    │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.641697',...
+    └ <QueryEngine.agent.DeepSearchAgent object at 0x7fc539141ed0>
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 204, in mutate_state
+    raise e
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 185, in mutate_state
+    report_structure = self.run(input_data, **kwargs)
+                       │    │   │             └ {}
+                       │    │   └ None
+                       │    └ <function ReportStructureNode.run at 0x7fc5390d8860>
+                       └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 65, in run
+    raise e
+  File "/app/QueryEngine/nodes/report_structure_node.py", line 55, in run
+    response = self.llm_client.stream_invoke_to_string(SYSTEM_PROMPT_REPORT_STRUCTURE, self.query)
+               │    │          │                       │                               │    └ '第十五届全国运动会吉祥物大湾鸡舆情'
+               │    │          │                       │                               └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+               │    │          │                       └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多五个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+               │    │          └ <function LLMClient.stream_invoke_to_string at 0x7fc53907ca40>
+               │    └ <QueryEngine.llms.base.LLMClient object at 0x7fc5391413d0>
+               └ <QueryEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc539143c50>
+  File "/app/QueryEngine/llms/base.py", line 164, in stream_invoke_to_string
+    for chunk in self.stream_invoke(system_prompt, user_prompt, **kwargs):
+                 │    │             │              │              └ {}
+                 │    │             │              └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                 │    │             └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多五个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+                 │    └ <function LLMClient.stream_invoke at 0x7fc53907ccc0>
+                 └ <QueryEngine.llms.base.LLMClient object at 0x7fc5391413d0>
+  File "/app/QueryEngine/llms/base.py", line 148, in stream_invoke
+    raise e
+  File "/app/QueryEngine/llms/base.py", line 134, in stream_invoke
+    stream = self.client.chat.completions.create(
+             │    │      │    │           └ <function Completions.create at 0x7fc5193eafc0>
+             │    │      │    └ <openai.resources.chat.completions.completions.Completions object at 0x7fc518fe9d10>
+             │    │      └ <openai.resources.chat.chat.Chat object at 0x7fc518fe8150>
+             │    └ <openai.OpenAI object at 0x7fc5390ddad0>
+             └ <QueryEngine.llms.base.LLMClient object at 0x7fc5391413d0>
+  File "/usr/local/lib/python3.11/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           │     │       └ {'model': 'glm-4.6', 'messages': [{'role': 'system', 'content': '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多五个段落。\n确保段落的排序合理有...
+           │     └ (<openai.resources.chat.completions.completions.Completions object at 0x7fc518fe9d10>,)
+           └ <function Completions.create at 0x7fc5193eae80>
+  File "/usr/local/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 1156, in create
+    return self._post(
+           │    └ <bound method SyncAPIClient.post of <openai.OpenAI object at 0x7fc5390ddad0>>
+           └ <openai.resources.chat.completions.completions.Completions object at 0x7fc518fe9d10>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+           │    │          │    │       │        │            │                  └ openai.Stream[openai.types.chat.chat_completion_chunk.ChatCompletionChunk]
+           │    │          │    │       │        │            └ True
+           │    │          │    │       │        └ FinalRequestOptions(method='post', url='/chat/completions', timeout=1800.0, files=None, json_data={'messages': [{'role': 'sys...
+           │    │          │    │       └ <class 'openai.types.chat.chat_completion.ChatCompletion'>
+           │    │          │    └ <function SyncAPIClient.request at 0x7fc53bcc8b80>
+           │    │          └ <openai.OpenAI object at 0x7fc5390ddad0>
+           │    └ ~ResponseT
+           └ <function cast at 0x7fc54017a7a0>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+          │    └ <function BaseClient._make_status_error_from_response at 0x7fc53bd272e0>
+          └ <openai.OpenAI object at 0x7fc5390ddad0>
+openai.AuthenticationError: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+2025-11-14 09:34:36.591 | ERROR | 流式请求失败: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+2025-11-14 09:34:36.591 | ERROR | 生成报告结构失败: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7fc5403f11c0>
+    └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+  File "/usr/local/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7fc5403f0ea0>
+    └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+  File "/usr/local/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+    │    │        │    └ ('media', '第十五届全国运动会吉祥物大湾鸡舆情')
+    │    │        └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+    │    └ <function execute_engine_search at 0x7fc53bb53600>
+    └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+  File "/app/app.py", line 1491, in execute_engine_search
+    final_report = agent.research(query, save_report=True)
+                   │     │        └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                   │     └ <function DeepSearchAgent.research at 0x7fc519f149a0>
+                   └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+  File "/app/MediaEngine/agent.py", line 150, in research
+    self._generate_report_structure(query)
+    │    │                          └ '第十五届全国运动会吉祥物大湾鸡舆情'
+    │    └ <function DeepSearchAgent._generate_report_structure at 0x7fc519f14a40>
+    └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+  File "/app/MediaEngine/agent.py", line 182, in _generate_report_structure
+    self.state = report_structure_node.mutate_state(state=self.state)
+    │    │       │                     │                  │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.587226',...
+    │    │       │                     │                  └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+    │    │       │                     └ <function ReportStructureNode.mutate_state at 0x7fc53910a480>
+    │    │       └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+    │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.587226',...
+    └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 185, in mutate_state
+    report_structure = self.run(input_data, **kwargs)
+                       │    │   │             └ {}
+                       │    │   └ None
+                       │    └ <function ReportStructureNode.run at 0x7fc5390baca0>
+                       └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+> File "/app/MediaEngine/nodes/report_structure_node.py", line 55, in run
+    response = self.llm_client.stream_invoke_to_string(SYSTEM_PROMPT_REPORT_STRUCTURE, self.query)
+               │    │          │                       │                               │    └ '第十五届全国运动会吉祥物大湾鸡舆情'
+               │    │          │                       │                               └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+               │    │          │                       └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多5个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+               │    │          └ <function LLMClient.stream_invoke_to_string at 0x7fc53907cf40>
+               │    └ <MediaEngine.llms.base.LLMClient object at 0x7fc53911d850>
+               └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+  File "/app/MediaEngine/llms/base.py", line 167, in stream_invoke_to_string
+    for chunk in self.stream_invoke(system_prompt, user_prompt, **kwargs):
+                 │    │             │              │              └ {}
+                 │    │             │              └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                 │    │             └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多5个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+                 │    └ <function LLMClient.stream_invoke at 0x7fc53907d1c0>
+                 └ <MediaEngine.llms.base.LLMClient object at 0x7fc53911d850>
+  File "/app/MediaEngine/llms/base.py", line 151, in stream_invoke
+    raise e
+  File "/app/MediaEngine/llms/base.py", line 137, in stream_invoke
+    stream = self.client.chat.completions.create(
+             │    │      │    │           └ <function Completions.create at 0x7fc5193eafc0>
+             │    │      │    └ <openai.resources.chat.completions.completions.Completions object at 0x7fc53ba53e10>
+             │    │      └ <openai.resources.chat.chat.Chat object at 0x7fc53b9ac850>
+             │    └ <openai.OpenAI object at 0x7fc53b9bd950>
+             └ <MediaEngine.llms.base.LLMClient object at 0x7fc53911d850>
+  File "/usr/local/lib/python3.11/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           │     │       └ {'model': 'glm-4.6', 'messages': [{'role': 'system', 'content': '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多5个段落。\n确保段落的排序合理有...
+           │     └ (<openai.resources.chat.completions.completions.Completions object at 0x7fc53ba53e10>,)
+           └ <function Completions.create at 0x7fc5193eae80>
+  File "/usr/local/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 1156, in create
+    return self._post(
+           │    └ <bound method SyncAPIClient.post of <openai.OpenAI object at 0x7fc53b9bd950>>
+           └ <openai.resources.chat.completions.completions.Completions object at 0x7fc53ba53e10>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+           │    │          │    │       │        │            │                  └ openai.Stream[openai.types.chat.chat_completion_chunk.ChatCompletionChunk]
+           │    │          │    │       │        │            └ True
+           │    │          │    │       │        └ FinalRequestOptions(method='post', url='/chat/completions', timeout=1800.0, files=None, json_data={'messages': [{'role': 'sys...
+           │    │          │    │       └ <class 'openai.types.chat.chat_completion.ChatCompletion'>
+           │    │          │    └ <function SyncAPIClient.request at 0x7fc53bcc8b80>
+           │    │          └ <openai.OpenAI object at 0x7fc53b9bd950>
+           │    └ ~ResponseT
+           └ <function cast at 0x7fc54017a7a0>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+          │    └ <function BaseClient._make_status_error_from_response at 0x7fc53bd272e0>
+          └ <openai.OpenAI object at 0x7fc53b9bd950>
+openai.AuthenticationError: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+2025-11-14 09:34:36.596 | ERROR | 状态更新失败: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7fc5403f11c0>
+    └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+  File "/usr/local/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7fc5403f0ea0>
+    └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+  File "/usr/local/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+    │    │        │    └ ('media', '第十五届全国运动会吉祥物大湾鸡舆情')
+    │    │        └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+    │    └ <function execute_engine_search at 0x7fc53bb53600>
+    └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+  File "/app/app.py", line 1491, in execute_engine_search
+    final_report = agent.research(query, save_report=True)
+                   │     │        └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                   │     └ <function DeepSearchAgent.research at 0x7fc519f149a0>
+                   └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+  File "/app/MediaEngine/agent.py", line 150, in research
+    self._generate_report_structure(query)
+    │    │                          └ '第十五届全国运动会吉祥物大湾鸡舆情'
+    │    └ <function DeepSearchAgent._generate_report_structure at 0x7fc519f14a40>
+    └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+  File "/app/MediaEngine/agent.py", line 182, in _generate_report_structure
+    self.state = report_structure_node.mutate_state(state=self.state)
+    │    │       │                     │                  │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.587226',...
+    │    │       │                     │                  └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+    │    │       │                     └ <function ReportStructureNode.mutate_state at 0x7fc53910a480>
+    │    │       └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+    │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.587226',...
+    └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+> File "/app/MediaEngine/nodes/report_structure_node.py", line 185, in mutate_state
+    report_structure = self.run(input_data, **kwargs)
+                       │    │   │             └ {}
+                       │    │   └ None
+                       │    └ <function ReportStructureNode.run at 0x7fc5390baca0>
+                       └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 65, in run
+    raise e
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 55, in run
+    response = self.llm_client.stream_invoke_to_string(SYSTEM_PROMPT_REPORT_STRUCTURE, self.query)
+               │    │          │                       │                               │    └ '第十五届全国运动会吉祥物大湾鸡舆情'
+               │    │          │                       │                               └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+               │    │          │                       └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多5个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+               │    │          └ <function LLMClient.stream_invoke_to_string at 0x7fc53907cf40>
+               │    └ <MediaEngine.llms.base.LLMClient object at 0x7fc53911d850>
+               └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+  File "/app/MediaEngine/llms/base.py", line 167, in stream_invoke_to_string
+    for chunk in self.stream_invoke(system_prompt, user_prompt, **kwargs):
+                 │    │             │              │              └ {}
+                 │    │             │              └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                 │    │             └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多5个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+                 │    └ <function LLMClient.stream_invoke at 0x7fc53907d1c0>
+                 └ <MediaEngine.llms.base.LLMClient object at 0x7fc53911d850>
+  File "/app/MediaEngine/llms/base.py", line 151, in stream_invoke
+    raise e
+  File "/app/MediaEngine/llms/base.py", line 137, in stream_invoke
+    stream = self.client.chat.completions.create(
+             │    │      │    │           └ <function Completions.create at 0x7fc5193eafc0>
+             │    │      │    └ <openai.resources.chat.completions.completions.Completions object at 0x7fc53ba53e10>
+             │    │      └ <openai.resources.chat.chat.Chat object at 0x7fc53b9ac850>
+             │    └ <openai.OpenAI object at 0x7fc53b9bd950>
+             └ <MediaEngine.llms.base.LLMClient object at 0x7fc53911d850>
+  File "/usr/local/lib/python3.11/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           │     │       └ {'model': 'glm-4.6', 'messages': [{'role': 'system', 'content': '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多5个段落。\n确保段落的排序合理有...
+           │     └ (<openai.resources.chat.completions.completions.Completions object at 0x7fc53ba53e10>,)
+           └ <function Completions.create at 0x7fc5193eae80>
+  File "/usr/local/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 1156, in create
+    return self._post(
+           │    └ <bound method SyncAPIClient.post of <openai.OpenAI object at 0x7fc53b9bd950>>
+           └ <openai.resources.chat.completions.completions.Completions object at 0x7fc53ba53e10>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+           │    │          │    │       │        │            │                  └ openai.Stream[openai.types.chat.chat_completion_chunk.ChatCompletionChunk]
+           │    │          │    │       │        │            └ True
+           │    │          │    │       │        └ FinalRequestOptions(method='post', url='/chat/completions', timeout=1800.0, files=None, json_data={'messages': [{'role': 'sys...
+           │    │          │    │       └ <class 'openai.types.chat.chat_completion.ChatCompletion'>
+           │    │          │    └ <function SyncAPIClient.request at 0x7fc53bcc8b80>
+           │    │          └ <openai.OpenAI object at 0x7fc53b9bd950>
+           │    └ ~ResponseT
+           └ <function cast at 0x7fc54017a7a0>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+          │    └ <function BaseClient._make_status_error_from_response at 0x7fc53bd272e0>
+          └ <openai.OpenAI object at 0x7fc53b9bd950>
+openai.AuthenticationError: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+2025-11-14 09:34:36.602 | ERROR | 研究过程中发生错误: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}} 
+错误堆栈: Traceback (most recent call last):
+  File "/app/MediaEngine/agent.py", line 150, in research
+    self._generate_report_structure(query)
+  File "/app/MediaEngine/agent.py", line 182, in _generate_report_structure
+    self.state = report_structure_node.mutate_state(state=self.state)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 204, in mutate_state
+    raise e
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 185, in mutate_state
+    report_structure = self.run(input_data, **kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 65, in run
+    raise e
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 55, in run
+    response = self.llm_client.stream_invoke_to_string(SYSTEM_PROMPT_REPORT_STRUCTURE, self.query)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/MediaEngine/llms/base.py", line 167, in stream_invoke_to_string
+    for chunk in self.stream_invoke(system_prompt, user_prompt, **kwargs):
+  File "/app/MediaEngine/llms/base.py", line 151, in stream_invoke
+    raise e
+  File "/app/MediaEngine/llms/base.py", line 137, in stream_invoke
+    stream = self.client.chat.completions.create(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 1156, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.AuthenticationError: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+2025-11-14 09:34:36.603 | ERROR | [media] 搜索执行失败: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7fc5403f11c0>
+    └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+  File "/usr/local/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7fc5403f0ea0>
+    └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+  File "/usr/local/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+    │    │        │    └ ('media', '第十五届全国运动会吉祥物大湾鸡舆情')
+    │    │        └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+    │    └ <function execute_engine_search at 0x7fc53bb53600>
+    └ <Thread(Thread-18982 (execute_engine_search), started daemon 140485076551360)>
+> File "/app/app.py", line 1491, in execute_engine_search
+    final_report = agent.research(query, save_report=True)
+                   │     │        └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                   │     └ <function DeepSearchAgent.research at 0x7fc519f149a0>
+                   └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+  File "/app/MediaEngine/agent.py", line 172, in research
+    raise e
+  File "/app/MediaEngine/agent.py", line 150, in research
+    self._generate_report_structure(query)
+    │    │                          └ '第十五届全国运动会吉祥物大湾鸡舆情'
+    │    └ <function DeepSearchAgent._generate_report_structure at 0x7fc519f14a40>
+    └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+  File "/app/MediaEngine/agent.py", line 182, in _generate_report_structure
+    self.state = report_structure_node.mutate_state(state=self.state)
+    │    │       │                     │                  │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.587226',...
+    │    │       │                     │                  └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+    │    │       │                     └ <function ReportStructureNode.mutate_state at 0x7fc53910a480>
+    │    │       └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+    │    └ State(query='', report_title='', paragraphs=[], final_report='', is_completed=False, created_at='2025-11-14T09:34:35.587226',...
+    └ <MediaEngine.agent.DeepSearchAgent object at 0x7fc53ba16c90>
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 204, in mutate_state
+    raise e
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 185, in mutate_state
+    report_structure = self.run(input_data, **kwargs)
+                       │    │   │             └ {}
+                       │    │   └ None
+                       │    └ <function ReportStructureNode.run at 0x7fc5390baca0>
+                       └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 65, in run
+    raise e
+  File "/app/MediaEngine/nodes/report_structure_node.py", line 55, in run
+    response = self.llm_client.stream_invoke_to_string(SYSTEM_PROMPT_REPORT_STRUCTURE, self.query)
+               │    │          │                       │                               │    └ '第十五届全国运动会吉祥物大湾鸡舆情'
+               │    │          │                       │                               └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+               │    │          │                       └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多5个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+               │    │          └ <function LLMClient.stream_invoke_to_string at 0x7fc53907cf40>
+               │    └ <MediaEngine.llms.base.LLMClient object at 0x7fc53911d850>
+               └ <MediaEngine.nodes.report_structure_node.ReportStructureNode object at 0x7fc53b9a5610>
+  File "/app/MediaEngine/llms/base.py", line 167, in stream_invoke_to_string
+    for chunk in self.stream_invoke(system_prompt, user_prompt, **kwargs):
+                 │    │             │              │              └ {}
+                 │    │             │              └ '第十五届全国运动会吉祥物大湾鸡舆情'
+                 │    │             └ '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多5个段落。\n确保段落的排序合理有序。\n一旦大纲创建完成，你将获得工具来分别为每个部分搜索网络并进行反思。\n请按照以下JSON模式定义格式化输出：\n\n<O...
+                 │    └ <function LLMClient.stream_invoke at 0x7fc53907d1c0>
+                 └ <MediaEngine.llms.base.LLMClient object at 0x7fc53911d850>
+  File "/app/MediaEngine/llms/base.py", line 151, in stream_invoke
+    raise e
+  File "/app/MediaEngine/llms/base.py", line 137, in stream_invoke
+    stream = self.client.chat.completions.create(
+             │    │      │    │           └ <function Completions.create at 0x7fc5193eafc0>
+             │    │      │    └ <openai.resources.chat.completions.completions.Completions object at 0x7fc53ba53e10>
+             │    │      └ <openai.resources.chat.chat.Chat object at 0x7fc53b9ac850>
+             │    └ <openai.OpenAI object at 0x7fc53b9bd950>
+             └ <MediaEngine.llms.base.LLMClient object at 0x7fc53911d850>
+  File "/usr/local/lib/python3.11/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           │     │       └ {'model': 'glm-4.6', 'messages': [{'role': 'system', 'content': '\n你是一位深度研究助手。给定一个查询，你需要规划一个报告的结构和其中包含的段落。最多5个段落。\n确保段落的排序合理有...
+           │     └ (<openai.resources.chat.completions.completions.Completions object at 0x7fc53ba53e10>,)
+           └ <function Completions.create at 0x7fc5193eae80>
+  File "/usr/local/lib/python3.11/site-packages/openai/resources/chat/completions/completions.py", line 1156, in create
+    return self._post(
+           │    └ <bound method SyncAPIClient.post of <openai.OpenAI object at 0x7fc53b9bd950>>
+           └ <openai.resources.chat.completions.completions.Completions object at 0x7fc53ba53e10>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+           │    │          │    │       │        │            │                  └ openai.Stream[openai.types.chat.chat_completion_chunk.ChatCompletionChunk]
+           │    │          │    │       │        │            └ True
+           │    │          │    │       │        └ FinalRequestOptions(method='post', url='/chat/completions', timeout=1800.0, files=None, json_data={'messages': [{'role': 'sys...
+           │    │          │    │       └ <class 'openai.types.chat.chat_completion.ChatCompletion'>
+           │    │          │    └ <function SyncAPIClient.request at 0x7fc53bcc8b80>
+           │    │          └ <openai.OpenAI object at 0x7fc53b9bd950>
+           │    └ ~ResponseT
+           └ <function cast at 0x7fc54017a7a0>
+  File "/usr/local/lib/python3.11/site-packages/openai/_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+          │    └ <function BaseClient._make_status_error_from_response at 0x7fc53bd272e0>
+          └ <openai.OpenAI object at 0x7fc53b9bd950>
+openai.AuthenticationError: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}
+[09:34:36] ❌ 搜索执行失败: Error code: 401 - {'error': {'code': '401', 'message': 'token expired or incorrect'}}

@@ -1,0 +1,42 @@
+[01:54:51] 启动 insight 应用...
+[01:54:55] You can now view your Streamlit app in your browser.
+[01:54:55] Network URL: [已隐藏]
+[01:54:55] External URL: [已隐藏]
+2025-11-14 09:34:35.587 | INFO | Meida Agent已初始化
+2025-11-14 09:34:35.590 | INFO | 使用LLM: {'provider': 'openai-compatible', 'model': 'glm-4.6', 'api_base': 'https://api.z.ai/api/paas/v4/'}
+2025-11-14 09:34:35.590 | INFO | 搜索工具集: BochaMultimodalSearch (支持5种多模态搜索工具)
+2025-11-14 09:34:35.593 | INFO | [media] 开始执行搜索: 第十五届全国运动会吉祥物大湾鸡舆情
+[09:34:35] ❌ 搜索执行失败: expected an indented block after 'try' statement on line 96 (db.py, line 97)
+2025-11-14 09:34:35.593 | INFO | 
+============================================================
+2025-11-14 09:34:35.586 | ERROR | [insight] 搜索执行失败: expected an indented block after 'try' statement on line 96 (db.py, line 97)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/threading.py", line 1002, in _bootstrap
+    self._bootstrap_inner()
+    │    └ <function Thread._bootstrap_inner at 0x7fc5403f11c0>
+    └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+  File "/usr/local/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+    │    └ <function Thread.run at 0x7fc5403f0ea0>
+    └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+  File "/usr/local/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {}
+    │    │        │    │        └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+    │    │        │    └ ('insight', '第十五届全国运动会吉祥物大湾鸡舆情')
+    │    │        └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+    │    └ <function execute_engine_search at 0x7fc53bb53600>
+    └ <Thread(Thread-18981 (execute_engine_search), started daemon 140484555044544)>
+> File "/app/app.py", line 1446, in execute_engine_search
+    from InsightEngine import DeepSearchAgent, Settings as EngineSettings
+  File "/app/InsightEngine/__init__.py", line 6, in <module>
+    from .agent import DeepSearchAgent, create_agent
+  File "/app/InsightEngine/agent.py", line 23, in <module>
+    from .tools import MediaCrawlerDB, DBResponse, keyword_optimizer, multilingual_sentiment_analyzer
+  File "/app/InsightEngine/tools/__init__.py", line 6, in <module>
+    from .search import (
+  File "/app/InsightEngine/tools/search.py", line 32, in <module>
+    from ..utils.db import fetch_all
+  File "/app/InsightEngine/utils/db.py", line 97
+    async with engine.connect() as conn:
+IndentationError: expected an indented block after 'try' statement on line 96

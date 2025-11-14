@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ReportDialog } from './ReportDialog';
+import { TasksHistoryDialog } from './TasksHistoryDialog';
+import { TaskLogViewer } from './TaskLogViewer';
 
 interface Engine {
   status: 'stopped' | 'starting' | 'running';
@@ -13,13 +15,17 @@ interface Engine {
 
 interface SearchSectionProps {
   onSearch: (query: string) => void;
+  onNewTask?: () => void;
   allEnginesReady?: boolean;
   engineStatuses?: Record<string, Engine>;
 }
 
-export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuses = {} }: SearchSectionProps) => {
+export const SearchSection = ({ onSearch, onNewTask, allEnginesReady = false, engineStatuses = {} }: SearchSectionProps) => {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showLogViewer, setShowLogViewer] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<{ taskId: string; appName: string; query: string } | null>(null);
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -137,7 +143,45 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
       </div>
       
       <div className="flex items-stretch gap-3 max-w-[950px] mx-auto mb-2">
-        {/* 配置按钮已隐藏 */}
+        {/* 历史任务和新任务按钮 */}
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => setShowHistory(true)}
+            className="px-4 py-2 border-2 rounded font-bold transition-all text-sm whitespace-nowrap"
+            style={{
+              borderColor: '#1574FF',
+              color: '#1574FF',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#e6f0ff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffffff';
+            }}
+          >
+            📋 历史任务
+          </button>
+          <button
+            onClick={async () => {
+              if (onNewTask) {
+                await onNewTask();
+              }
+            }}
+            className="px-4 py-2 border-2 rounded font-bold transition-all text-sm whitespace-nowrap"
+            style={{
+              borderColor: '#10b981',
+              color: '#10b981',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#d1fae5';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffffff';
+            }}
+          >
+            ✨ 新任务
+          </button>
+        </div>
         
         <div className="flex flex-1 border-2" style={{ borderColor: '#1574FF' }}>
           <Input
@@ -208,6 +252,31 @@ export const SearchSection = ({ onSearch, allEnginesReady = false, engineStatuse
           </ReportDialog>
         </div>
       </div>
+
+      {/* 历史任务对话框 */}
+      <TasksHistoryDialog
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        onViewLog={(taskId, appName, query) => {
+          setSelectedTask({ taskId, appName, query });
+          setShowLogViewer(true);
+          setShowHistory(false);
+        }}
+      />
+
+      {/* 任务日志查看器 */}
+      {selectedTask && (
+        <TaskLogViewer
+          isOpen={showLogViewer}
+          onClose={() => {
+            setShowLogViewer(false);
+            setSelectedTask(null);
+          }}
+          taskId={selectedTask.taskId}
+          appName={selectedTask.appName}
+          taskQuery={selectedTask.query}
+        />
+      )}
     </div>
   );
 };

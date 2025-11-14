@@ -306,6 +306,24 @@ export default function Home() {
       
       <div className="flex flex-col h-screen border-2 overflow-hidden" style={{ borderColor: '#1574FF' }}>
         <SearchSection
+        onNewTask={async () => {
+          // 清空当前任务状态
+          try {
+            await apiClient.clearCurrentTasks();
+            // 清空前端状态
+            setEngines({
+              insight: { status: 'stopped' as EngineStatus, output: '' },
+              media: { status: 'stopped' as EngineStatus, output: '' },
+              query: { status: 'stopped' as EngineStatus, output: '' },
+              report: { status: 'stopped' as EngineStatus, output: '' },
+            });
+            setForumLog('');
+            toast.success('已清空当前任务，可以开始新任务了');
+          } catch (error) {
+            console.error('Failed to clear tasks:', error);
+            toast.error('清空任务失败');
+          }
+        }}
         onSearch={async (query) => {
           if (!allEnginesReady) {
             alert('请等待所有引擎启动完成后再进行搜索');

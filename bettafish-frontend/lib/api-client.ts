@@ -147,6 +147,26 @@ class ApiClient {
   async checkEnginesReady() {
     return this.request<ApiResponse>('/api/report/check');
   }
+
+  // 历史任务管理
+  async getTasksHistory(limit?: number) {
+    const url = limit ? `/api/tasks/history?limit=${limit}` : '/api/tasks/history';
+    return this.request<ApiResponse>(url);
+  }
+
+  async getTaskInfo(taskId: string) {
+    return this.request<ApiResponse>(`/api/tasks/${taskId}`);
+  }
+
+  async getTaskLog(taskId: string, appName: string) {
+    return this.request<ApiResponse>(`/api/tasks/${taskId}/logs/${appName}`);
+  }
+
+  async clearCurrentTasks() {
+    return this.request<ApiResponse>('/api/tasks/clear', {
+      method: 'POST',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

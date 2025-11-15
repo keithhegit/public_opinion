@@ -1,8 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { ReportsDialog } from './ReportsDialog';
-
 interface Engine {
   status: 'stopped' | 'starting' | 'running';
   output: string;
@@ -22,16 +19,14 @@ export const MainContent = ({
   onStopEngine,
 }: MainContentProps) => {
   const currentEngine = engines[activeApp];
-  const [showReportsDialog, setShowReportsDialog] = useState(false);
-  const [reportsEngineType, setReportsEngineType] = useState<'media' | 'query' | 'insight'>('media');
 
   return (
-    <div className="flex-[1.8] border-r-2 border-black bg-white relative">
-      <div className="p-4 border-b-2 border-black bg-white font-bold text-center">
-        {activeApp === 'insight' && 'Insight Engine'}
-        {activeApp === 'media' && 'Media Engine'}
-        {activeApp === 'query' && 'Query Engine'}
-        {activeApp === 'report' && 'Report Engine'}
+    <div className="flex-[1.8] border-r-2 bg-white relative" style={{ borderColor: '#1574FF' }}>
+      <div className="p-4 border-b-2 bg-white font-bold text-center" style={{ borderColor: '#1574FF', color: '#1574FF' }}>
+        {activeApp === 'insight' && '舆情数据库'}
+        {activeApp === 'media' && '媒体爬虫'}
+        {activeApp === 'query' && '热搜分析'}
+        {activeApp === 'report' && '报表分析'}
       </div>
       
       <div className="h-[calc(100%-60px)] relative overflow-hidden">
@@ -59,24 +54,20 @@ export const MainContent = ({
                 </p>
               </div>
             )}
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4">
               <button
                 onClick={() => onStopEngine(activeApp)}
-                className="px-4 py-2 bg-red-600 text-white text-sm font-bold hover:bg-red-700 rounded"
+                className="px-4 py-2 text-white text-sm font-bold rounded transition-all duration-200 active:scale-95"
+                style={{ backgroundColor: '#ef4444' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#dc2626';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ef4444';
+                }}
               >
                 停止 Engine
               </button>
-              {(activeApp === 'media' || activeApp === 'query' || activeApp === 'insight') && (
-                <button
-                  onClick={() => {
-                    setReportsEngineType(activeApp as 'media' | 'query' | 'insight');
-                    setShowReportsDialog(true);
-                  }}
-                  className="px-4 py-2 border-2 border-black bg-white hover:bg-black hover:text-white text-sm font-bold transition-colors"
-                >
-                  下载报告
-                </button>
-              )}
             </div>
           </div>
         ) : (
@@ -90,22 +81,34 @@ export const MainContent = ({
               <button
                 onClick={() => onStartEngine(activeApp)}
                 disabled={currentEngine?.status === 'starting'}
-                className="px-6 py-2 bg-black text-white font-bold hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="px-6 py-2 text-white font-bold disabled:cursor-not-allowed transition-all duration-200 active:scale-95"
+                style={{ 
+                  backgroundColor: currentEngine?.status === 'starting' ? '#9ca3af' : '#1574FF',
+                }}
+                onMouseEnter={(e) => {
+                  if (currentEngine?.status !== 'starting') {
+                    e.currentTarget.style.backgroundColor = '#0d5acc';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentEngine?.status !== 'starting') {
+                    e.currentTarget.style.backgroundColor = '#1574FF';
+                  }
+                }}
               >
-                {currentEngine?.status === 'starting' ? '启动中...' : '启动Engine'}
+                {currentEngine?.status === 'starting' ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    启动中...
+                  </span>
+                ) : (
+                  '启动Engine'
+                )}
               </button>
             </div>
           </div>
         )}
       </div>
-      
-      {/* Reports Dialog */}
-      <ReportsDialog
-        engineType={reportsEngineType}
-        isOpen={showReportsDialog}
-        onClose={() => setShowReportsDialog(false)}
-      />
     </div>
   );
 };
-

@@ -120,3 +120,52 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-in;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+  
+  /* 品牌主色 #1574FF */
+  .brand-primary {
+    color: #1574FF;
+  }
+  
+  .brand-bg {
+    background-color: #1574FF;
+  }
+  
+  .brand-border {
+    border-color: #1574FF;
+  }
+  
+  .brand-hover:hover {
+    background-color: #0d5acc;
+  }
+  
+  .brand-light-bg {
+    background-color: #e6f0ff;
+  }
+}

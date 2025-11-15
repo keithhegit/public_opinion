@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { apiClient } from '@/lib/api-client';
 
 interface Engine {
@@ -30,14 +30,11 @@ export const ConsoleSection = ({
   }, [engines, forumLog]);
 
   const apps = [
-    { name: 'insight', label: 'Insight' },
-    { name: 'media', label: 'Media' },
-    { name: 'query', label: 'Query' },
-    { name: 'report', label: 'Report' },
-    { name: 'forum', label: 'Forum' },
+    { name: 'insight', label: '舆情数据库' },
+    { name: 'media', label: '媒体爬虫' },
+    { name: 'query', label: '热搜分析' },
+    { name: 'report', label: '报表分析' },
   ];
-
-  const [showForumLogModal, setShowForumLogModal] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -57,13 +54,6 @@ export const ConsoleSection = ({
   // 导出日志功能
   const handleExportLog = async (appName: string) => {
     try {
-      if (appName === 'forum') {
-        // Forum Engine 使用专门的下载端点
-        const downloadUrl = apiClient.downloadForumLog();
-        window.open(downloadUrl, '_blank');
-        return;
-      }
-      
       const output = await apiClient.getEngineOutput(appName);
       const logContent = output.data || '';
       
@@ -83,15 +73,10 @@ export const ConsoleSection = ({
     }
   };
 
-  // Forum Engine 日志查看
-  const handleViewForumLog = () => {
-    setShowForumLogModal(true);
-  };
-
   return (
     <div className="flex-[1.2] flex flex-col bg-white min-h-0 overflow-hidden">
       {/* 应用切换按钮和导出按钮 */}
-      <div className="flex border-b-2 border-black">
+      <div className="flex border-b-2" style={{ borderColor: '#1574FF' }}>
         {apps.map((app) => {
           const engine = engines[app.name];
           const isActive = activeApp === app.name;
@@ -105,13 +90,26 @@ export const ConsoleSection = ({
               <button
                 onClick={() => !isLocked && onAppChange(app.name)}
                 disabled={isLocked}
-                className={`flex-1 p-4 border-r-2 border-black font-bold transition-all ${
-                  isActive
-                    ? 'bg-black text-white'
-                    : isLocked
+                className={`flex-1 p-4 border-r-2 font-bold transition-all ${
+                  isLocked
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-white hover:bg-gray-100'
+                    : 'bg-white'
                 }`}
+                style={{
+                  borderColor: '#1574FF',
+                  backgroundColor: isActive ? '#1574FF' : (isLocked ? '#f3f4f6' : '#ffffff'),
+                  color: isActive ? '#ffffff' : (isLocked ? '#9ca3af' : '#1574FF'),
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive && !isLocked) {
+                    e.currentTarget.style.backgroundColor = '#e6f0ff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive && !isLocked) {
+                    e.currentTarget.style.backgroundColor = '#ffffff';
+                  }
+                }}
               >
                 <div className="relative">
                   {app.label}
@@ -124,24 +122,23 @@ export const ConsoleSection = ({
                   )}
                 </div>
               </button>
-              <div className="flex">
-                <button
-                  onClick={() => handleExportLog(app.name)}
-                  className="px-2 py-1 text-xs border-r-2 border-black bg-gray-50 hover:bg-gray-100 text-gray-700"
-                  title={`导出 ${app.label} 日志`}
-                >
-                  导出日志
-                </button>
-                {app.name === 'forum' && (
-                  <button
-                    onClick={handleViewForumLog}
-                    className="px-2 py-1 text-xs border-r-2 border-black bg-gray-50 hover:bg-gray-100 text-gray-700"
-                    title="查看 Forum 日志"
-                  >
-                    查看日志
-                  </button>
-                )}
-              </div>
+              <button
+                onClick={() => handleExportLog(app.name)}
+                className="px-2 py-1 text-xs border-r-2 bg-gray-50 transition-all duration-200"
+                style={{ 
+                  borderColor: '#1574FF',
+                  color: '#1574FF',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e6f0ff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }}
+                title={`导出 ${app.label} 日志`}
+              >
+                导出日志
+              </button>
             </div>
           );
         })}
@@ -150,39 +147,17 @@ export const ConsoleSection = ({
       {/* 控制台输出 */}
       <div
         ref={consoleRef}
-        className="flex-1 p-4 bg-black text-green-400 font-mono text-sm overflow-y-auto"
-        style={{ fontFamily: 'monospace' }}
+        className="flex-1 p-4 font-mono text-sm overflow-y-auto"
+        style={{ 
+          backgroundColor: '#1a1a1a',
+          color: '#10b981',
+          fontFamily: 'monospace',
+        }}
       >
         <pre className="whitespace-pre-wrap break-words">
           {currentOutput || '等待输出...'}
         </pre>
       </div>
-
-      {/* Forum Log Modal */}
-      {showForumLogModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white border-4 border-black w-[90%] max-w-4xl max-h-[90vh] flex flex-col">
-            {/* Header */}
-            <div className="p-4 border-b-4 border-black bg-black text-white flex justify-between items-center">
-              <h2 className="text-lg font-bold">Forum Engine 日志查看</h2>
-              <button
-                onClick={() => setShowForumLogModal(false)}
-                className="text-white hover:text-gray-300 text-2xl font-bold"
-              >
-                ×
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto p-4 bg-black text-green-400 font-mono text-sm">
-              <pre className="whitespace-pre-wrap break-words">
-                {forumLog || '正在加载日志...'}
-              </pre>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-

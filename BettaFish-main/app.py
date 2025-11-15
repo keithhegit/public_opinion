@@ -1769,24 +1769,52 @@ def clear_current_tasks():
         with search_tasks_lock:
             search_tasks.clear()
         
-        # 清空日志文件（保留启动日志）
+        # 清空日志文件（保留启动日志）- 优化性能，避免超时
+        # 使用流式处理，只读取文件的前几行和后几行，避免读取整个大文件
         for app_name in ['insight', 'media', 'query', 'report']:
             log_file_path = LOG_DIR / f"{app_name}.log"
             if log_file_path.exists():
                 try:
+                    # 优化：只读取文件的前1000行和后100行，避免处理超大文件
+                    startup_keywords = ['已启动', '启动成功', 'Engine', 'Streamlit', 'Running on']
+                    startup_lines = []
+                    
+                    # 读取文件的前1000行（通常启动日志在前面）
                     with open(log_file_path, 'r', encoding='utf-8') as f:
-                        lines = f.readlines()
+                        for i, line in enumerate(f):
+                            if i >= 1000:
+                                break
+                            if any(keyword in line for keyword in startup_keywords):
+                                startup_lines.append(line)
                     
-                    # 保留启动相关的日志
-                    startup_lines = [
-                        line for line in lines 
-                        if any(keyword in line for keyword in ['已启动', '启动成功', 'Engine', 'Streamlit', 'Running on'])
-                    ]
+                    # 如果文件很大，也检查最后100行（以防启动日志在后面）
+                    try:
+                        file_size = log_file_path.stat().st_size
+                        if file_size > 100000:  # 如果文件大于100KB，也检查最后100行
+                            with open(log_file_path, 'r', encoding='utf-8') as f:
+                                # 读取最后100行
+                                lines = f.readlines()
+                                for line in lines[-100:]:
+                                    if any(keyword in line for keyword in startup_keywords):
+                                        if line not in startup_lines:  # 避免重复
+                                            startup_lines.append(line)
+                    except Exception:
+                        pass  # 如果读取失败，忽略，只保留前面的启动日志
                     
+                    # 写入保留的启动日志
                     with open(log_file_path, 'w', encoding='utf-8') as f:
                         f.writelines(startup_lines)
+                        
                 except Exception as e:
                     logger.warning(f"清空{app_name}日志失败: {e}")
+                    # 如果清空失败，尝试直接截断文件（保留前100行）
+                    try:
+                        with open(log_file_path, 'r', encoding='utf-8') as f:
+                            lines = f.readlines()[:100]
+                        with open(log_file_path, 'w', encoding='utf-8') as f:
+                            f.writelines(lines)
+                    except Exception:
+                        pass  # 如果还是失败，忽略这个文件的清空
         
         return jsonify({'success': True, 'message': '当前任务状态已清空'})
     except Exception as e:

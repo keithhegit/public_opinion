@@ -14,6 +14,7 @@ import { configRoutes } from './routes/config';
 import { forumRoutes } from './routes/forum';
 import { reportRoutes } from './routes/report';
 import { proxyRoutes } from './routes/proxy';
+import { tasksRoutes } from './routes/tasks';
 
 // 类型定义
 export interface Env {
@@ -75,6 +76,7 @@ app.route('/api/search', searchRoutes);
 app.route('/api/config', configRoutes);
 app.route('/api/forum', forumRoutes);
 app.route('/api/report', reportRoutes);
+app.route('/api/tasks', tasksRoutes);
 app.route('/api', proxyRoutes);
 
 // 404 处理

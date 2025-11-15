@@ -3,7 +3,9 @@
  * 封装所有API调用
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
+// API 基础 URL - 优先使用环境变量（Cloudflare Pages 会注入）
+// 生产环境默认指向 Workers，开发环境可以指向本地
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bettafish-api-prod.keithhe2021.workers.dev';
 
 export interface ApiResponse<T = any> {
   success?: boolean;
@@ -160,6 +162,26 @@ class ApiClient {
   downloadForumLog(): string {
     // 直接返回下载URL，由浏览器处理
     return `${this.baseUrl}/api/forum/log/download`;
+  }
+
+  // 历史任务管理
+  async getTasksHistory(limit?: number) {
+    const url = limit ? `/api/tasks/history?limit=${limit}` : '/api/tasks/history';
+    return this.request<ApiResponse>(url);
+  }
+
+  async getTaskInfo(taskId: string) {
+    return this.request<ApiResponse>(`/api/tasks/${taskId}`);
+  }
+
+  async getTaskLog(taskId: string, appName: string) {
+    return this.request<ApiResponse>(`/api/tasks/${taskId}/logs/${appName}`);
+  }
+
+  async clearCurrentTasks() {
+    return this.request<ApiResponse>('/api/tasks/clear', {
+      method: 'POST',
+    });
   }
 }
 

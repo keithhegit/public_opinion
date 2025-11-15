@@ -157,7 +157,7 @@ class ApiClient {
   }
 
   // Forum Engine 日志下载
-  async downloadForumLog() {
+  downloadForumLog(): string {
     // 直接返回下载URL，由浏览器处理
     return `${this.baseUrl}/api/forum/log/download`;
   }

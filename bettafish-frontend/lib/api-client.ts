@@ -151,7 +151,7 @@ class ApiClient {
     return this.request<ApiResponse>('/api/reports/list');
   }
 
-  async downloadReport(filepath: string) {
+  downloadReport(filepath: string): string {
     // 直接返回下载URL，由浏览器处理
     return `${this.baseUrl}/api/reports/download/${encodeURIComponent(filepath)}`;
   }
